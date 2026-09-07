@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 210 26% 13%;
+    --card: 0 0% 100%;
+    --card-foreground: 210 26% 13%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 26% 13%;
+    --primary: 210 69% 23%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 207 63% 33%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 20% 96%;
+    --accent-foreground: 210 26% 13%;
+    --destructive: 0 73% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 210 69% 23%;
+    --chart-1: 210 69% 23%;
+    --chart-2: 142 72% 36%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 221 83% 53%;
+    --chart-5: 280 65% 60%;
+    --radius: 0.625rem;
+    --font-heading: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-body: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --sidebar-background: 210 69% 23%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 207 63% 33%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 69% 20%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 210 69% 18%;
+    --sidebar-ring: 207 63% 33%;
+  }
+
+  .dark {
+    --background: 210 26% 10%;
+    --foreground: 0 0% 98%;
+    --card: 210 26% 13%;
+    --card-foreground: 0 0% 98%;
+    --popover: 210 26% 13%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 207 63% 33%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 26% 18%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 210 26% 16%;
+    --muted-foreground: 215 16% 57%;
+    --accent: 210 26% 18%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 73% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 210 26% 20%;
+    --input: 210 26% 20%;
+    --ring: 207 63% 33%;
+    --chart-1: 207 63% 33%;
+    --chart-2: 142 72% 36%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 221 83% 53%;
+    --chart-5: 280 65% 60%;
+    --sidebar-background: 210 26% 10%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 207 63% 33%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 26% 15%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 210 26% 18%;
+    --sidebar-ring: 207 63% 33%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body;
+  }
+}
+
+/* World flags marquee — slow scrolling circular banner */
+@keyframes flag-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.flag-marquee {
+  animation: flag-marquee 180s linear infinite;
+}
+.flag-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* HOSTERA design system — all buttons are pill-shaped */
+button,
+a[role="button"],
+input[type="submit"],
+input[type="button"] {
+  border-radius: 9999px !important;
+}

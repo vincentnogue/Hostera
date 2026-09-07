@@ -1,0 +1,48 @@
+{
+  "name": "LostItem",
+  "type": "object",
+  "properties": {
+    "property_id": {
+      "type": "string"
+    },
+    "item_name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "found_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "found_by": {
+      "type": "string"
+    },
+    "guest_name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "found",
+        "stored",
+        "claimed",
+        "returned",
+        "donated",
+        "disposed"
+      ],
+      "default": "found"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "property_id",
+    "item_name",
+    "found_date"
+  ]
+}

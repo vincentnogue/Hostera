@@ -1,0 +1,71 @@
+{
+  "name": "PlatformSubscription",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string"
+    },
+    "organization_name": {
+      "type": "string"
+    },
+    "plan": {
+      "type": "string",
+      "enum": [
+        "starter",
+        "professional",
+        "business",
+        "enterprise"
+      ],
+      "default": "starter"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "trial",
+        "active",
+        "past_due",
+        "suspended",
+        "cancelled",
+        "expired",
+        "grace_period"
+      ],
+      "default": "trial"
+    },
+    "billing_cycle": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "annual"
+      ],
+      "default": "monthly"
+    },
+    "mrr": {
+      "type": "number",
+      "default": 0
+    },
+    "arr": {
+      "type": "number",
+      "default": 0
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "trial_ends_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "next_billing_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "properties_count": {
+      "type": "number",
+      "default": 1
+    }
+  },
+  "required": [
+    "organization_id",
+    "plan"
+  ]
+}

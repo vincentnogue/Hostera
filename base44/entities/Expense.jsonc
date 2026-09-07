@@ -1,0 +1,58 @@
+{
+  "name": "Expense",
+  "type": "object",
+  "properties": {
+    "property_id": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "utilities",
+        "maintenance",
+        "housekeeping",
+        "food_beverage",
+        "marketing",
+        "payroll",
+        "office",
+        "other"
+      ],
+      "default": "other"
+    },
+    "description": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number",
+      "default": 0
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "vendor": {
+      "type": "string"
+    },
+    "expense_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "recorded_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "property_id",
+    "description",
+    "amount"
+  ]
+}

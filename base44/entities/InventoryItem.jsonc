@@ -1,0 +1,51 @@
+{
+  "name": "InventoryItem",
+  "type": "object",
+  "properties": {
+    "property_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "housekeeping",
+        "linen",
+        "minibar",
+        "maintenance",
+        "assets",
+        "office",
+        "other"
+      ],
+      "default": "housekeeping"
+    },
+    "quantity": {
+      "type": "number",
+      "default": 0
+    },
+    "unit": {
+      "type": "string"
+    },
+    "min_stock": {
+      "type": "number",
+      "default": 0
+    },
+    "unit_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "supplier": {
+      "type": "string"
+    },
+    "last_restocked": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "property_id",
+    "name"
+  ]
+}

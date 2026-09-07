@@ -1,0 +1,77 @@
+{
+  "name": "StaffMember",
+  "type": "object",
+  "properties": {
+    "property_id": {
+      "type": "string"
+    },
+    "full_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "department": {
+      "type": "string",
+      "enum": [
+        "front_desk",
+        "housekeeping",
+        "maintenance",
+        "food_beverage",
+        "security",
+        "management",
+        "admin"
+      ],
+      "default": "front_desk"
+    },
+    "position": {
+      "type": "string"
+    },
+    "employment_type": {
+      "type": "string",
+      "enum": [
+        "full_time",
+        "part_time",
+        "contract",
+        "intern"
+      ],
+      "default": "full_time"
+    },
+    "shift_availability": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "morning",
+          "afternoon",
+          "night",
+          "weekends",
+          "flexible"
+        ]
+      }
+    },
+    "hire_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "on_leave",
+        "inactive"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "full_name",
+    "property_id"
+  ]
+}

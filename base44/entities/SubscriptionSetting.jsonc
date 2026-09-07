@@ -1,0 +1,51 @@
+{
+  "name": "SubscriptionSetting",
+  "type": "object",
+  "properties": {
+    "organization_name": {
+      "type": "string"
+    },
+    "plan": {
+      "type": "string",
+      "enum": [
+        "starter",
+        "professional",
+        "business",
+        "enterprise"
+      ],
+      "default": "starter"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "trial",
+        "active",
+        "past_due"
+      ],
+      "default": "trial"
+    },
+    "billing_cycle": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "annual"
+      ],
+      "default": "monthly"
+    },
+    "seats": {
+      "type": "number",
+      "default": 5
+    },
+    "next_billing_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "current_psp": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "organization_name",
+    "plan"
+  ]
+}

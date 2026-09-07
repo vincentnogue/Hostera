@@ -1,0 +1,1 @@
+export const PLATFORM_OWNERS = ['webdxb1@gmail.com', 'vincentnogue2@gmail.com'];

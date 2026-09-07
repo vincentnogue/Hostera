@@ -1,0 +1,28 @@
+{
+  "name": "SubscriptionPaymentMethod",
+  "type": "object",
+  "properties": {
+    "psp": {
+      "type": "string",
+      "enum": [
+        "payunit",
+        "stripe",
+        "paddle",
+        "flutterwave",
+        "paystack",
+        "korapay"
+      ]
+    },
+    "label": {
+      "type": "string"
+    },
+    "is_default": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "psp",
+    "label"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "name": "LoyaltyTier",
+  "type": "object",
+  "properties": {
+    "property_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "min_points": {
+      "type": "number",
+      "default": 0
+    },
+    "discount_percent": {
+      "type": "number",
+      "default": 0
+    },
+    "benefits": {
+      "type": "string"
+    },
+    "color": {
+      "type": "string",
+      "default": "blue"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "name",
+    "property_id"
+  ]
+}

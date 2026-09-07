@@ -1,0 +1,66 @@
+{
+  "name": "MaintenanceTicket",
+  "type": "object",
+  "properties": {
+    "property_id": {
+      "type": "string"
+    },
+    "room_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "default": "medium"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "completed",
+        "cancelled"
+      ],
+      "default": "open"
+    },
+    "assigned_to": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "electrical",
+        "plumbing",
+        "hvac",
+        "furniture",
+        "appliance",
+        "structural",
+        "other"
+      ],
+      "default": "other"
+    },
+    "estimated_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "property_id",
+    "title"
+  ]
+}

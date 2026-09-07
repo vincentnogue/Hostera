@@ -1,0 +1,27 @@
+const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
+
+{
+  "name": "HOSTERA — Global Hospitality Operating System",
+  "short_name": "HOSTERA",
+  "description": "Run your front desk, housekeeping, billing, revenue and guest experience — all in one place.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#123B63",
+  "theme_color": "#123B63",
+  "icons": [
+    {
+      "src": "https://media.db.com/images/public/6a9ea8143c2e0f57c497d6da/85a8915a4_generated_image.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://media.db.com/images/public/6a9ea8143c2e0f57c497d6da/85a8915a4_generated_image.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

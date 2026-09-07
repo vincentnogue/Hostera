@@ -1,0 +1,46 @@
+{
+  "name": "GuestPortalConfig",
+  "type": "object",
+  "properties": {
+    "property_id": {
+      "type": "string"
+    },
+    "header_title": {
+      "type": "string"
+    },
+    "welcome_message": {
+      "type": "string"
+    },
+    "brand_color": {
+      "type": "string",
+      "default": "#123B63"
+    },
+    "room_service": {
+      "type": "boolean",
+      "default": true
+    },
+    "housekeeping_requests": {
+      "type": "boolean",
+      "default": true
+    },
+    "spa_booking": {
+      "type": "boolean",
+      "default": false
+    },
+    "local_recommendations": {
+      "type": "boolean",
+      "default": true
+    },
+    "digital_checkout": {
+      "type": "boolean",
+      "default": true
+    },
+    "loyalty_widget": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "property_id"
+  ]
+}

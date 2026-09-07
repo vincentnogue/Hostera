@@ -1,0 +1,62 @@
+{
+  "name": "HousekeepingTask",
+  "type": "object",
+  "properties": {
+    "property_id": {
+      "type": "string"
+    },
+    "room_id": {
+      "type": "string"
+    },
+    "room_number": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "cleaning",
+        "deep_cleaning",
+        "turndown",
+        "inspection",
+        "linen_change"
+      ],
+      "default": "cleaning"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "assigned",
+        "in_progress",
+        "completed",
+        "inspected",
+        "cancelled"
+      ],
+      "default": "pending"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "default": "medium"
+    },
+    "assigned_to": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "property_id",
+    "room_id"
+  ]
+}

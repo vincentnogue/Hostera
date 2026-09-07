@@ -1,0 +1,79 @@
+{
+  "name": "RatePlan",
+  "type": "object",
+  "properties": {
+    "property_id": {
+      "type": "string"
+    },
+    "room_type_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "season": {
+      "type": "string",
+      "enum": [
+        "standard",
+        "high",
+        "low",
+        "peak",
+        "weekend",
+        "custom"
+      ],
+      "default": "standard"
+    },
+    "price": {
+      "type": "number",
+      "default": 0
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "min_stay": {
+      "type": "number",
+      "default": 1
+    },
+    "max_stay": {
+      "type": "number"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "closed_to_arrival": {
+      "type": "boolean",
+      "default": false
+    },
+    "closed_to_departure": {
+      "type": "boolean",
+      "default": false
+    },
+    "auto_adjust": {
+      "type": "boolean",
+      "default": false
+    },
+    "adjustment_percent": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "name",
+    "property_id",
+    "price"
+  ]
+}

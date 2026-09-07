@@ -1,0 +1,76 @@
+{
+  "name": "Guest",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string"
+    },
+    "first_name": {
+      "type": "string"
+    },
+    "last_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "id_type": {
+      "type": "string"
+    },
+    "id_number": {
+      "type": "string"
+    },
+    "preferences": {
+      "type": "string"
+    },
+    "dietary_preferences": {
+      "type": "string"
+    },
+    "vip_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "silver",
+        "gold",
+        "platinum"
+      ],
+      "default": "none"
+    },
+    "loyalty_points": {
+      "type": "number",
+      "default": 0
+    },
+    "notes": {
+      "type": "string"
+    },
+    "marketing_consent": {
+      "type": "boolean",
+      "default": false
+    },
+    "total_stays": {
+      "type": "number",
+      "default": 0
+    },
+    "total_spent": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "first_name",
+    "last_name",
+    "organization_id"
+  ]
+}

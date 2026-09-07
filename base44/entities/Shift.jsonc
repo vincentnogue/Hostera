@@ -1,0 +1,64 @@
+{
+  "name": "Shift",
+  "type": "object",
+  "properties": {
+    "property_id": {
+      "type": "string"
+    },
+    "staff_id": {
+      "type": "string"
+    },
+    "staff_name": {
+      "type": "string"
+    },
+    "department": {
+      "type": "string",
+      "enum": [
+        "front_desk",
+        "housekeeping",
+        "maintenance",
+        "food_beverage",
+        "security",
+        "management"
+      ],
+      "default": "front_desk"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "start_time": {
+      "type": "string"
+    },
+    "end_time": {
+      "type": "string"
+    },
+    "shift_type": {
+      "type": "string",
+      "enum": [
+        "morning",
+        "afternoon",
+        "night"
+      ],
+      "default": "morning"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "in_progress",
+        "completed",
+        "cancelled"
+      ],
+      "default": "scheduled"
+    },
+    "handover_notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "property_id",
+    "staff_name",
+    "date"
+  ]
+}

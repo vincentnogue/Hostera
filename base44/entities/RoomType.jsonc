@@ -1,0 +1,69 @@
+{
+  "name": "RoomType",
+  "type": "object",
+  "properties": {
+    "property_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "capacity": {
+      "type": "number",
+      "default": 2
+    },
+    "bed_type": {
+      "type": "string",
+      "enum": [
+        "single",
+        "double",
+        "twin",
+        "queen",
+        "king",
+        "suite"
+      ],
+      "default": "double"
+    },
+    "base_price": {
+      "type": "number",
+      "default": 0
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "amenities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "smoking": {
+      "type": "boolean",
+      "default": false
+    },
+    "accessibility": {
+      "type": "boolean",
+      "default": false
+    },
+    "size_sqm": {
+      "type": "number"
+    },
+    "view": {
+      "type": "string"
+    },
+    "photos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "name",
+    "property_id"
+  ]
+}

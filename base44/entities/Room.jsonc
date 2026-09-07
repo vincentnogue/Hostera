@@ -1,0 +1,55 @@
+{
+  "name": "Room",
+  "type": "object",
+  "properties": {
+    "property_id": {
+      "type": "string"
+    },
+    "room_type_id": {
+      "type": "string"
+    },
+    "number": {
+      "type": "string"
+    },
+    "floor": {
+      "type": "string"
+    },
+    "building": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "available",
+        "occupied",
+        "reserved",
+        "dirty",
+        "clean",
+        "inspected",
+        "out_of_order",
+        "out_of_service",
+        "blocked",
+        "maintenance"
+      ],
+      "default": "available"
+    },
+    "capacity": {
+      "type": "number",
+      "default": 2
+    },
+    "amenities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "number",
+    "property_id",
+    "room_type_id"
+  ]
+}
