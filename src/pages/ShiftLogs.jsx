@@ -2,7 +2,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect } from 'react';
 
-import { ClipboardList, Plus, X, ArrowRight, CheckCircle2, AlertTriangle, ListTodo, FileText } from 'lucide-react';
+import { ClipboardList, Plus, X, CheckCircle2, AlertTriangle, ListTodo, FileText } from 'lucide-react';
 
 const logTypes = {
   handover: { icon: ClipboardList, pill: 'bg-blue-50 text-[#123B63]' },

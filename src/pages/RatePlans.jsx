@@ -2,7 +2,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect } from 'react';
 
-import { Layers, Plus, X, Percent, BedDouble, Zap } from 'lucide-react';
+import { Plus, X, Percent, BedDouble, Zap } from 'lucide-react';
 
 const seasons = ['standard', 'high', 'low', 'peak', 'weekend', 'custom'];
 

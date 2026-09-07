@@ -2,7 +2,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect } from 'react';
 
-import { UserPlus, X, Shield, Users, UserCog, ConciergeBell, Sparkles, Wrench, BarChart3 } from 'lucide-react';
+import { UserPlus, X, Shield, Users, UserCog } from 'lucide-react';
 
 const roleConfig = {
   admin: { icon: Shield, color: 'bg-purple-100 text-purple-700', label: 'Admin' },

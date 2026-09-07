@@ -2,7 +2,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect } from 'react';
 
-import { Tag, Plus, X, Calendar, Percent, Zap, Layers } from 'lucide-react';
+import { Tag, Plus, X, Calendar, Percent, Zap } from 'lucide-react';
 
 const seasons = ['standard', 'high', 'low', 'peak', 'weekend', 'custom'];
 const ruleTypes = { discount: { label: 'Discount', pill: 'bg-green-50 text-green-700' }, surcharge: { label: 'Surcharge', pill: 'bg-amber-50 text-amber-700' }, dynamic_pricing: { label: 'Dynamic Pricing', pill: 'bg-blue-50 text-[#123B63]' } };

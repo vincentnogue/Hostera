@@ -41,7 +41,7 @@ const BRANDS = {
   'Meta AI': 'bg-[#0064E0] text-white',
 };
 
-export default function BrandLogo({ name, size = 'md', className }) {
+export default function BrandLogo({ name, size = 'md', className = '' }) {
   const style = BRANDS[name] || 'bg-[#123B63] text-white';
   const sizes = {
     sm: 'px-3 py-1 text-[10px]',
@@ -55,7 +55,7 @@ export default function BrandLogo({ name, size = 'md', className }) {
   );
 }
 
-export function BrandGrid({ names, size = 'md', className }) {
+export function BrandGrid({ names, size = 'md', className = '' }) {
   return (
     <div className={`flex flex-wrap gap-2.5 ${className || ''}`}>
       {names.map(n => <BrandLogo key={n} name={n} size={size} />)}

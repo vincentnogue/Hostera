@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Reveal from '@/components/marketing/Reveal';
-import { ArrowRight, Lock, Shield, Users, FileText, Globe, Check, Database } from 'lucide-react';
+import { ArrowRight, Lock, Shield, Users, FileText, Globe, Database } from 'lucide-react';
 
 const pillars = [
   { icon: Lock, title: 'Strict Multi-Tenant Isolation', desc: 'Every record — reservations, guests, folios, invoices — is scoped to your organization and property. Isolation is enforced server-side and never relies on the interface hiding data.' },

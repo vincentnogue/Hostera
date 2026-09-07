@@ -8,8 +8,8 @@ import HotelMarquee from '@/components/marketing/HotelMarquee';
 import AffordabilityBand from '@/components/marketing/AffordabilityBand';
 import { MODULES, INDUSTRIES, PLANS } from '@/lib/marketing';
 import {
-  ArrowRight, Check, Sparkles, Shield, Globe, Users, ConciergeBell,
-  Sparkles as SparkleIcon, Star, Plug, TrendingUp, Zap, Lock, BarChart3,
+  ArrowRight, Check, Sparkles, Shield, Users, ConciergeBell,
+  Sparkles as SparkleIcon, Star, TrendingUp, Zap, Lock, BarChart3,
   MessageSquare, FileText, KeyRound, BadgeCheck, ShieldCheck, Headphones,
   Award, Play, CircleDollarSign
 } from 'lucide-react';

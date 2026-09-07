@@ -3,7 +3,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect } from 'react';
 
 import BrandLogo from '@/components/marketing/BrandLogos';
-import { CreditCard, Plus, X, Check, Star, Shield, Calendar, ArrowUpCircle } from 'lucide-react';
+import { CreditCard, Plus, X, Check, Star, ArrowUpCircle } from 'lucide-react';
 
 const PSPS = [
   { id: 'payunit', name: 'PayUnit', label: 'PayUnit — Mobile money & cards (Africa)' },

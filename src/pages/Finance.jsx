@@ -2,7 +2,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect } from 'react';
 
-import { DollarSign, Receipt, CreditCard, AlertCircle, TrendingUp } from 'lucide-react';
+import { DollarSign, Receipt, CreditCard, AlertCircle } from 'lucide-react';
 
 const invoiceStatusColors = {
   draft: 'bg-gray-100 text-gray-600',

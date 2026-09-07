@@ -2,7 +2,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect } from 'react';
 
-import { CalendarDays, Plus, X, ChevronLeft, ChevronRight, MapPin, TrendingUp, Wrench, PartyPopper } from 'lucide-react';
+import { CalendarDays, Plus, X, ChevronLeft, ChevronRight, TrendingUp, Wrench, PartyPopper } from 'lucide-react';
 
 const typeConfig = {
   event: { label: 'Local Event', dot: 'bg-blue-500', pill: 'bg-blue-50 text-[#123B63]', icon: PartyPopper },

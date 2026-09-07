@@ -2,7 +2,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect } from 'react';
 
-import { Search, Users, Mail, Phone, MapPin, Star, Award } from 'lucide-react';
+import { Search, Users, Mail, Phone, MapPin } from 'lucide-react';
 
 const vipColors = {
   none: 'bg-gray-100 text-gray-600',

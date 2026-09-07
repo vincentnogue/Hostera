@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Reveal from '@/components/marketing/Reveal';
 import { RoomRackMockup, FrontDeskMockup, AnalyticsMockup, DashboardMockup } from '@/components/marketing/Mockups';
 import { MODULES, MODULE_GROUPS } from '@/lib/marketing';
-import { ArrowRight, Check, ChevronRight } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 
 const groupBlurbs = {
   'Core PMS': 'The operational heart of your property — reservations, front desk and the visual room rack your team will live in.',

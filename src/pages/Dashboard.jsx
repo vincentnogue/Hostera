@@ -3,8 +3,8 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect } from 'react';
 
 import {
-  TrendingUp, TrendingDown, DollarSign, LogIn, LogOut, BedDouble,
-  Users, AlertCircle, ArrowUpRight, ArrowDownRight, CalendarCheck
+  TrendingUp, DollarSign, LogIn, LogOut, BedDouble,
+  Users, AlertCircle, ArrowUpRight, CalendarCheck
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid

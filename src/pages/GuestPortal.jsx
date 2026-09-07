@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 
 import {
   CalendarCheck, MapPin, Users, Clock, Receipt, CreditCard,
-  Bell, Coffee, Wifi, Car, Sparkles
+  Bell, Sparkles
 } from 'lucide-react';
 
 export default function GuestPortal() {

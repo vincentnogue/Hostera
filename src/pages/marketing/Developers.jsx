@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Reveal from '@/components/marketing/Reveal';
-import { ArrowRight, Code, Key, Webhook, Server, Braces, Terminal, Check, RefreshCw, Rocket } from 'lucide-react';
+import { ArrowRight, Code, Key, Webhook, Server, Braces, Check, RefreshCw, Rocket } from 'lucide-react';
 
 const API_DOMAINS = [
   '/properties', '/rooms', '/reservations', '/guests', '/folios', '/payments',
