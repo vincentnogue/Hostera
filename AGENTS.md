@@ -1,36 +1,40 @@
-const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
-
 # AGENTS.md
 
-## Project Context
+## Project context
 
-This is a Base44 app repository. Treat it as user-owned application code, keep changes focused on the user's request, and preserve existing project conventions.
+Hostera is a multi-tenant hotel-management SaaS. React + Vite frontend,
+Supabase backend (Postgres + Auth + Storage), deployed to Cloudflare Pages.
+This repo previously ran on base44; that dependency has been fully removed
+(see the "migrate off base44 to Supabase" commit for the rationale).
 
-Start with `README.md` for local setup, environment variables, and publish workflow.
+Start with `README.md` for local setup, env vars, and the deploy workflow.
 
-## Base44 References
+## Key files
 
-- CLI overview: https://docs.db.com/developers/references/cli/get-started/overview.md
-- Agent skills: https://docs.db.com/developers/backend/overview/skills.md
+- `src/lib/supabaseClient.js`: the Supabase client (from `VITE_SUPABASE_URL`
+  / `VITE_SUPABASE_ANON_KEY`). Never call `createClient` without guarding for
+  missing env vars — it throws synchronously, which crashes the app before
+  React mounts (this caused a real blank-white-screen bug; see the fallback
+  stub pattern already in that file if you touch it).
+- `src/lib/hosteraBackend.js`: implements `db.auth` / `db.entities` /
+  `db.integrations` on top of Supabase and sets `globalThis.__B44_DB__`.
+  Every page component reads that global (with an inline empty-stub
+  fallback) instead of importing a client directly — that pattern predates
+  this migration and touching all ~68 page files wasn't worth the risk, so
+  new backend behavior belongs in this one file, not spread across pages.
+- `src/main.jsx` / `index.html`: both carry a last-resort error net (inline
+  script in `index.html`, try/catch around the render in `main.jsx`) so a
+  script failure before React mounts always shows a message instead of a
+  silent blank page. Keep both if you touch either file.
+- `supabase/schema.sql`: schema + RLS scaffold, meant to be run manually in
+  the Supabase SQL editor — nothing in this repo executes it automatically.
 
-If your agent supports Agent Skills, install or update Base44 skills before Base44-specific work:
+## Working notes
 
-```bash
-npx skills add base44/skills
-```
-
-## Key Files
-
-- `src/`: frontend application source.
-- `src/api/base44Client.js`: frontend Base44 SDK client.
-- `vite.config.js`: Vite config and Base44 Vite plugin setup.
-- `.env.local`: local-only environment values; never commit secrets.
-
-## Working Notes
-
-- Use `base44 dev` as the default local development command when you need the local Base44 backend. It can run the backend and frontend together.
-- When docs or code mention the frontend being started automatically, that usually means the Base44 project config includes `site.serveCommand`, for example `"serveCommand": "npm run dev"` in `base44/config.jsonc`.
-- Use `npm run dev` only for frontend-only work against the hosted Base44 backend.
-- Prefer the existing Base44 CLI workflow over adding new npm scripts for Base44-specific tasks.
-- Reuse the existing SDK client and Vite plugin patterns before adding new Base44 integration paths.
-- Run the relevant checks from `package.json` before finishing code changes.
+- `npm run build` inlines `VITE_*` env vars at build time. Changing them on
+  Cloudflare requires a fresh deployment, not just a settings change.
+- No legacy `@/entities` or `@/integrations` imports exist in this codebase
+  (verified by grep before removing the old build plugin that used to
+  support them) — don't reintroduce that pattern without checking again.
+- Run `npm run lint` and `npm run build` before finishing changes; both must
+  pass clean.
