@@ -1,5 +1,7 @@
 # Hostera
 
+Hospitality management Dev by Vincent Nogue Ceo Of Liafrik www.liafrik.com
+
 Global Hospitality Operating System — multi-tenant SaaS for property management.
 
 ## Stack
