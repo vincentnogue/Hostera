@@ -61,7 +61,7 @@ export default function HotelMarquee() {
       <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#F8F9FA] to-transparent z-10 pointer-events-none" />
       <div className="flag-marquee flex items-center gap-3 w-max">
         {items.map((h, i) => (
-          <span key={`${h.name}-${i}`} className="inline-flex items-center gap-2 bg-white border border-[#E2E8F0] rounded-full px-4 py-1.5 shrink-0">
+          <span key={`${h.name}-${i}`} className="inline-flex items-center gap-2 bg-white border border-brand-border rounded-full px-4 py-1.5 shrink-0">
             <img
               src={`https://logo.clearbit.com/${h.domain}`}
               alt={h.name}
@@ -69,7 +69,7 @@ export default function HotelMarquee() {
               onError={(e) => { e.currentTarget.style.display = 'none'; }}
               className="w-5 h-5 object-contain shrink-0"
             />
-            <span className="text-[11px] font-semibold text-[#17212B] whitespace-nowrap">{h.name}</span>
+            <span className="text-[11px] font-semibold text-brand-ink whitespace-nowrap">{h.name}</span>
           </span>
         ))}
       </div>

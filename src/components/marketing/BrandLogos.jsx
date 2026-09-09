@@ -17,8 +17,8 @@ const BRANDS = {
   'Flutterwave': 'bg-[#FF9D00] text-[#231F20]',
   'Paystack': 'bg-[#0BA4DB] text-white',
   'Kora Pay': 'bg-[#00A8A8] text-white',
-  'Nutro': 'bg-[#123B63] text-white',
-  'LiBooks': 'bg-[#1F5A8A] text-white',
+  'Nutro': 'bg-brand-navy text-white',
+  'LiBooks': 'bg-brand-blue text-white',
   'GDS': 'bg-[#2E7D32] text-white',
   'Metasearch': 'bg-[#5E35B1] text-white',
   'SMS': 'bg-[#3949AB] text-white',
@@ -42,7 +42,7 @@ const BRANDS = {
 };
 
 export default function BrandLogo({ name, size = 'md', className = '' }) {
-  const style = BRANDS[name] || 'bg-[#123B63] text-white';
+  const style = BRANDS[name] || 'bg-brand-navy text-white';
   const sizes = {
     sm: 'px-3 py-1 text-[10px]',
     md: 'px-3.5 py-1.5 text-xs',

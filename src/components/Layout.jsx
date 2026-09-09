@@ -104,10 +104,10 @@ export default function Layout() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F6F8FB]">
+    <div className="min-h-screen bg-brand-bg">
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-[#123B63] text-white transform transition-transform duration-300 ${
+        className={`fixed top-0 left-0 z-50 h-full w-64 bg-brand-navy text-white transform transition-transform duration-300 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0 flex flex-col`}
       >
@@ -175,41 +175,41 @@ export default function Layout() {
 
       {/* Main */}
       <div className="lg:ml-64">
-        <header className="sticky top-0 z-30 bg-white border-b border-[#E2E8F0] px-4 lg:px-8 py-3 flex items-center justify-between">
+        <header className="sticky top-0 z-30 bg-white border-b border-brand-border px-4 lg:px-8 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-[#64748B]">
+            <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-brand-slate">
               <Menu className="w-6 h-6" />
             </button>
             <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-[#123B63]" />
+              <Building2 className="w-4 h-4 text-brand-navy" />
               <select
                 value={selectedProperty}
                 onChange={(e) => setSelectedProperty(e.target.value)}
-                className="text-sm font-medium text-[#17212B] bg-transparent border-none outline-none cursor-pointer max-w-[200px]"
+                className="text-sm font-medium text-brand-ink bg-transparent border-none outline-none cursor-pointer max-w-[200px]"
               >
                 <option>All Properties</option>
                 {properties.map((p) => (
                   <option key={p.id}>{p.name}</option>
                 ))}
               </select>
-              <ChevronDown className="w-4 h-4 text-[#64748B] pointer-events-none" />
+              <ChevronDown className="w-4 h-4 text-brand-slate pointer-events-none" />
             </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#F6F8FB] rounded-lg">
-              <Search className="w-4 h-4 text-[#64748B]" />
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-brand-bg rounded-lg">
+              <Search className="w-4 h-4 text-brand-slate" />
               <input
                 type="text"
                 placeholder="Search guests, reservations..."
-                className="bg-transparent text-sm outline-none w-48 text-[#17212B] placeholder:text-[#94A3B8]"
+                className="bg-transparent text-sm outline-none w-48 text-brand-ink placeholder:text-brand-slate-light"
               />
             </div>
-            <button className="relative text-[#64748B] hover:text-[#123B63] transition-colors">
+            <button className="relative text-brand-slate hover:text-brand-navy transition-colors">
               <Bell className="w-5 h-5" />
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#DC2626] rounded-full"></span>
             </button>
-            <div className="w-9 h-9 rounded-full bg-[#123B63] text-white flex items-center justify-center text-sm font-medium">
+            <div className="w-9 h-9 rounded-full bg-brand-navy text-white flex items-center justify-center text-sm font-medium">
               AD
             </div>
           </div>
@@ -217,7 +217,7 @@ export default function Layout() {
 
         <main className="p-4 lg:p-8">
           {propsLoaded && properties.length === 0 && location.pathname !== '/onboarding' && (
-            <div className="mb-6 bg-[#123B63] rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="mb-6 bg-brand-navy rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="flex items-start gap-4">
                 <div className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center shrink-0">
                   <Rocket className="w-5 h-5 text-white" />
@@ -227,7 +227,7 @@ export default function Layout() {
                   <p className="text-sm text-white/60 mt-0.5">Create your organization, property and room types in a guided 4-step onboarding.</p>
                 </div>
               </div>
-              <Link to="/onboarding" className="inline-flex items-center gap-2 rounded-full bg-white text-[#123B63] px-6 py-2.5 text-sm font-bold hover:scale-105 transition-transform shrink-0">
+              <Link to="/onboarding" className="inline-flex items-center gap-2 rounded-full bg-white text-brand-navy px-6 py-2.5 text-sm font-bold hover:scale-105 transition-transform shrink-0">
                 Start Setup <ArrowRight className="w-4 h-4" />
               </Link>
             </div>

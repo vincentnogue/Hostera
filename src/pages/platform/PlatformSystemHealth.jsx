@@ -57,7 +57,7 @@ export default function PlatformSystemHealth() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-4 border-[#1F5A8A] border-t-white rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-brand-blue border-t-white rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -106,7 +106,7 @@ export default function PlatformSystemHealth() {
       </div>
 
       {/* Incidents */}
-      <div className="bg-[#0A1E30] border border-white/5 rounded-xl overflow-hidden">
+      <div className="bg-brand-navy-900 border border-white/5 rounded-xl overflow-hidden">
         <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between">
           <h3 className="text-base font-semibold text-white">Incidents ({incidents.length})</h3>
           {activeIncidents.length === 0 ? (
@@ -140,7 +140,7 @@ export default function PlatformSystemHealth() {
                 {inc.status !== 'postmortem' && (
                   <button
                     onClick={() => advanceIncident(inc)}
-                    className="px-3 py-1.5 bg-[#1F5A8A] text-white text-xs font-medium rounded-lg hover:bg-[#2563EB] transition-colors shrink-0"
+                    className="px-3 py-1.5 bg-brand-blue text-white text-xs font-medium rounded-lg hover:bg-[#2563EB] transition-colors shrink-0"
                   >
                     {flow[Math.min(flow.indexOf(inc.status) + 1, flow.length - 1)] === 'resolved' ? 'Resolve' : 'Advance →'}
                   </button>

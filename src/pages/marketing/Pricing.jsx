@@ -47,10 +47,10 @@ export default function Pricing() {
   return (
     <div className="bg-white">
       {/* HERO */}
-      <section className="relative bg-[#123B63] py-24 overflow-hidden">
+      <section className="relative bg-brand-navy py-24 overflow-hidden">
         <div className="absolute inset-0">
           <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f3?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover opacity-25" alt="Luxury hotel" />
-          <div className="absolute inset-0 bg-[#123B63]/70"></div>
+          <div className="absolute inset-0 bg-brand-navy/70"></div>
         </div>
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <Reveal>
@@ -60,10 +60,10 @@ export default function Pricing() {
               Hotels pay for the platform. Guests never pay subscription fees. No hidden service charges — ever.
             </p>
             <div className="inline-flex items-center bg-white/10 border border-white/20 rounded-full p-1 backdrop-blur-sm">
-              <button onClick={() => setAnnual(false)} className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${!annual ? 'bg-white text-[#123B63]' : 'text-white/70'}`}>
+              <button onClick={() => setAnnual(false)} className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${!annual ? 'bg-white text-brand-navy' : 'text-white/70'}`}>
                 Monthly
               </button>
-              <button onClick={() => setAnnual(true)} className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${annual ? 'bg-white text-[#123B63]' : 'text-white/70'}`}>
+              <button onClick={() => setAnnual(true)} className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${annual ? 'bg-white text-brand-navy' : 'text-white/70'}`}>
                 Annual <span className="text-green-300">−2 months</span>
               </button>
             </div>
@@ -72,59 +72,59 @@ export default function Pricing() {
       </section>
 
       {/* PLANS */}
-      <section className="py-16 bg-[#F6F8FB]">
+      <section className="py-16 bg-brand-bg">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {PLANS.map((p, i) => (
             <Reveal key={p.name} delay={i * 0.08}>
-              <div className={`p-6 rounded-2xl border-2 h-full flex flex-col ${p.popular ? 'border-[#123B63] shadow-xl bg-white relative' : 'border-[#E2E8F0] bg-white'}`}>
-                {p.popular && <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#123B63] text-white text-xs font-semibold px-3 py-1 rounded-full">Most Popular</span>}
-                <h3 className="text-lg font-bold text-[#17212B]">{p.name}</h3>
-                <p className="text-xs text-[#64748B] mt-1 mb-4">{p.desc}</p>
-                <span className="inline-block text-[10px] font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-[#123B63] mb-3">{p.accessNote}</span>
-                <p className="text-4xl font-bold text-[#123B63]">
+              <div className={`p-6 rounded-2xl border-2 h-full flex flex-col ${p.popular ? 'border-brand-navy shadow-xl bg-white relative' : 'border-brand-border bg-white'}`}>
+                {p.popular && <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-navy text-white text-xs font-semibold px-3 py-1 rounded-full">Most Popular</span>}
+                <h3 className="text-lg font-bold text-brand-ink">{p.name}</h3>
+                <p className="text-xs text-brand-slate mt-1 mb-4">{p.desc}</p>
+                <span className="inline-block text-[10px] font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-brand-navy mb-3">{p.accessNote}</span>
+                <p className="text-4xl font-bold text-brand-navy">
                   ${priceFor(p).toLocaleString()}
-                  <span className="text-sm text-[#64748B] font-normal">{annual ? '/year' : '/mo'}</span>
+                  <span className="text-sm text-brand-slate font-normal">{annual ? '/year' : '/mo'}</span>
                 </p>
                 {annual && <p className="text-xs text-green-600 font-semibold mt-1">2 months free</p>}
                 <ul className="mt-5 space-y-2.5 mb-5 flex-1">
                   {p.features.map(f => (
-                    <li key={f} className="flex items-start gap-2 text-[13px] text-[#17212B]">
+                    <li key={f} className="flex items-start gap-2 text-[13px] text-brand-ink">
                       <Check className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />{f}
                     </li>
                   ))}
                 </ul>
                 <div className="mb-5 pt-4 border-t border-[#F1F5F9]">
-                  <p className="text-[10px] font-bold text-[#64748B] uppercase tracking-wide mb-2">Module access</p>
+                  <p className="text-[10px] font-bold text-brand-slate uppercase tracking-wide mb-2">Module access</p>
                   <div className="flex flex-wrap gap-1">
                     {p.modules.map(m => (
-                      <span key={m} className="text-[10px] px-2 py-0.5 bg-[#F6F8FB] border border-[#E2E8F0] rounded-full text-[#17212B]">{m}</span>
+                      <span key={m} className="text-[10px] px-2 py-0.5 bg-brand-bg border border-brand-border rounded-full text-brand-ink">{m}</span>
                     ))}
                   </div>
                 </div>
-                <Link to="/register" className={`block text-center py-2.5 rounded-full text-sm font-semibold transition-colors ${p.popular ? 'bg-[#123B63] text-white hover:bg-[#1F5A8A]' : 'border border-[#E2E8F0] text-[#123B63] hover:border-[#123B63]'}`}>
+                <Link to="/register" className={`block text-center py-2.5 rounded-full text-sm font-semibold transition-colors ${p.popular ? 'bg-brand-navy text-white hover:bg-brand-blue' : 'border border-brand-border text-brand-navy hover:border-brand-navy'}`}>
                   Choose {p.name}
                 </Link>
               </div>
             </Reveal>
           ))}
         </div>
-        <p className="text-center text-xs text-[#64748B] mt-8">All plans include a full-featured free trial · Multi-property management is included with Enterprise</p>
+        <p className="text-center text-xs text-brand-slate mt-8">All plans include a full-featured free trial · Multi-property management is included with Enterprise</p>
       </section>
 
       {/* COMPARISON TABLE */}
       <section className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <Reveal>
-            <h2 className="text-3xl font-bold text-[#17212B] text-center mb-10">Compare plans in detail</h2>
+            <h2 className="text-3xl font-bold text-brand-ink text-center mb-10">Compare plans in detail</h2>
           </Reveal>
           <Reveal>
-            <div className="overflow-x-auto rounded-2xl border border-[#E2E8F0]">
+            <div className="overflow-x-auto rounded-2xl border border-brand-border">
               <table className="w-full text-sm min-w-[720px]">
                 <thead>
-                  <tr className="bg-[#F6F8FB] border-b border-[#E2E8F0]">
-                    <th className="text-left px-5 py-4 text-xs font-semibold text-[#64748B] uppercase tracking-wide">Feature</th>
+                  <tr className="bg-brand-bg border-b border-brand-border">
+                    <th className="text-left px-5 py-4 text-xs font-semibold text-brand-slate uppercase tracking-wide">Feature</th>
                     {PLANS.map(p => (
-                      <th key={p.name} className={`px-5 py-4 text-xs font-bold ${p.popular ? 'text-[#123B63]' : 'text-[#17212B]'}`}>{p.name}</th>
+                      <th key={p.name} className={`px-5 py-4 text-xs font-bold ${p.popular ? 'text-brand-navy' : 'text-brand-ink'}`}>{p.name}</th>
                     ))}
                   </tr>
                 </thead>
@@ -132,16 +132,16 @@ export default function Pricing() {
                   {COMPARISON.map((row, ri) => {
                     if (row[0] !== null && row[1] === null && row[2] === null) {
                       return (
-                        <tr key={ri} className="bg-[#123B63]/[0.04]">
-                          <td colSpan={5} className="px-5 py-2.5 text-[10px] font-bold text-[#123B63] uppercase tracking-widest">{row[0]}</td>
+                        <tr key={ri} className="bg-brand-navy/[0.04]">
+                          <td colSpan={5} className="px-5 py-2.5 text-[10px] font-bold text-brand-navy uppercase tracking-widest">{row[0]}</td>
                         </tr>
                       );
                     }
                     return (
-                      <tr key={ri} className="border-b border-[#E2E8F0] last:border-0">
-                        <td className="px-5 py-3 text-[13px] font-medium text-[#17212B]">{row[0]}</td>
+                      <tr key={ri} className="border-b border-brand-border last:border-0">
+                        <td className="px-5 py-3 text-[13px] font-medium text-brand-ink">{row[0]}</td>
                         {row.slice(1).map((cell, ci) => (
-                          <td key={ci} className="px-5 py-3 text-center text-[13px] text-[#64748B]">
+                          <td key={ci} className="px-5 py-3 text-center text-[13px] text-brand-slate">
                             {typeof cell === 'boolean'
                               ? cell
                                 ? <Check className="w-4 h-4 text-green-600 mx-auto" />
@@ -160,27 +160,27 @@ export default function Pricing() {
       </section>
 
       {/* PRICING FAQ */}
-      <section className="py-20 bg-[#F6F8FB]">
+      <section className="py-20 bg-brand-bg">
         <div className="max-w-3xl mx-auto px-6">
           <Reveal>
-            <h2 className="text-3xl font-bold text-[#17212B] text-center mb-10">Pricing questions</h2>
+            <h2 className="text-3xl font-bold text-brand-ink text-center mb-10">Pricing questions</h2>
           </Reveal>
           <div className="space-y-3">
             {FAQS[1].items.map((f) => (
               <Reveal key={f.q}>
-                <button onClick={() => setOpenFaq(openFaq === f.q ? null : f.q)} className="w-full text-left p-5 bg-white rounded-2xl border border-[#E2E8F0] hover:border-[#1F5A8A]/40 transition-colors">
+                <button onClick={() => setOpenFaq(openFaq === f.q ? null : f.q)} className="w-full text-left p-5 bg-white rounded-2xl border border-brand-border hover:border-brand-blue/40 transition-colors">
                   <div className="flex items-center justify-between gap-4">
-                    <span className="text-sm font-semibold text-[#17212B]">{f.q}</span>
-                    <ChevronDown className={`w-4 h-4 text-[#64748B] shrink-0 transition-transform ${openFaq === f.q ? 'rotate-180' : ''}`} />
+                    <span className="text-sm font-semibold text-brand-ink">{f.q}</span>
+                    <ChevronDown className={`w-4 h-4 text-brand-slate shrink-0 transition-transform ${openFaq === f.q ? 'rotate-180' : ''}`} />
                   </div>
-                  {openFaq === f.q && <p className="text-sm text-[#64748B] mt-3 leading-relaxed">{f.a}</p>}
+                  {openFaq === f.q && <p className="text-sm text-brand-slate mt-3 leading-relaxed">{f.a}</p>}
                 </button>
               </Reveal>
             ))}
           </div>
           <Reveal>
             <p className="text-center mt-8">
-              <Link to="/faq" className="inline-flex items-center gap-2 text-sm font-semibold text-[#123B63] hover:text-[#1F5A8A]">
+              <Link to="/faq" className="inline-flex items-center gap-2 text-sm font-semibold text-brand-navy hover:text-brand-blue">
                 More questions? Visit the FAQ <ArrowRight className="w-4 h-4" />
               </Link>
             </p>
@@ -189,12 +189,12 @@ export default function Pricing() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-[#123B63]">
+      <section className="py-20 bg-brand-navy">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <Reveal>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Try everything, risk-free</h2>
             <p className="text-white/70 mb-8">Full-featured trial on every plan — cancel anytime.</p>
-            <Link to="/register" className="inline-flex items-center gap-2 rounded-full bg-white text-[#123B63] px-8 py-3.5 text-sm font-bold hover:scale-105 transition-transform">
+            <Link to="/register" className="inline-flex items-center gap-2 rounded-full bg-white text-brand-navy px-8 py-3.5 text-sm font-bold hover:scale-105 transition-transform">
               Start Free Trial <ArrowRight className="w-4 h-4" />
             </Link>
           </Reveal>

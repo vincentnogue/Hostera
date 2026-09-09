@@ -50,7 +50,7 @@ export default function Subscription() {
       .finally(() => setLoading(false));
   }, []);
 
-  const inputCls = "w-full px-3.5 py-2 border border-[#E2E8F0] rounded-full text-sm outline-none focus:border-[#123B63]";
+  const inputCls = "w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
 
   const updatePlan = async (patch) => {
     setSaving(true);
@@ -84,32 +84,32 @@ export default function Subscription() {
     setMethods(prev => prev.filter(m => m.id !== id));
   };
 
-  if (loading) return <p className="text-sm text-[#64748B]">Loading subscription…</p>;
+  if (loading) return <p className="text-sm text-brand-slate">Loading subscription…</p>;
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#17212B]">Subscription</h1>
-        <p className="text-sm text-[#64748B]">Your plan, payment methods and upgrade options.</p>
+        <h1 className="text-2xl font-bold text-brand-ink">Subscription</h1>
+        <p className="text-sm text-brand-slate">Your plan, payment methods and upgrade options.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Current plan */}
         <div className="lg:col-span-2 space-y-5">
-          <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
+          <div className="bg-white rounded-xl border border-brand-border p-6">
             <div className="flex items-start justify-between mb-5">
               <div>
                 <div className="flex items-center gap-2.5">
-                  <div className="w-10 h-10 rounded-full bg-[#123B63] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-brand-navy flex items-center justify-center">
                     <Star className="w-4 h-4 text-white fill-white" />
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-[#17212B] capitalize">{settings.plan} Plan</p>
-                    <p className="text-xs text-[#64748B]">{PLAN_INFO[settings.plan]}</p>
+                    <p className="text-lg font-bold text-brand-ink capitalize">{settings.plan} Plan</p>
+                    <p className="text-xs text-brand-slate">{PLAN_INFO[settings.plan]}</p>
                   </div>
                 </div>
               </div>
-              <span className={`text-[10px] px-2.5 py-1 rounded-full font-semibold capitalize ${settings.status === 'active' ? 'bg-green-50 text-green-700' : settings.status === 'trial' ? 'bg-blue-50 text-[#123B63]' : 'bg-red-50 text-red-600'}`}>
+              <span className={`text-[10px] px-2.5 py-1 rounded-full font-semibold capitalize ${settings.status === 'active' ? 'bg-green-50 text-green-700' : settings.status === 'trial' ? 'bg-blue-50 text-brand-navy' : 'bg-red-50 text-red-600'}`}>
                 {settings.status}
               </span>
             </div>
@@ -120,18 +120,18 @@ export default function Subscription() {
                 { label: 'Seats', value: settings.seats },
                 { label: 'Next billing', value: settings.next_billing_date ? new Date(settings.next_billing_date).toLocaleDateString() : '—' },
               ].map(k => (
-                <div key={k.label} className="p-3 bg-[#F6F8FB] rounded-xl">
-                  <p className="text-[10px] text-[#94A3B8] uppercase">{k.label}</p>
-                  <p className="text-sm font-semibold text-[#17212B] capitalize">{k.value}</p>
+                <div key={k.label} className="p-3 bg-brand-bg rounded-xl">
+                  <p className="text-[10px] text-brand-slate-light uppercase">{k.label}</p>
+                  <p className="text-sm font-semibold text-brand-ink capitalize">{k.value}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Upgrade */}
-          <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
-            <h3 className="text-sm font-semibold text-[#17212B] mb-4 flex items-center gap-2">
-              <ArrowUpCircle className="w-4 h-4 text-[#123B63]" /> Change Plan
+          <div className="bg-white rounded-xl border border-brand-border p-6">
+            <h3 className="text-sm font-semibold text-brand-ink mb-4 flex items-center gap-2">
+              <ArrowUpCircle className="w-4 h-4 text-brand-navy" /> Change Plan
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {Object.keys(PLAN_PRICES).map(p => (
@@ -139,18 +139,18 @@ export default function Subscription() {
                   key={p}
                   disabled={saving}
                   onClick={() => updatePlan({ plan: p })}
-                  className={`p-3.5 rounded-xl border-2 text-left transition-all disabled:opacity-60 ${settings.plan === p ? 'border-[#123B63] bg-blue-50/30' : 'border-[#E2E8F0] hover:border-[#1F5A8A]/50'}`}
+                  className={`p-3.5 rounded-xl border-2 text-left transition-all disabled:opacity-60 ${settings.plan === p ? 'border-brand-navy bg-blue-50/30' : 'border-brand-border hover:border-brand-blue/50'}`}
                 >
-                  <p className="text-sm font-bold text-[#17212B] capitalize">{p}</p>
-                  <p className="text-xs text-[#123B63] font-semibold">${PLAN_PRICES[p]}/mo</p>
+                  <p className="text-sm font-bold text-brand-ink capitalize">{p}</p>
+                  <p className="text-xs text-brand-navy font-semibold">${PLAN_PRICES[p]}/mo</p>
                   {settings.plan === p && <span className="text-[9px] text-green-600 font-semibold">Current</span>}
                 </button>
               ))}
             </div>
             <div className="flex items-center gap-3 mt-4">
-              <span className="text-xs text-[#64748B]">Billing cycle:</span>
+              <span className="text-xs text-brand-slate">Billing cycle:</span>
               {['monthly', 'annual'].map(c => (
-                <button key={c} disabled={saving} onClick={() => updatePlan({ billing_cycle: c })} className={`px-3.5 py-1.5 text-xs font-medium rounded-full capitalize disabled:opacity-60 ${settings.billing_cycle === c ? 'bg-[#123B63] text-white' : 'border border-[#E2E8F0] text-[#64748B]'}`}>
+                <button key={c} disabled={saving} onClick={() => updatePlan({ billing_cycle: c })} className={`px-3.5 py-1.5 text-xs font-medium rounded-full capitalize disabled:opacity-60 ${settings.billing_cycle === c ? 'bg-brand-navy text-white' : 'border border-brand-border text-brand-slate'}`}>
                   {c} {c === 'annual' && '(−2 months)'}
                 </button>
               ))}
@@ -159,30 +159,30 @@ export default function Subscription() {
         </div>
 
         {/* Payment methods */}
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
+        <div className="bg-white rounded-xl border border-brand-border p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-[#17212B] flex items-center gap-2">
-              <CreditCard className="w-4 h-4 text-[#123B63]" /> Payment Methods
+            <h3 className="text-sm font-semibold text-brand-ink flex items-center gap-2">
+              <CreditCard className="w-4 h-4 text-brand-navy" /> Payment Methods
             </h3>
-            <button onClick={() => setShowAdd(true)} className="flex items-center gap-1 px-3 py-1.5 bg-[#123B63] text-white text-xs font-semibold rounded-full hover:bg-[#1F5A8A]">
+            <button onClick={() => setShowAdd(true)} className="flex items-center gap-1 px-3 py-1.5 bg-brand-navy text-white text-xs font-semibold rounded-full hover:bg-brand-blue">
               <Plus className="w-3.5 h-3.5" /> Add
             </button>
           </div>
           {methods.length === 0 ? (
-            <p className="text-xs text-[#94A3B8] py-4 text-center border border-dashed border-[#E2E8F0] rounded-xl">No payment method yet.</p>
+            <p className="text-xs text-brand-slate-light py-4 text-center border border-dashed border-brand-border rounded-xl">No payment method yet.</p>
           ) : (
             <div className="space-y-2.5">
               {methods.map(m => (
-                <div key={m.id} className="p-3.5 rounded-xl border border-[#E2E8F0]">
+                <div key={m.id} className="p-3.5 rounded-xl border border-brand-border">
                   <div className="flex items-center justify-between mb-2">
                     <BrandLogo name={PSPS.find(p => p.id === m.psp)?.name || m.psp} size="sm" />
                     {m.is_default ? (
                       <span className="flex items-center gap-1 text-[10px] text-green-600 font-semibold"><Check className="w-3 h-3" /> Default</span>
                     ) : (
-                      <button onClick={() => setDefault(m)} className="text-[10px] px-2 py-0.5 border border-[#E2E8F0] text-[#64748B] rounded-full hover:border-[#123B63]">Set default</button>
+                      <button onClick={() => setDefault(m)} className="text-[10px] px-2 py-0.5 border border-brand-border text-brand-slate rounded-full hover:border-brand-navy">Set default</button>
                     )}
                   </div>
-                  <p className="text-xs text-[#17212B] font-medium">{m.label}</p>
+                  <p className="text-xs text-brand-ink font-medium">{m.label}</p>
                   {!m.is_default && (
                     <button onClick={() => removeMethod(m.id)} className="text-[10px] text-red-500 hover:text-red-600 mt-1.5 font-medium">Remove</button>
                   )}
@@ -190,7 +190,7 @@ export default function Subscription() {
               ))}
             </div>
           )}
-          <p className="text-[10px] text-[#94A3B8] mt-4 leading-relaxed">
+          <p className="text-[10px] text-brand-slate-light mt-4 leading-relaxed">
             Hostera connects through 6 payment service providers for subscriptions: PayUnit, Stripe, Paddle, Flutterwave, Paystack and Kora Pay.
           </p>
         </div>
@@ -200,23 +200,23 @@ export default function Subscription() {
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowAdd(false)}>
           <div className="bg-white rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-[#17212B]">Add Payment Method</h3>
-              <button onClick={() => setShowAdd(false)}><X className="w-4 h-4 text-[#64748B]" /></button>
+              <h3 className="text-lg font-bold text-brand-ink">Add Payment Method</h3>
+              <button onClick={() => setShowAdd(false)}><X className="w-4 h-4 text-brand-slate" /></button>
             </div>
             <form onSubmit={addMethod} className="space-y-3">
               <div>
-                <label className="text-xs font-medium text-[#64748B] block mb-1.5">Provider</label>
+                <label className="text-xs font-medium text-brand-slate block mb-1.5">Provider</label>
                 <div className="space-y-2">
                   {PSPS.map(p => (
-                    <button type="button" key={p.id} onClick={() => setForm({ ...form, psp: p.id })} className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-colors ${form.psp === p.id ? 'border-[#123B63] bg-blue-50/30' : 'border-[#E2E8F0] hover:border-[#1F5A8A]/50'}`}>
+                    <button type="button" key={p.id} onClick={() => setForm({ ...form, psp: p.id })} className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-colors ${form.psp === p.id ? 'border-brand-navy bg-blue-50/30' : 'border-brand-border hover:border-brand-blue/50'}`}>
                       <BrandLogo name={p.name} size="sm" />
-                      <span className="text-[11px] text-[#64748B]">{p.label}</span>
+                      <span className="text-[11px] text-brand-slate">{p.label}</span>
                     </button>
                   ))}
                 </div>
               </div>
               <input placeholder="Label (e.g. Visa •••• 4242 or account name)" value={form.label} onChange={e => setForm({ ...form, label: e.target.value })} className={inputCls} />
-              <button type="submit" className="w-full py-2.5 bg-[#123B63] text-white text-sm font-semibold rounded-full hover:bg-[#1F5A8A]">Add Method</button>
+              <button type="submit" className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">Add Method</button>
             </form>
           </div>
         </div>

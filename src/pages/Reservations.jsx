@@ -91,7 +91,7 @@ export default function Reservations() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-4 border-[#E2E8F0] border-t-[#123B63] rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-brand-border border-t-brand-navy rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -111,12 +111,12 @@ export default function Reservations() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#17212B]">Reservations</h1>
-          <p className="text-sm text-[#64748B] mt-1">{filtered.length} reservations</p>
+          <h1 className="text-2xl font-bold text-brand-ink">Reservations</h1>
+          <p className="text-sm text-brand-slate mt-1">{filtered.length} reservations</p>
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#123B63] text-white rounded-lg text-sm font-medium hover:bg-[#1F5A8A] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-brand-navy text-white rounded-lg text-sm font-medium hover:bg-brand-blue transition-colors"
         >
           <Plus className="w-4 h-4" />
           New Reservation
@@ -125,20 +125,20 @@ export default function Reservations() {
 
       {/* Filters */}
       <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-[#E2E8F0] flex-1 max-w-xs">
-          <Search className="w-4 h-4 text-[#64748B]" />
+        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-brand-border flex-1 max-w-xs">
+          <Search className="w-4 h-4 text-brand-slate" />
           <input
             type="text"
             placeholder="Search guest..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent text-sm outline-none flex-1 text-[#17212B] placeholder:text-[#94A3B8]"
+            className="bg-transparent text-sm outline-none flex-1 text-brand-ink placeholder:text-brand-slate-light"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-3 py-2 bg-white rounded-lg border border-[#E2E8F0] text-sm text-[#17212B] outline-none cursor-pointer"
+          className="px-3 py-2 bg-white rounded-lg border border-brand-border text-sm text-brand-ink outline-none cursor-pointer"
         >
           <option value="all">All Statuses</option>
           <option value="confirmed">Confirmed</option>
@@ -150,17 +150,17 @@ export default function Reservations() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden">
+      <div className="bg-white rounded-xl border border-brand-border overflow-hidden">
         {filtered.length === 0 ? (
           <div className="py-16 text-center">
-            <CalendarCheck className="w-12 h-12 text-[#E2E8F0] mx-auto mb-3" />
-            <p className="text-sm text-[#64748B]">No reservations found</p>
+            <CalendarCheck className="w-12 h-12 text-brand-border mx-auto mb-3" />
+            <p className="text-sm text-brand-slate">No reservations found</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs text-[#64748B] bg-[#F6F8FB] border-b border-[#E2E8F0]">
+                <tr className="text-left text-xs text-brand-slate bg-brand-bg border-b border-brand-border">
                   <th className="px-4 py-3 font-medium">Confirmation</th>
                   <th className="px-4 py-3 font-medium">Guest</th>
                   <th className="px-4 py-3 font-medium">Room</th>
@@ -175,14 +175,14 @@ export default function Reservations() {
                 {filtered.map((res) => {
                   const room = rooms.find(r => r.id === res.room_id);
                   return (
-                    <tr key={res.id} className="border-b border-[#E2E8F0] last:border-0 hover:bg-[#F6F8FB] transition-colors">
-                      <td className="px-4 py-3 font-mono text-xs text-[#64748B]">{res.reservation_number || '-'}</td>
-                      <td className="px-4 py-3 font-medium text-[#17212B]">{getGuestName(res.guest_id)}</td>
-                      <td className="px-4 py-3 text-[#64748B]">{room?.number || 'Unassigned'}</td>
-                      <td className="px-4 py-3 text-[#64748B]">{res.check_in}</td>
-                      <td className="px-4 py-3 text-[#64748B]">{res.check_out}</td>
-                      <td className="px-4 py-3 text-[#64748B]">{sourceLabels[res.source] || res.source}</td>
-                      <td className="px-4 py-3 text-[#17212B] font-medium">${res.total_amount || 0}</td>
+                    <tr key={res.id} className="border-b border-brand-border last:border-0 hover:bg-brand-bg transition-colors">
+                      <td className="px-4 py-3 font-mono text-xs text-brand-slate">{res.reservation_number || '-'}</td>
+                      <td className="px-4 py-3 font-medium text-brand-ink">{getGuestName(res.guest_id)}</td>
+                      <td className="px-4 py-3 text-brand-slate">{room?.number || 'Unassigned'}</td>
+                      <td className="px-4 py-3 text-brand-slate">{res.check_in}</td>
+                      <td className="px-4 py-3 text-brand-slate">{res.check_out}</td>
+                      <td className="px-4 py-3 text-brand-slate">{sourceLabels[res.source] || res.source}</td>
+                      <td className="px-4 py-3 text-brand-ink font-medium">${res.total_amount || 0}</td>
                       <td className="px-4 py-3">
                         <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${resStatusColors[res.status] || 'bg-gray-100'}`}>
                           {res.status.replace(/_/g, ' ')}
@@ -202,18 +202,18 @@ export default function Reservations() {
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowCreate(false)}>
           <div className="bg-white rounded-xl shadow-xl max-w-lg w-full p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-[#17212B]">New Reservation</h2>
-              <button onClick={() => setShowCreate(false)} className="text-[#64748B] hover:text-[#17212B]">
+              <h2 className="text-lg font-semibold text-brand-ink">New Reservation</h2>
+              <button onClick={() => setShowCreate(false)} className="text-brand-slate hover:text-brand-ink">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-[#17212B] mb-1 block">Guest</label>
+                <label className="text-sm font-medium text-brand-ink mb-1 block">Guest</label>
                 <select
                   value={form.guest_id}
                   onChange={e => setForm({ ...form, guest_id: e.target.value })}
-                  className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg text-sm outline-none focus:border-[#123B63]"
+                  className="w-full px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy"
                 >
                   <option value="">Select guest...</option>
                   {guests.map(g => (
@@ -222,11 +222,11 @@ export default function Reservations() {
                 </select>
               </div>
               <div>
-                <label className="text-sm font-medium text-[#17212B] mb-1 block">Room</label>
+                <label className="text-sm font-medium text-brand-ink mb-1 block">Room</label>
                 <select
                   value={form.room_id}
                   onChange={e => setForm({ ...form, room_id: e.target.value })}
-                  className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg text-sm outline-none focus:border-[#123B63]"
+                  className="w-full px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy"
                 >
                   <option value="">Select room...</option>
                   {rooms.filter(r => r.status === 'available' || r.status === 'reserved').map(r => (
@@ -236,51 +236,51 @@ export default function Reservations() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-[#17212B] mb-1 block">Check-In</label>
+                  <label className="text-sm font-medium text-brand-ink mb-1 block">Check-In</label>
                   <input
                     type="date"
                     value={form.check_in}
                     onChange={e => setForm({ ...form, check_in: e.target.value })}
-                    className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg text-sm outline-none focus:border-[#123B63]"
+                    className="w-full px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-[#17212B] mb-1 block">Check-Out</label>
+                  <label className="text-sm font-medium text-brand-ink mb-1 block">Check-Out</label>
                   <input
                     type="date"
                     value={form.check_out}
                     onChange={e => setForm({ ...form, check_out: e.target.value })}
-                    className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg text-sm outline-none focus:border-[#123B63]"
+                    className="w-full px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy"
                   />
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-[#17212B] mb-1 block">Adults</label>
+                  <label className="text-sm font-medium text-brand-ink mb-1 block">Adults</label>
                   <input
                     type="number"
                     min="1"
                     value={form.adults}
                     onChange={e => setForm({ ...form, adults: parseInt(e.target.value) || 1 })}
-                    className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg text-sm outline-none focus:border-[#123B63]"
+                    className="w-full px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-[#17212B] mb-1 block">Children</label>
+                  <label className="text-sm font-medium text-brand-ink mb-1 block">Children</label>
                   <input
                     type="number"
                     min="0"
                     value={form.children}
                     onChange={e => setForm({ ...form, children: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg text-sm outline-none focus:border-[#123B63]"
+                    className="w-full px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-[#17212B] mb-1 block">Source</label>
+                  <label className="text-sm font-medium text-brand-ink mb-1 block">Source</label>
                   <select
                     value={form.source}
                     onChange={e => setForm({ ...form, source: e.target.value })}
-                    className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg text-sm outline-none focus:border-[#123B63]"
+                    className="w-full px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy"
                   >
                     <option value="direct">Direct</option>
                     <option value="walk_in">Walk-in</option>
@@ -294,14 +294,14 @@ export default function Reservations() {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowCreate(false)}
-                className="flex-1 px-4 py-2 border border-[#E2E8F0] rounded-lg text-sm font-medium text-[#64748B] hover:bg-[#F6F8FB] transition-colors"
+                className="flex-1 px-4 py-2 border border-brand-border rounded-lg text-sm font-medium text-brand-slate hover:bg-brand-bg transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreate}
                 disabled={creating || !form.guest_id || !form.check_in || !form.check_out}
-                className="flex-1 px-4 py-2 bg-[#123B63] text-white rounded-lg text-sm font-medium hover:bg-[#1F5A8A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 bg-brand-navy text-white rounded-lg text-sm font-medium hover:bg-brand-blue transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {creating ? 'Creating...' : 'Create Reservation'}
               </button>

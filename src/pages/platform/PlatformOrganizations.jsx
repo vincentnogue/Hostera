@@ -67,7 +67,7 @@ export default function PlatformOrganizations() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-4 border-[#1F5A8A] border-t-white rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-brand-blue border-t-white rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -91,7 +91,7 @@ export default function PlatformOrganizations() {
       </div>
 
       <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex items-center gap-2 px-3 py-2 bg-[#0A1E30] rounded-lg border border-white/5 flex-1 max-w-xs">
+        <div className="flex items-center gap-2 px-3 py-2 bg-brand-navy-900 rounded-lg border border-white/5 flex-1 max-w-xs">
           <Search className="w-4 h-4 text-white/40" />
           <input
             type="text"
@@ -106,7 +106,7 @@ export default function PlatformOrganizations() {
             key={s}
             onClick={() => setStatusFilter(s)}
             className={`px-3 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
-              statusFilter === s ? 'bg-[#1F5A8A] text-white' : 'bg-[#0A1E30] border border-white/5 text-white/50 hover:text-white'
+              statusFilter === s ? 'bg-brand-blue text-white' : 'bg-brand-navy-900 border border-white/5 text-white/50 hover:text-white'
             }`}
           >
             {s}
@@ -114,7 +114,7 @@ export default function PlatformOrganizations() {
         ))}
       </div>
 
-      <div className="bg-[#0A1E30] border border-white/5 rounded-xl overflow-hidden">
+      <div className="bg-brand-navy-900 border border-white/5 rounded-xl overflow-hidden">
         {filtered.length === 0 ? (
           <div className="py-16 text-center">
             <Building2 className="w-12 h-12 text-white/10 mx-auto mb-3" />
@@ -146,7 +146,7 @@ export default function PlatformOrganizations() {
                       <td className="px-4 py-3 text-white/60">{org.country || '—'}</td>
                       <td className="px-4 py-3 text-white/60">{propCount}</td>
                       <td className="px-4 py-3">
-                        <span className="text-xs px-2.5 py-1 rounded-full bg-[#123B63] text-white/80 font-medium capitalize border border-[#1F5A8A]/40">
+                        <span className="text-xs px-2.5 py-1 rounded-full bg-brand-navy text-white/80 font-medium capitalize border border-brand-blue/40">
                           {sub?.plan || org.plan || 'starter'}
                         </span>
                       </td>

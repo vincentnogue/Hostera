@@ -83,7 +83,7 @@ export default function CommercialCodes() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-4 border-[#1F5A8A] border-t-white rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-brand-blue border-t-white rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -92,7 +92,7 @@ export default function CommercialCodes() {
   const totalRedemptions = codes.reduce((s, c) => s + (c.times_used || 0), 0);
   const totalRevenue = codes.reduce((s, c) => s + (c.revenue_generated || 0), 0);
   const totalCustomers = codes.reduce((s, c) => s + (c.customers_acquired || 0), 0);
-  const inputCls = "w-full px-3 py-2 bg-[#0C2438] border border-white/10 rounded-lg text-sm outline-none focus:border-[#1F5A8A] text-white";
+  const inputCls = "w-full px-3 py-2 bg-brand-navy-950 border border-white/10 rounded-lg text-sm outline-none focus:border-brand-blue text-white";
 
   return (
     <div className="space-y-6">
@@ -103,7 +103,7 @@ export default function CommercialCodes() {
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#1F5A8A] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-brand-blue text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] transition-colors"
         >
           <Plus className="w-4 h-4" />
           New Code
@@ -119,7 +119,7 @@ export default function CommercialCodes() {
         ].map(s => {
           const Icon = s.icon;
           return (
-            <div key={s.label} className="bg-[#0A1E30] border border-white/5 rounded-xl p-4">
+            <div key={s.label} className="bg-brand-navy-900 border border-white/5 rounded-xl p-4">
               <Icon className={`w-5 h-5 ${s.color} mb-2`} />
               <p className="text-xl font-bold text-white">{s.value}</p>
               <p className="text-[11px] text-white/40 mt-0.5">{s.label}</p>
@@ -128,7 +128,7 @@ export default function CommercialCodes() {
         })}
       </div>
 
-      <div className="bg-[#0A1E30] border border-white/5 rounded-xl overflow-hidden">
+      <div className="bg-brand-navy-900 border border-white/5 rounded-xl overflow-hidden">
         {codes.length === 0 ? (
           <div className="py-16 text-center">
             <Ticket className="w-12 h-12 text-white/10 mx-auto mb-3" />
@@ -152,7 +152,7 @@ export default function CommercialCodes() {
                 {codes.map(c => (
                   <tr key={c.id} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02]">
                     <td className="px-4 py-3">
-                      <span className="font-mono text-xs bg-[#123B63] text-white px-2.5 py-1 rounded-md border border-[#1F5A8A]/40">{c.code}</span>
+                      <span className="font-mono text-xs bg-brand-navy text-white px-2.5 py-1 rounded-md border border-brand-blue/40">{c.code}</span>
                     </td>
                     <td className="px-4 py-3 font-medium text-white">{c.name}</td>
                     <td className="px-4 py-3 text-white/60">{typeLabels[c.type] || c.type}</td>
@@ -177,7 +177,7 @@ export default function CommercialCodes() {
 
       {showCreate && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setShowCreate(false)}>
-          <div className="bg-[#0A1E30] border border-white/10 rounded-xl shadow-xl max-w-lg w-full p-6" onClick={e => e.stopPropagation()}>
+          <div className="bg-brand-navy-900 border border-white/10 rounded-xl shadow-xl max-w-lg w-full p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-white">New Commercial Code</h2>
               <button onClick={() => setShowCreate(false)} className="text-white/50 hover:text-white">
@@ -218,7 +218,7 @@ export default function CommercialCodes() {
             </div>
             <div className="flex gap-3 mt-6">
               <button onClick={() => setShowCreate(false)} className="flex-1 px-4 py-2 border border-white/10 rounded-lg text-sm font-medium text-white/60 hover:bg-white/5">Cancel</button>
-              <button onClick={handleCreate} disabled={creating || !form.code || !form.name} className="flex-1 px-4 py-2 bg-[#1F5A8A] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] disabled:opacity-50">
+              <button onClick={handleCreate} disabled={creating || !form.code || !form.name} className="flex-1 px-4 py-2 bg-brand-blue text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] disabled:opacity-50">
                 {creating ? 'Creating...' : 'Create Code'}
               </button>
             </div>

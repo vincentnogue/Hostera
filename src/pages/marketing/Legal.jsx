@@ -71,7 +71,7 @@ export default function Legal({ doc = 'privacy' }) {
   return (
     <div className="bg-white">
       {/* HERO */}
-      <section className="bg-[#0A1E30] py-14">
+      <section className="bg-brand-navy-900 py-14">
         <div className="max-w-3xl mx-auto px-6">
           <Reveal>
             <div className="flex items-center gap-3 mb-4">
@@ -88,23 +88,23 @@ export default function Legal({ doc = 'privacy' }) {
       <section className="py-14">
         <div className="max-w-3xl mx-auto px-6">
           <Reveal>
-            <p className="text-[15px] text-[#64748B] leading-relaxed mb-10">{d.intro}</p>
+            <p className="text-[15px] text-brand-slate leading-relaxed mb-10">{d.intro}</p>
             <div className="space-y-8">
               {d.sections.map((s, i) => (
                 <div key={s.h}>
-                  <h2 className="text-lg font-bold text-[#17212B] mb-2.5">{i + 1}. {s.h}</h2>
-                  <p className="text-sm text-[#64748B] leading-relaxed">{s.p}</p>
+                  <h2 className="text-lg font-bold text-brand-ink mb-2.5">{i + 1}. {s.h}</h2>
+                  <p className="text-sm text-brand-slate leading-relaxed">{s.p}</p>
                 </div>
               ))}
             </div>
-            <div className="mt-12 p-6 rounded-2xl bg-[#F6F8FB] border border-[#E2E8F0]">
-              <p className="text-xs text-[#64748B] leading-relaxed">
+            <div className="mt-12 p-6 rounded-2xl bg-brand-bg border border-brand-border">
+              <p className="text-xs text-brand-slate leading-relaxed">
                 Hostera is developed by{' '}
-                <a href="https://liafrik.com" target="_blank" rel="noopener noreferrer" className="text-[#123B63] font-semibold hover:underline">Liafrik</a>.
+                <a href="https://liafrik.com" target="_blank" rel="noopener noreferrer" className="text-brand-navy font-semibold hover:underline">Liafrik</a>.
                 These documents describe the platform&apos;s policies and practices; they are not legal advice, and
                 compliance with your local regulations depends on your configuration and obligations.
               </p>
-              <Link to="/" className="inline-flex items-center gap-2 mt-4 text-sm font-semibold text-[#123B63] hover:text-[#1F5A8A]">
+              <Link to="/" className="inline-flex items-center gap-2 mt-4 text-sm font-semibold text-brand-navy hover:text-brand-blue">
                 <ArrowLeft className="w-4 h-4" /> Back to home
               </Link>
             </div>

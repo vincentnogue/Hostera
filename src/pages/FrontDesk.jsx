@@ -57,7 +57,7 @@ export default function FrontDesk() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-4 border-[#E2E8F0] border-t-[#123B63] rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-brand-border border-t-brand-navy rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -74,7 +74,7 @@ export default function FrontDesk() {
     { label: 'Arrivals', value: arrivals.length, icon: LogIn, color: 'text-green-600', bg: 'bg-green-50' },
     { label: 'Departures', value: departures.length, icon: LogOut, color: 'text-orange-600', bg: 'bg-orange-50' },
     { label: 'In-House', value: inHouse.length, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { label: 'Available', value: availableRooms, icon: BedDouble, color: 'text-[#123B63]', bg: 'bg-blue-50' },
+    { label: 'Available', value: availableRooms, icon: BedDouble, color: 'text-brand-navy', bg: 'bg-blue-50' },
   ];
 
   const getGuestName = (guestId) => {
@@ -91,10 +91,10 @@ export default function FrontDesk() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#17212B]">Front Desk</h1>
-          <p className="text-sm text-[#64748B] mt-1">Manage today&apos;s arrivals, departures and in-house guests</p>
+          <h1 className="text-2xl font-bold text-brand-ink">Front Desk</h1>
+          <p className="text-sm text-brand-slate mt-1">Manage today&apos;s arrivals, departures and in-house guests</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-[#123B63] text-white rounded-lg text-sm font-medium hover:bg-[#1F5A8A] transition-colors">
+        <button className="flex items-center gap-2 px-4 py-2 bg-brand-navy text-white rounded-lg text-sm font-medium hover:bg-brand-blue transition-colors">
           <Plus className="w-4 h-4" />
           Walk-in
         </button>
@@ -105,14 +105,14 @@ export default function FrontDesk() {
         {stats.map((s) => {
           const Icon = s.icon;
           return (
-            <div key={s.label} className="bg-white rounded-xl border border-[#E2E8F0] p-4">
+            <div key={s.label} className="bg-white rounded-xl border border-brand-border p-4">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-lg ${s.bg} flex items-center justify-center`}>
                   <Icon className={`w-5 h-5 ${s.color}`} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-[#17212B]">{s.value}</p>
-                  <p className="text-xs text-[#64748B]">{s.label}</p>
+                  <p className="text-2xl font-bold text-brand-ink">{s.value}</p>
+                  <p className="text-xs text-brand-slate">{s.label}</p>
                 </div>
               </div>
             </div>
@@ -121,32 +121,32 @@ export default function FrontDesk() {
       </div>
 
       {/* Search */}
-      <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-[#E2E8F0] max-w-md">
-        <Search className="w-4 h-4 text-[#64748B]" />
+      <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-brand-border max-w-md">
+        <Search className="w-4 h-4 text-brand-slate" />
         <input
           type="text"
           placeholder="Search by guest name..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="bg-transparent text-sm outline-none flex-1 text-[#17212B] placeholder:text-[#94A3B8]"
+          className="bg-transparent text-sm outline-none flex-1 text-brand-ink placeholder:text-brand-slate-light"
         />
       </div>
 
       {/* Arrivals & Departures */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
-          <h3 className="text-base font-semibold text-[#17212B] mb-4">Today&apos;s Arrivals</h3>
+        <div className="bg-white rounded-xl border border-brand-border p-6">
+          <h3 className="text-base font-semibold text-brand-ink mb-4">Today&apos;s Arrivals</h3>
           {filterBySearch(arrivals).length === 0 ? (
-            <p className="text-sm text-[#64748B] py-8 text-center">No arrivals for today</p>
+            <p className="text-sm text-brand-slate py-8 text-center">No arrivals for today</p>
           ) : (
             <div className="space-y-3">
               {filterBySearch(arrivals).map((res) => {
                 const room = rooms.find(r => r.id === res.room_id);
                 return (
-                  <div key={res.id} className="flex items-center justify-between p-3 rounded-lg bg-[#F6F8FB]">
+                  <div key={res.id} className="flex items-center justify-between p-3 rounded-lg bg-brand-bg">
                     <div>
-                      <p className="text-sm font-medium text-[#17212B]">{getGuestName(res.guest_id)}</p>
-                      <p className="text-xs text-[#64748B] mt-0.5">
+                      <p className="text-sm font-medium text-brand-ink">{getGuestName(res.guest_id)}</p>
+                      <p className="text-xs text-brand-slate mt-0.5">
                         Room {room?.number || 'Unassigned'} · {res.adults} adults · {res.source}
                       </p>
                     </div>
@@ -169,19 +169,19 @@ export default function FrontDesk() {
           )}
         </div>
 
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
-          <h3 className="text-base font-semibold text-[#17212B] mb-4">Today&apos;s Departures</h3>
+        <div className="bg-white rounded-xl border border-brand-border p-6">
+          <h3 className="text-base font-semibold text-brand-ink mb-4">Today&apos;s Departures</h3>
           {filterBySearch(departures).length === 0 ? (
-            <p className="text-sm text-[#64748B] py-8 text-center">No departures for today</p>
+            <p className="text-sm text-brand-slate py-8 text-center">No departures for today</p>
           ) : (
             <div className="space-y-3">
               {filterBySearch(departures).map((res) => {
                 const room = rooms.find(r => r.id === res.room_id);
                 return (
-                  <div key={res.id} className="flex items-center justify-between p-3 rounded-lg bg-[#F6F8FB]">
+                  <div key={res.id} className="flex items-center justify-between p-3 rounded-lg bg-brand-bg">
                     <div>
-                      <p className="text-sm font-medium text-[#17212B]">{getGuestName(res.guest_id)}</p>
-                      <p className="text-xs text-[#64748B] mt-0.5">
+                      <p className="text-sm font-medium text-brand-ink">{getGuestName(res.guest_id)}</p>
+                      <p className="text-xs text-brand-slate mt-0.5">
                         Room {room?.number || 'N/A'} · Balance: ${((res.total_amount || 0) - (res.paid_amount || 0))}
                       </p>
                     </div>
@@ -206,15 +206,15 @@ export default function FrontDesk() {
       </div>
 
       {/* In-House Guests */}
-      <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
-        <h3 className="text-base font-semibold text-[#17212B] mb-4">In-House Guests ({inHouse.length})</h3>
+      <div className="bg-white rounded-xl border border-brand-border p-6">
+        <h3 className="text-base font-semibold text-brand-ink mb-4">In-House Guests ({inHouse.length})</h3>
         {inHouse.length === 0 ? (
-          <p className="text-sm text-[#64748B] py-8 text-center">No guests currently in house</p>
+          <p className="text-sm text-brand-slate py-8 text-center">No guests currently in house</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs text-[#64748B] border-b border-[#E2E8F0]">
+                <tr className="text-left text-xs text-brand-slate border-b border-brand-border">
                   <th className="pb-2 font-medium">Guest</th>
                   <th className="pb-2 font-medium">Room</th>
                   <th className="pb-2 font-medium">Check-Out</th>
@@ -226,11 +226,11 @@ export default function FrontDesk() {
                 {inHouse.map((res) => {
                   const room = rooms.find(r => r.id === res.room_id);
                   return (
-                    <tr key={res.id} className="border-b border-[#E2E8F0] last:border-0">
-                      <td className="py-3 font-medium text-[#17212B]">{getGuestName(res.guest_id)}</td>
-                      <td className="py-3 text-[#64748B]">{room?.number || 'N/A'}</td>
-                      <td className="py-3 text-[#64748B]">{res.check_out}</td>
-                      <td className="py-3 text-[#64748B]">${((res.total_amount || 0) - (res.paid_amount || 0))}</td>
+                    <tr key={res.id} className="border-b border-brand-border last:border-0">
+                      <td className="py-3 font-medium text-brand-ink">{getGuestName(res.guest_id)}</td>
+                      <td className="py-3 text-brand-slate">{room?.number || 'N/A'}</td>
+                      <td className="py-3 text-brand-slate">{res.check_out}</td>
+                      <td className="py-3 text-brand-slate">${((res.total_amount || 0) - (res.paid_amount || 0))}</td>
                       <td className="py-3">
                         <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${resStatusColors[res.status] || 'bg-gray-100'}`}>
                           {res.status.replace(/_/g, ' ')}
@@ -247,19 +247,19 @@ export default function FrontDesk() {
 
       {/* Pending Payments */}
       {pendingPayments.length > 0 && (
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
+        <div className="bg-white rounded-xl border border-brand-border p-6">
           <div className="flex items-center gap-2 mb-4">
             <DollarSign className="w-5 h-5 text-orange-500" />
-            <h3 className="text-base font-semibold text-[#17212B]">Pending Payments ({pendingPayments.length})</h3>
+            <h3 className="text-base font-semibold text-brand-ink">Pending Payments ({pendingPayments.length})</h3>
           </div>
           <div className="space-y-2">
             {pendingPayments.slice(0, 5).map((res) => (
               <div key={res.id} className="flex items-center justify-between p-3 rounded-lg bg-orange-50">
                 <div>
-                  <p className="text-sm font-medium text-[#17212B]">{getGuestName(res.guest_id)}</p>
-                  <p className="text-xs text-[#64748B] mt-0.5">Outstanding: ${((res.total_amount || 0) - (res.paid_amount || 0))}</p>
+                  <p className="text-sm font-medium text-brand-ink">{getGuestName(res.guest_id)}</p>
+                  <p className="text-xs text-brand-slate mt-0.5">Outstanding: ${((res.total_amount || 0) - (res.paid_amount || 0))}</p>
                 </div>
-                <button className="px-3 py-1.5 bg-[#123B63] text-white text-xs font-medium rounded-lg hover:bg-[#1F5A8A] transition-colors">
+                <button className="px-3 py-1.5 bg-brand-navy text-white text-xs font-medium rounded-lg hover:bg-brand-blue transition-colors">
                   Take Payment
                 </button>
               </div>

@@ -68,16 +68,16 @@ export default function IntegrationHub() {
     setShowAdd(false);
   };
 
-  const inputCls = "w-full px-3.5 py-2 border border-[#E2E8F0] rounded-full text-sm outline-none focus:border-[#123B63]";
+  const inputCls = "w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
 
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#17212B]">Integration Hub</h1>
-          <p className="text-sm text-[#64748B]">Toggle connections to accounting, payments and hospitality tools.</p>
+          <h1 className="text-2xl font-bold text-brand-ink">Integration Hub</h1>
+          <p className="text-sm text-brand-slate">Toggle connections to accounting, payments and hospitality tools.</p>
         </div>
-        <button onClick={() => setShowAdd(true)} className="flex items-center gap-1.5 px-4 py-2.5 bg-[#123B63] text-white text-sm font-semibold rounded-full hover:bg-[#1F5A8A]">
+        <button onClick={() => setShowAdd(true)} className="flex items-center gap-1.5 px-4 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">
           <Plus className="w-4 h-4" /> Add Integration
         </button>
       </div>
@@ -89,19 +89,19 @@ export default function IntegrationHub() {
           { label: 'Available Categories', value: categories.length },
           { label: 'Needs Attention', value: settings.filter(s => s.status === 'error').length },
         ].map(k => (
-          <div key={k.label} className="bg-white rounded-xl border border-[#E2E8F0] p-4">
-            <p className="text-xl font-bold text-[#17212B]">{k.value}</p>
-            <p className="text-[11px] text-[#64748B]">{k.label}</p>
+          <div key={k.label} className="bg-white rounded-xl border border-brand-border p-4">
+            <p className="text-xl font-bold text-brand-ink">{k.value}</p>
+            <p className="text-[11px] text-brand-slate">{k.label}</p>
           </div>
         ))}
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <button onClick={() => setActiveCat('all')} className={`px-3.5 py-1.5 text-xs font-medium rounded-full ${activeCat === 'all' ? 'bg-[#123B63] text-white' : 'bg-white border border-[#E2E8F0] text-[#64748B] hover:border-[#123B63]'}`}>All</button>
+        <button onClick={() => setActiveCat('all')} className={`px-3.5 py-1.5 text-xs font-medium rounded-full ${activeCat === 'all' ? 'bg-brand-navy text-white' : 'bg-white border border-brand-border text-brand-slate hover:border-brand-navy'}`}>All</button>
         {categories.map(c => {
           const Icon = categoryIcons[c];
           return (
-            <button key={c} onClick={() => setActiveCat(c)} className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium rounded-full capitalize ${activeCat === c ? 'bg-[#123B63] text-white' : 'bg-white border border-[#E2E8F0] text-[#64748B] hover:border-[#123B63]'}`}>
+            <button key={c} onClick={() => setActiveCat(c)} className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium rounded-full capitalize ${activeCat === c ? 'bg-brand-navy text-white' : 'bg-white border border-brand-border text-brand-slate hover:border-brand-navy'}`}>
               <Icon className="w-3.5 h-3.5" /> {c}
             </button>
           );
@@ -109,46 +109,46 @@ export default function IntegrationHub() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-[#64748B]">Loading integrations…</p>
+        <p className="text-sm text-brand-slate">Loading integrations…</p>
       ) : filtered.length === 0 ? (
-        <div className="bg-white rounded-xl border border-dashed border-[#E2E8F0] p-10 text-center">
+        <div className="bg-white rounded-xl border border-dashed border-brand-border p-10 text-center">
           <Plug className="w-8 h-8 text-[#C4CDD5] mx-auto mb-3" />
-          <p className="text-sm text-[#64748B] mb-4">No integrations in this category yet.</p>
-          <button onClick={() => setShowAdd(true)} className="px-4 py-2 bg-[#123B63] text-white text-xs font-semibold rounded-full">Add your first</button>
+          <p className="text-sm text-brand-slate mb-4">No integrations in this category yet.</p>
+          <button onClick={() => setShowAdd(true)} className="px-4 py-2 bg-brand-navy text-white text-xs font-semibold rounded-full">Add your first</button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map(s => (
-            <div key={s.id} className="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col">
+            <div key={s.id} className="bg-white rounded-xl border border-brand-border p-5 flex flex-col">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <div>
                     <BrandLogo name={s.tool_name} size="sm" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-[#17212B]">{s.tool_name}</p>
-                    <p className="text-[10px] text-[#64748B] capitalize">{s.category}</p>
+                    <p className="text-sm font-semibold text-brand-ink">{s.tool_name}</p>
+                    <p className="text-[10px] text-brand-slate capitalize">{s.category}</p>
                   </div>
                 </div>
                 <span className={`text-[10px] px-2.5 py-1 rounded-full font-semibold ${s.status === 'connected' ? 'bg-green-50 text-green-700' : s.status === 'error' ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
                   {s.status}
                 </span>
               </div>
-              {s.description && <p className="text-[12px] text-[#64748B] leading-relaxed mb-3 flex-1">{s.description}</p>}
+              {s.description && <p className="text-[12px] text-brand-slate leading-relaxed mb-3 flex-1">{s.description}</p>}
               <div className="flex items-center justify-between pt-3 border-t border-[#F1F5F9]">
-                <span className="text-[10px] text-[#94A3B8] flex items-center gap-1">
+                <span className="text-[10px] text-brand-slate-light flex items-center gap-1">
                   <Link2 className="w-3 h-3" />
                   {s.last_sync ? `Synced ${new Date(s.last_sync).toLocaleString()}` : 'Never synced'}
                 </span>
                 <div className="flex gap-1.5">
                   {s.status === 'connected' && (
-                    <button onClick={() => resync(s)} className="p-2 border border-[#E2E8F0] text-[#64748B] rounded-full hover:border-[#123B63] hover:text-[#123B63]" title="Resync">
+                    <button onClick={() => resync(s)} className="p-2 border border-brand-border text-brand-slate rounded-full hover:border-brand-navy hover:text-brand-navy" title="Resync">
                       <RefreshCw className="w-3.5 h-3.5" />
                     </button>
                   )}
                   <button
                     onClick={() => toggle(s)}
-                    className={`flex items-center gap-1 px-3.5 py-1.5 text-xs font-semibold rounded-full ${s.status === 'connected' ? 'border border-red-200 text-red-600 hover:bg-red-50' : 'bg-[#123B63] text-white hover:bg-[#1F5A8A]'}`}
+                    className={`flex items-center gap-1 px-3.5 py-1.5 text-xs font-semibold rounded-full ${s.status === 'connected' ? 'border border-red-200 text-red-600 hover:bg-red-50' : 'bg-brand-navy text-white hover:bg-brand-blue'}`}
                   >
                     {s.status === 'connected' ? <><X className="w-3.5 h-3.5" /> Disconnect</> : <><Check className="w-3.5 h-3.5" /> Connect</>}
                   </button>
@@ -163,13 +163,13 @@ export default function IntegrationHub() {
       {showAdd && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowAdd(false)}>
           <div className="bg-white rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-[#17212B] mb-4">Add Integration</h3>
+            <h3 className="text-lg font-bold text-brand-ink mb-4">Add Integration</h3>
             <div className="space-y-3">
               <div>
-                <label className="text-xs font-medium text-[#64748B] block mb-1">Quick pick</label>
+                <label className="text-xs font-medium text-brand-slate block mb-1">Quick pick</label>
                 <div className="flex flex-wrap gap-1.5">
                   {integrationCatalog.map(c => (
-                    <button key={c.tool_name} onClick={() => setNewTool({ tool_name: c.tool_name, category: c.category, description: c.description })} className={`px-3 py-1.5 text-xs rounded-full border ${newTool.tool_name === c.tool_name ? 'bg-[#123B63] text-white border-[#123B63]' : 'border-[#E2E8F0] text-[#64748B]'}`}>
+                    <button key={c.tool_name} onClick={() => setNewTool({ tool_name: c.tool_name, category: c.category, description: c.description })} className={`px-3 py-1.5 text-xs rounded-full border ${newTool.tool_name === c.tool_name ? 'bg-brand-navy text-white border-brand-navy' : 'border-brand-border text-brand-slate'}`}>
                       {c.tool_name}
                     </button>
                   ))}
@@ -181,8 +181,8 @@ export default function IntegrationHub() {
               </select>
               <input placeholder="Description (optional)" value={newTool.description} onChange={e => setNewTool({ ...newTool, description: e.target.value })} className={inputCls} />
               <div className="flex gap-2 pt-2">
-                <button onClick={addIntegration} className="flex-1 py-2.5 bg-[#123B63] text-white text-sm font-semibold rounded-full hover:bg-[#1F5A8A]">Add</button>
-                <button onClick={() => setShowAdd(false)} className="flex-1 py-2.5 border border-[#E2E8F0] text-sm font-medium rounded-full text-[#64748B]">Cancel</button>
+                <button onClick={addIntegration} className="flex-1 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">Add</button>
+                <button onClick={() => setShowAdd(false)} className="flex-1 py-2.5 border border-brand-border text-sm font-medium rounded-full text-brand-slate">Cancel</button>
               </div>
             </div>
           </div>

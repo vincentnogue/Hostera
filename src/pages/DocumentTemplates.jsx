@@ -73,24 +73,24 @@ export default function DocumentTemplates() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-4 border-[#E2E8F0] border-t-[#123B63] rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-brand-border border-t-brand-navy rounded-full animate-spin"></div>
       </div>
     );
   }
 
   const previewTemplate = templates.find(t => t.id === previewId);
-  const inputCls = "w-full px-3 py-2 border border-[#E2E8F0] rounded-lg text-sm outline-none focus:border-[#123B63] text-[#17212B]";
+  const inputCls = "w-full px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy text-brand-ink";
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#17212B]">Document Templates</h1>
-          <p className="text-sm text-[#64748B] mt-1">Invoices, confirmations and registration cards</p>
+          <h1 className="text-2xl font-bold text-brand-ink">Document Templates</h1>
+          <p className="text-sm text-brand-slate mt-1">Invoices, confirmations and registration cards</p>
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#123B63] text-white rounded-lg text-sm font-medium hover:bg-[#1F5A8A] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-brand-navy text-white rounded-lg text-sm font-medium hover:bg-brand-blue transition-colors"
         >
           <Plus className="w-4 h-4" />
           New Template
@@ -99,20 +99,20 @@ export default function DocumentTemplates() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Template List */}
-        <div className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden">
+        <div className="bg-white rounded-xl border border-brand-border overflow-hidden">
           {templates.length === 0 ? (
             <div className="py-16 text-center">
-              <LayoutTemplate className="w-12 h-12 text-[#E2E8F0] mx-auto mb-3" />
-              <p className="text-sm text-[#64748B]">No templates yet</p>
+              <LayoutTemplate className="w-12 h-12 text-brand-border mx-auto mb-3" />
+              <p className="text-sm text-brand-slate">No templates yet</p>
             </div>
           ) : (
-            <div className="divide-y divide-[#E2E8F0]">
+            <div className="divide-y divide-brand-border">
               {templates.map((tmpl) => {
                 const config = typeConfig[tmpl.type] || typeConfig.invoice;
                 return (
                   <div
                     key={tmpl.id}
-                    className={`p-4 flex items-center justify-between gap-4 cursor-pointer transition-colors ${previewId === tmpl.id ? 'bg-blue-50/30' : 'hover:bg-[#F6F8FB]'}`}
+                    className={`p-4 flex items-center justify-between gap-4 cursor-pointer transition-colors ${previewId === tmpl.id ? 'bg-blue-50/30' : 'hover:bg-brand-bg'}`}
                     onClick={() => setPreviewId(tmpl.id)}
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -120,13 +120,13 @@ export default function DocumentTemplates() {
                         <LayoutTemplate className="w-5 h-5" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-[#17212B] truncate">{tmpl.name}</p>
-                        <p className="text-xs text-[#64748B]">
+                        <p className="text-sm font-semibold text-brand-ink truncate">{tmpl.name}</p>
+                        <p className="text-xs text-brand-slate">
                           {config.label} · {tmpl.language?.toUpperCase()} · {tmpl.status}
                         </p>
                       </div>
                     </div>
-                    <Eye className="w-4 h-4 text-[#64748B] shrink-0" />
+                    <Eye className="w-4 h-4 text-brand-slate shrink-0" />
                   </div>
                 );
               })}
@@ -135,18 +135,18 @@ export default function DocumentTemplates() {
         </div>
 
         {/* Preview / Edit Panel */}
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
+        <div className="bg-white rounded-xl border border-brand-border p-6">
           {!previewTemplate ? (
             <div className="py-16 text-center">
-              <Eye className="w-12 h-12 text-[#E2E8F0] mx-auto mb-3" />
-              <p className="text-sm text-[#64748B]">Select a template to preview and edit</p>
+              <Eye className="w-12 h-12 text-brand-border mx-auto mb-3" />
+              <p className="text-sm text-brand-slate">Select a template to preview and edit</p>
             </div>
           ) : (
             <>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-base font-semibold text-[#17212B]">{previewTemplate.name}</h3>
-                  <p className="text-xs text-[#64748B] mt-0.5">
+                  <h3 className="text-base font-semibold text-brand-ink">{previewTemplate.name}</h3>
+                  <p className="text-xs text-brand-slate mt-0.5">
                     Last modified: {previewTemplate.last_modified ? new Date(previewTemplate.last_modified).toLocaleString() : 'Unknown'}
                   </p>
                 </div>
@@ -159,9 +159,9 @@ export default function DocumentTemplates() {
                 onBlur={e => handleContentUpdate(previewTemplate.id, e.target.value)}
                 rows={16}
                 placeholder="Template content with {{placeholders}} like {{guest_name}}, {{check_in}}, {{total}}..."
-                className="w-full px-3 py-3 border border-[#E2E8F0] rounded-lg text-sm outline-none focus:border-[#123B63] font-mono leading-relaxed resize-none text-[#17212B]"
+                className="w-full px-3 py-3 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy font-mono leading-relaxed resize-none text-brand-ink"
               />
-              <p className="text-xs text-[#64748B] mt-2">
+              <p className="text-xs text-brand-slate mt-2">
                 Changes save automatically when you click outside the editor.
                 Use placeholders like {'{{guest_name}}'}, {'{{check_in}}'}, {'{{check_out}}'}, {'{{total}}'}.
               </p>
@@ -175,26 +175,26 @@ export default function DocumentTemplates() {
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowCreate(false)}>
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-[#17212B]">New Template</h2>
-              <button onClick={() => setShowCreate(false)} className="text-[#64748B] hover:text-[#17212B]">
+              <h2 className="text-lg font-semibold text-brand-ink">New Template</h2>
+              <button onClick={() => setShowCreate(false)} className="text-brand-slate hover:text-brand-ink">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-[#17212B] mb-1 block">Template Name</label>
+                <label className="text-sm font-medium text-brand-ink mb-1 block">Template Name</label>
                 <input type="text" value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="e.g. Standard Invoice" className={inputCls} />
               </div>
               <div>
-                <label className="text-sm font-medium text-[#17212B] mb-1 block">Type</label>
+                <label className="text-sm font-medium text-brand-ink mb-1 block">Type</label>
                 <select value={form.type} onChange={e => setForm({...form, type: e.target.value})} className={inputCls}>
                   {Object.entries(typeConfig).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-sm font-medium text-[#17212B] mb-1 block">Language</label>
+                <label className="text-sm font-medium text-brand-ink mb-1 block">Language</label>
                 <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-[#64748B]" />
+                  <Globe className="w-4 h-4 text-brand-slate" />
                   <select value={form.language} onChange={e => setForm({...form, language: e.target.value})} className={inputCls}>
                     {[['en','English'],['fr','French'],['es','Spanish'],['de','German'],['it','Italian'],['pt','Portuguese'],['ar','Arabic']].map(([code, label]) => (
                       <option key={code} value={code}>{label}</option>
@@ -203,13 +203,13 @@ export default function DocumentTemplates() {
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium text-[#17212B] mb-1 block">Initial Content (optional)</label>
+                <label className="text-sm font-medium text-brand-ink mb-1 block">Initial Content (optional)</label>
                 <textarea value={form.content} onChange={e => setForm({...form, content: e.target.value})} rows={4} placeholder="Template content..." className={`${inputCls} resize-none font-mono`} />
               </div>
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowCreate(false)} className="flex-1 px-4 py-2 border border-[#E2E8F0] rounded-lg text-sm font-medium text-[#64748B] hover:bg-[#F6F8FB]">Cancel</button>
-              <button onClick={handleCreate} disabled={creating || !form.name} className="flex-1 px-4 py-2 bg-[#123B63] text-white rounded-lg text-sm font-medium hover:bg-[#1F5A8A] disabled:opacity-50">
+              <button onClick={() => setShowCreate(false)} className="flex-1 px-4 py-2 border border-brand-border rounded-lg text-sm font-medium text-brand-slate hover:bg-brand-bg">Cancel</button>
+              <button onClick={handleCreate} disabled={creating || !form.name} className="flex-1 px-4 py-2 bg-brand-navy text-white rounded-lg text-sm font-medium hover:bg-brand-blue disabled:opacity-50">
                 {creating ? 'Creating...' : 'Create Template'}
               </button>
             </div>

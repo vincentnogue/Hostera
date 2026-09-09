@@ -16,10 +16,10 @@ export default function Security() {
   return (
     <div className="bg-white">
       {/* HERO */}
-      <section className="relative bg-[#0A1E30] py-24 overflow-hidden">
+      <section className="relative bg-brand-navy-900 py-24 overflow-hidden">
         <div className="absolute inset-0">
           <img src="https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover opacity-20" alt="Hotel suite at night" />
-          <div className="absolute inset-0 bg-[#0A1E30]/75"></div>
+          <div className="absolute inset-0 bg-brand-navy-900/75"></div>
         </div>
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <Reveal>
@@ -42,12 +42,12 @@ export default function Security() {
             const Icon = p.icon;
             return (
               <Reveal key={p.title} delay={(i % 3) * 0.08}>
-                <div className="p-7 rounded-2xl border border-[#E2E8F0] hover:shadow-xl transition-all h-full">
-                  <div className="w-11 h-11 rounded-full bg-[#F6F8FB] flex items-center justify-center mb-4">
-                    <Icon className="w-5 h-5 text-[#123B63]" />
+                <div className="p-7 rounded-2xl border border-brand-border hover:shadow-xl transition-all h-full">
+                  <div className="w-11 h-11 rounded-full bg-brand-bg flex items-center justify-center mb-4">
+                    <Icon className="w-5 h-5 text-brand-navy" />
                   </div>
-                  <h3 className="text-base font-semibold text-[#17212B] mb-2">{p.title}</h3>
-                  <p className="text-[13px] text-[#64748B] leading-relaxed">{p.desc}</p>
+                  <h3 className="text-base font-semibold text-brand-ink mb-2">{p.title}</h3>
+                  <p className="text-[13px] text-brand-slate leading-relaxed">{p.desc}</p>
                 </div>
               </Reveal>
             );
@@ -56,10 +56,10 @@ export default function Security() {
       </section>
 
       {/* ARCHITECTURE */}
-      <section className="py-20 bg-[#F6F8FB]">
+      <section className="py-20 bg-brand-bg">
         <div className="max-w-4xl mx-auto px-6">
           <Reveal>
-            <h2 className="text-3xl font-bold text-[#17212B] text-center mb-10">How the platform enforces it</h2>
+            <h2 className="text-3xl font-bold text-brand-ink text-center mb-10">How the platform enforces it</h2>
           </Reveal>
           <div className="space-y-4">
             {[
@@ -70,11 +70,11 @@ export default function Security() {
               ['Human-readable, secure errors', 'Errors shown to users never expose stack traces, credentials or internal architecture.'],
             ].map(([title, desc], i) => (
               <Reveal key={title} delay={i * 0.06}>
-                <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0] flex items-start gap-4">
-                  <span className="w-6 h-6 rounded-full bg-[#123B63] text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
+                <div className="p-6 rounded-2xl bg-white border border-brand-border flex items-start gap-4">
+                  <span className="w-6 h-6 rounded-full bg-brand-navy text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
                   <div>
-                    <h3 className="text-sm font-semibold text-[#17212B] mb-1">{title}</h3>
-                    <p className="text-[13px] text-[#64748B] leading-relaxed">{desc}</p>
+                    <h3 className="text-sm font-semibold text-brand-ink mb-1">{title}</h3>
+                    <p className="text-[13px] text-brand-slate leading-relaxed">{desc}</p>
                   </div>
                 </div>
               </Reveal>
@@ -87,18 +87,18 @@ export default function Security() {
       <section className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-6">
           <Reveal>
-            <div className="p-8 rounded-2xl bg-[#F6F8FB] border border-[#E2E8F0]">
-              <h2 className="text-2xl font-bold text-[#17212B] mb-4">Privacy, honestly</h2>
-              <p className="text-sm text-[#64748B] leading-relaxed mb-5">
+            <div className="p-8 rounded-2xl bg-brand-bg border border-brand-border">
+              <h2 className="text-2xl font-bold text-brand-ink mb-4">Privacy, honestly</h2>
+              <p className="text-sm text-brand-slate leading-relaxed mb-5">
                 Hostera is built for international privacy frameworks: consent management, marketing preferences,
                 data export, data deletion and retention policies are part of the platform — and country-specific
                 compliance requirements are configurable per property.
               </p>
-              <p className="text-xs text-[#64748B]">
+              <p className="text-xs text-brand-slate">
                 We don&apos;t claim automatic legal compliance for your jurisdiction — compliance depends on how you configure
                 the platform and your local obligations. Read our{' '}
-                <Link to="/legal/privacy" className="text-[#123B63] font-semibold hover:underline">Privacy Policy</Link> and{' '}
-                <Link to="/legal/data-processing" className="text-[#123B63] font-semibold hover:underline">Data Processing terms</Link>.
+                <Link to="/legal/privacy" className="text-brand-navy font-semibold hover:underline">Privacy Policy</Link> and{' '}
+                <Link to="/legal/data-processing" className="text-brand-navy font-semibold hover:underline">Data Processing terms</Link>.
               </p>
             </div>
           </Reveal>
@@ -106,11 +106,11 @@ export default function Security() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-[#123B63]">
+      <section className="py-20 bg-brand-navy">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <Reveal>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Run your hotel on a platform you can trust</h2>
-            <Link to="/register" className="inline-flex items-center gap-2 rounded-full bg-white text-[#123B63] px-8 py-3.5 text-sm font-bold hover:scale-105 transition-transform">
+            <Link to="/register" className="inline-flex items-center gap-2 rounded-full bg-white text-brand-navy px-8 py-3.5 text-sm font-bold hover:scale-105 transition-transform">
               Start Free Trial <ArrowRight className="w-4 h-4" />
             </Link>
           </Reveal>

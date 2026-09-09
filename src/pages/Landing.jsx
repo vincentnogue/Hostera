@@ -9,13 +9,13 @@ import AffordabilityBand from '@/components/marketing/AffordabilityBand';
 import { MODULES, INDUSTRIES, PLANS } from '@/lib/marketing';
 import {
   ArrowRight, Check, Sparkles, Shield, Users, ConciergeBell,
-  Sparkles as SparkleIcon, Star, TrendingUp, Zap, Lock, BarChart3,
+  Sparkles as SparkleIcon, TrendingUp, Zap, Lock, BarChart3,
   MessageSquare, FileText, KeyRound, BadgeCheck, ShieldCheck, Headphones,
-  Award, Play, CircleDollarSign
+  Play
 } from 'lucide-react';
 
 const GREEN = '#A6FF00';
-const NAVY = '#0E243F';
+const NAVY = '#123B63';
 
 export default function Landing() {
   const aiFeatures = [
@@ -38,13 +38,6 @@ export default function Landing() {
     { icon: ConciergeBell, role: 'Front Desk Managers', quote: 'Arrivals, departures and walk-ins in one fast workspace — no more switching between screens during the morning rush.' },
     { icon: SparkleIcon, role: 'Housekeeping Teams', quote: 'A real-time status board that works on any phone. Dirty rooms, priorities and assignments — always current.' },
     { icon: TrendingUp, role: 'General Managers', quote: 'Occupancy, ADR, RevPAR and revenue trends in one dashboard. Decisions backed by data, not guesswork.' },
-  ];
-
-  const awardBadges = [
-    { icon: Award, label: 'Easiest To Use — Small Business 2026' },
-    { icon: Star, label: 'Category Leaders 2025' },
-    { icon: CircleDollarSign, label: 'Best Value 2026' },
-    { icon: ShieldCheck, label: 'Best Customer Support 2026' },
   ];
 
   return (
@@ -76,7 +69,7 @@ export default function Landing() {
                 </Link>
                 <Link
                   to="/features"
-                  className="inline-flex items-center gap-2 rounded-full border-2 px-7 py-3 text-sm font-bold hover:bg-[#F6F8FB] transition-colors"
+                  className="inline-flex items-center gap-2 rounded-full border-2 px-7 py-3 text-sm font-bold hover:bg-brand-bg transition-colors"
                   style={{ borderColor: NAVY, color: NAVY }}
                 >
                   <Play className="w-4 h-4" /> Watch Demo
@@ -86,17 +79,6 @@ export default function Landing() {
                 <Check className="w-4 h-4" style={{ color: '#16A34A' }} />
                 No credit card required. Get instant access to Hostera.
               </p>
-              <div className="flex flex-wrap gap-2.5 mt-6">
-                {awardBadges.map(b => {
-                  const Icon = b.icon;
-                  return (
-                    <span key={b.label} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F6F8FB] border border-[#E2E8F0] text-[11px] font-semibold" style={{ color: NAVY }}>
-                      <Icon className="w-3.5 h-3.5" style={{ color: '#0E9F6E' }} />
-                      {b.label}
-                    </span>
-                  );
-                })}
-              </div>
             </div>
           </Reveal>
 
@@ -108,7 +90,7 @@ export default function Landing() {
       </section>
 
       {/* ================= TRUST BAND ================= */}
-      <section className="bg-[#F8F9FA] border-y border-[#E2E8F0] py-12">
+      <section className="bg-[#F8F9FA] border-y border-brand-border py-12">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <Reveal>
             <h2 className="text-lg font-bold mb-8" style={{ color: NAVY }}>
@@ -147,12 +129,12 @@ export default function Landing() {
               const Icon = m.icon;
               return (
                 <Reveal key={m.name + m.group} delay={(i % 4) * 0.06}>
-                  <Link to="/features" className="block h-full p-6 rounded-2xl border border-[#E2E8F0] hover:shadow-xl transition-all group hover:border-[#1F5A8A]/40">
+                  <Link to="/features" className="block h-full p-6 rounded-2xl border border-brand-border hover:shadow-xl transition-all group hover:border-brand-blue/40">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="w-11 h-11 rounded-full bg-[#F6F8FB] flex items-center justify-center group-hover:bg-[#123B63] transition-colors">
-                        <Icon className="w-5 h-5 text-[#123B63] group-hover:text-white transition-colors" />
+                      <div className="w-11 h-11 rounded-full bg-brand-bg flex items-center justify-center group-hover:bg-brand-navy transition-colors">
+                        <Icon className="w-5 h-5 text-brand-navy group-hover:text-white transition-colors" />
                       </div>
-                      <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-[#F6F8FB] border border-[#E2E8F0]" style={{ color: '#1F5A8A' }}>
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-brand-bg border border-brand-border" style={{ color: '#1F5A8A' }}>
                         {m.group}
                       </span>
                     </div>
@@ -281,7 +263,7 @@ export default function Landing() {
           <Reveal>
             <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
               {INDUSTRIES.map(ind => (
-                <Link key={ind.name} to="/industries" className="px-5 py-2.5 bg-[#F8F9FA] border border-[#E2E8F0] rounded-full text-sm font-medium hover:border-[#123B63] hover:bg-white transition-all" style={{ color: NAVY }}>
+                <Link key={ind.name} to="/industries" className="px-5 py-2.5 bg-[#F8F9FA] border border-brand-border rounded-full text-sm font-medium hover:border-brand-navy hover:bg-white transition-all" style={{ color: NAVY }}>
                   {ind.name}
                 </Link>
               ))}
@@ -292,7 +274,7 @@ export default function Landing() {
 
       {/* ================= HOSTERA AI ================= */}
       <section className="py-24 relative overflow-hidden" style={{ background: NAVY }}>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#1F5A8A]/20 rounded-full blur-3xl" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-brand-blue/20 rounded-full blur-3xl" />
         <div className="max-w-7xl mx-auto px-6 relative">
           <Reveal>
             <div className="text-center mb-14">
@@ -311,8 +293,8 @@ export default function Landing() {
               const Icon = f.icon;
               return (
                 <Reveal key={f.title} delay={(i % 3) * 0.08}>
-                  <div className="p-6 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-[#1F5A8A]/50 transition-colors h-full">
-                    <div className="w-10 h-10 rounded-full bg-[#1F5A8A]/30 flex items-center justify-center mb-4">
+                  <div className="p-6 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-brand-blue/50 transition-colors h-full">
+                    <div className="w-10 h-10 rounded-full bg-brand-blue/30 flex items-center justify-center mb-4">
                       <Icon className="w-5 h-5 text-blue-300" />
                     </div>
                     <h3 className="text-base font-semibold text-white mb-1.5">{f.title}</h3>
@@ -347,9 +329,9 @@ export default function Landing() {
               const Icon = f.icon;
               return (
                 <Reveal key={f.title} delay={i * 0.07}>
-                  <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0] h-full">
+                  <div className="p-6 rounded-2xl bg-white border border-brand-border h-full">
                     <div className="w-11 h-11 rounded-full bg-blue-50 flex items-center justify-center mb-4">
-                      <Icon className="w-5 h-5 text-[#123B63]" />
+                      <Icon className="w-5 h-5 text-brand-navy" />
                     </div>
                     <h3 className="text-base font-semibold mb-2" style={{ color: NAVY }}>{f.title}</h3>
                     <p className="text-[13px] leading-relaxed" style={{ color: '#4A4A4A' }}>{f.desc}</p>
@@ -375,12 +357,12 @@ export default function Landing() {
               const Icon = r.icon;
               return (
                 <Reveal key={r.role} delay={i * 0.1}>
-                  <div className="p-8 rounded-2xl bg-[#F8F9FA] border border-[#E2E8F0] h-full flex flex-col">
+                  <div className="p-8 rounded-2xl bg-[#F8F9FA] border border-brand-border h-full flex flex-col">
                     <div className="w-11 h-11 rounded-full flex items-center justify-center mb-5" style={{ background: NAVY }}>
                       <Icon className="w-5 h-5 text-white" />
                     </div>
                     <p className="text-[15px] leading-relaxed flex-1" style={{ color: '#17212B' }}>&quot;{r.quote}&quot;</p>
-                    <p className="text-sm font-semibold text-[#123B63] mt-5">{r.role}</p>
+                    <p className="text-sm font-semibold text-brand-navy mt-5">{r.role}</p>
                   </div>
                 </Reveal>
               );
@@ -405,13 +387,13 @@ export default function Landing() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {PLANS.map((p, i) => (
               <Reveal key={p.name} delay={i * 0.08}>
-                <div className={`p-6 rounded-2xl border-2 transition-all h-full ${p.popular ? 'shadow-xl bg-white relative' : 'border-[#E2E8F0] bg-white hover:border-[#1F5A8A]/40'}`} style={p.popular ? { borderColor: NAVY } : {}}>
+                <div className={`p-6 rounded-2xl border-2 transition-all h-full ${p.popular ? 'shadow-xl bg-white relative' : 'border-brand-border bg-white hover:border-brand-blue/40'}`} style={p.popular ? { borderColor: NAVY } : {}}>
                   {p.popular && (
                     <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-white text-xs font-semibold px-3 py-1 rounded-full" style={{ background: NAVY }}>Most Popular</span>
                   )}
                   <h3 className="text-lg font-bold" style={{ color: NAVY }}>{p.name}</h3>
                   <p className="text-xs mt-1 mb-4" style={{ color: '#4A4A4A' }}>{p.desc}</p>
-                  <p className="text-4xl font-bold text-[#123B63]">${p.price}<span className="text-sm font-normal" style={{ color: '#4A4A4A' }}>/mo</span></p>
+                  <p className="text-4xl font-bold text-brand-navy">${p.price}<span className="text-sm font-normal" style={{ color: '#4A4A4A' }}>/mo</span></p>
                   <ul className="mt-5 space-y-2 mb-6">
                     {p.features.slice(0, 4).map(f => (
                       <li key={f} className="flex items-center gap-2 text-[13px]" style={{ color: NAVY }}>
@@ -419,7 +401,7 @@ export default function Landing() {
                       </li>
                     ))}
                   </ul>
-                  <Link to="/pricing" className={`block text-center py-2.5 rounded-full text-sm font-semibold transition-colors ${p.popular ? 'text-[#0E243F] hover:brightness-95' : 'border border-[#E2E8F0] text-[#123B63] hover:border-[#123B63]'}`} style={p.popular ? { background: GREEN } : {}}>
+                  <Link to="/pricing" className={`block text-center py-2.5 rounded-full text-sm font-semibold transition-colors ${p.popular ? 'text-brand-overlay hover:brightness-95' : 'border border-brand-border text-brand-navy hover:border-brand-navy'}`} style={p.popular ? { background: GREEN } : {}}>
                     Choose {p.name}
                   </Link>
                 </div>
@@ -430,10 +412,10 @@ export default function Landing() {
       </section>
 
       {/* ================= FINAL CTA ================= */}
-      <section className="py-24 bg-[#123B63] relative overflow-hidden">
+      <section className="py-24 bg-brand-navy relative overflow-hidden">
         <div className="absolute inset-0">
           <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover opacity-20" alt="Resort pool" />
-          <div className="absolute inset-0 bg-[#123B63]/70"></div>
+          <div className="absolute inset-0 bg-brand-navy/70"></div>
         </div>
         <div className="relative max-w-3xl mx-auto px-6 text-center">
           <Reveal>

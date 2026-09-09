@@ -33,12 +33,12 @@ export default function PlatformAudit() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-4 border-[#1F5A8A] border-t-white rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-brand-blue border-t-white rounded-full animate-spin"></div>
       </div>
     );
   }
 
-  const inputCls = "w-full px-3 py-2 bg-[#0C2438] border border-white/10 rounded-lg text-sm outline-none focus:border-[#1F5A8A] text-white";
+  const inputCls = "w-full px-3 py-2 bg-brand-navy-950 border border-white/10 rounded-lg text-sm outline-none focus:border-brand-blue text-white";
 
   const filteredLogs = logs.filter(log => {
     const matchesSearch = !search || [log.action, log.user_name, log.entity_type, log.details]
@@ -75,7 +75,7 @@ export default function PlatformAudit() {
 
       <div className="space-y-2">
         {filteredLogs.length === 0 ? (
-          <div className="bg-[#0A1E30] border border-white/5 rounded-xl py-16 text-center">
+          <div className="bg-brand-navy-900 border border-white/5 rounded-xl py-16 text-center">
             <FileText className="w-12 h-12 text-white/10 mx-auto mb-3" />
             <p className="text-sm text-white/40">No audit events found</p>
           </div>
@@ -84,7 +84,7 @@ export default function PlatformAudit() {
             const config = severityConfig[log.severity] || severityConfig.info;
             const Icon = config.icon;
             return (
-              <div key={log.id} className="bg-[#0A1E30] border border-white/5 rounded-xl p-4 flex items-start gap-3">
+              <div key={log.id} className="bg-brand-navy-900 border border-white/5 rounded-xl p-4 flex items-start gap-3">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${config.bg}`}>
                   <Icon className={`w-4 h-4 ${config.color}`} />
                 </div>

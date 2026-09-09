@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 
 import { Crown, Gift, Plus, X, Star, Users, Sparkles } from 'lucide-react';
 
-const tierColors = { blue: 'bg-blue-50 text-[#123B63] border-blue-200', amber: 'bg-amber-50 text-amber-700 border-amber-200', gray: 'bg-gray-100 text-gray-600 border-gray-200', green: 'bg-green-50 text-green-700 border-green-200' };
+const tierColors = { blue: 'bg-blue-50 text-brand-navy border-blue-200', amber: 'bg-amber-50 text-amber-700 border-amber-200', gray: 'bg-gray-100 text-gray-600 border-gray-200', green: 'bg-green-50 text-green-700 border-green-200' };
 
 export default function LoyaltyProgram() {
   const [tiers, setTiers] = useState([]);
@@ -29,7 +29,7 @@ export default function LoyaltyProgram() {
   }, []);
 
   const propertyId = properties[0]?.id;
-  const inputCls = "w-full px-3.5 py-2 border border-[#E2E8F0] rounded-full text-sm outline-none focus:border-[#123B63]";
+  const inputCls = "w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
   const members = guests.filter(g => (g.loyalty_points || 0) > 0);
   const topGuests = [...guests].sort((a, b) => (b.loyalty_points || 0) - (a.loyalty_points || 0)).slice(0, 5);
 
@@ -61,8 +61,8 @@ export default function LoyaltyProgram() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#17212B]">Loyalty Program</h1>
-        <p className="text-sm text-[#64748B]">Membership tiers, guest points and exclusive rewards for frequent visitors.</p>
+        <h1 className="text-2xl font-bold text-brand-ink">Loyalty Program</h1>
+        <p className="text-sm text-brand-slate">Membership tiers, guest points and exclusive rewards for frequent visitors.</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -74,10 +74,10 @@ export default function LoyaltyProgram() {
         ].map(k => {
           const Icon = k.icon;
           return (
-            <div key={k.label} className="bg-white rounded-xl border border-[#E2E8F0] p-4">
-              <Icon className="w-4 h-4 text-[#123B63] mb-2" />
-              <p className="text-xl font-bold text-[#17212B]">{k.value}</p>
-              <p className="text-[11px] text-[#64748B]">{k.label}</p>
+            <div key={k.label} className="bg-white rounded-xl border border-brand-border p-4">
+              <Icon className="w-4 h-4 text-brand-navy mb-2" />
+              <p className="text-xl font-bold text-brand-ink">{k.value}</p>
+              <p className="text-[11px] text-brand-slate">{k.label}</p>
             </div>
           );
         })}
@@ -85,15 +85,15 @@ export default function LoyaltyProgram() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* TIERS */}
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-5">
+        <div className="bg-white rounded-xl border border-brand-border p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-[#17212B]">Membership Tiers</h3>
-            <button onClick={() => setDialog('tier')} className="flex items-center gap-1 px-3.5 py-1.5 bg-[#123B63] text-white text-xs font-semibold rounded-full hover:bg-[#1F5A8A]">
+            <h3 className="text-sm font-semibold text-brand-ink">Membership Tiers</h3>
+            <button onClick={() => setDialog('tier')} className="flex items-center gap-1 px-3.5 py-1.5 bg-brand-navy text-white text-xs font-semibold rounded-full hover:bg-brand-blue">
               <Plus className="w-3.5 h-3.5" /> New Tier
             </button>
           </div>
           {tiers.length === 0 ? (
-            <p className="text-xs text-[#64748B] py-6 text-center border border-dashed border-[#E2E8F0] rounded-xl">No tiers yet — create Silver, Gold, Platinum…</p>
+            <p className="text-xs text-brand-slate py-6 text-center border border-dashed border-brand-border rounded-xl">No tiers yet — create Silver, Gold, Platinum…</p>
           ) : (
             <div className="space-y-3">
               {tiers.sort((a, b) => (a.min_points || 0) - (b.min_points || 0)).map(t => (
@@ -118,26 +118,26 @@ export default function LoyaltyProgram() {
         </div>
 
         {/* REWARDS */}
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-5">
+        <div className="bg-white rounded-xl border border-brand-border p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-[#17212B]">Exclusive Rewards</h3>
-            <button onClick={() => setDialog('reward')} className="flex items-center gap-1 px-3.5 py-1.5 bg-[#123B63] text-white text-xs font-semibold rounded-full hover:bg-[#1F5A8A]">
+            <h3 className="text-sm font-semibold text-brand-ink">Exclusive Rewards</h3>
+            <button onClick={() => setDialog('reward')} className="flex items-center gap-1 px-3.5 py-1.5 bg-brand-navy text-white text-xs font-semibold rounded-full hover:bg-brand-blue">
               <Plus className="w-3.5 h-3.5" /> New Reward
             </button>
           </div>
           {rewards.length === 0 ? (
-            <p className="text-xs text-[#64748B] py-6 text-center border border-dashed border-[#E2E8F0] rounded-xl">No rewards yet — add free nights, upgrades, vouchers…</p>
+            <p className="text-xs text-brand-slate py-6 text-center border border-dashed border-brand-border rounded-xl">No rewards yet — add free nights, upgrades, vouchers…</p>
           ) : (
             <div className="space-y-2.5">
               {rewards.map(r => (
-                <div key={r.id} className="flex items-center justify-between p-3.5 rounded-xl border border-[#E2E8F0]">
+                <div key={r.id} className="flex items-center justify-between p-3.5 rounded-xl border border-brand-border">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center">
-                      <Gift className="w-4 h-4 text-[#123B63]" />
+                      <Gift className="w-4 h-4 text-brand-navy" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-[#17212B]">{r.name}</p>
-                      <p className="text-[11px] text-[#64748B]">{r.points_cost} pts · {r.category}</p>
+                      <p className="text-sm font-medium text-brand-ink">{r.name}</p>
+                      <p className="text-[11px] text-brand-slate">{r.points_cost} pts · {r.category}</p>
                     </div>
                   </div>
                   <button onClick={() => toggleStatus(r, 'LoyaltyReward')} className={`text-[10px] px-2.5 py-1 rounded-full font-semibold ${r.status === 'active' ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
@@ -151,23 +151,23 @@ export default function LoyaltyProgram() {
       </div>
 
       {/* TOP MEMBERS */}
-      <div className="bg-white rounded-xl border border-[#E2E8F0] p-5">
-        <h3 className="text-sm font-semibold text-[#17212B] mb-4">Top Members by Points</h3>
+      <div className="bg-white rounded-xl border border-brand-border p-5">
+        <h3 className="text-sm font-semibold text-brand-ink mb-4">Top Members by Points</h3>
         {topGuests.length === 0 ? (
-          <p className="text-xs text-[#64748B]">No guest data yet.</p>
+          <p className="text-xs text-brand-slate">No guest data yet.</p>
         ) : (
           <div className="space-y-2">
             {topGuests.map((g, i) => (
-              <div key={g.id} className="flex items-center gap-3 p-3 rounded-xl bg-[#F6F8FB]">
-                <span className="w-6 h-6 rounded-full bg-[#123B63] text-white text-xs font-bold flex items-center justify-center">{i + 1}</span>
+              <div key={g.id} className="flex items-center gap-3 p-3 rounded-xl bg-brand-bg">
+                <span className="w-6 h-6 rounded-full bg-brand-navy text-white text-xs font-bold flex items-center justify-center">{i + 1}</span>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-[#17212B]">{g.first_name} {g.last_name}</p>
+                  <p className="text-sm font-medium text-brand-ink">{g.first_name} {g.last_name}</p>
                   {g.vip_status && g.vip_status !== 'none' && (
                     <span className="text-[10px] text-amber-600 font-semibold uppercase">{g.vip_status} VIP</span>
                   )}
                 </div>
-                <span className="flex items-center gap-1 text-sm font-bold text-[#123B63]">
-                  <Star className="w-3.5 h-3.5 fill-[#123B63]" />
+                <span className="flex items-center gap-1 text-sm font-bold text-brand-navy">
+                  <Star className="w-3.5 h-3.5 fill-brand-navy" />
                   {(g.loyalty_points || 0).toLocaleString()}
                 </span>
               </div>
@@ -181,8 +181,8 @@ export default function LoyaltyProgram() {
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setDialog(null)}>
           <div className="bg-white rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-[#17212B]">{dialog === 'tier' ? 'New Membership Tier' : 'New Reward'}</h3>
-              <button onClick={() => setDialog(null)}><X className="w-4 h-4 text-[#64748B]" /></button>
+              <h3 className="text-lg font-bold text-brand-ink">{dialog === 'tier' ? 'New Membership Tier' : 'New Reward'}</h3>
+              <button onClick={() => setDialog(null)}><X className="w-4 h-4 text-brand-slate" /></button>
             </div>
             {dialog === 'tier' ? (
               <form onSubmit={saveTier} className="space-y-3">
@@ -195,7 +195,7 @@ export default function LoyaltyProgram() {
                   <option value="blue">Blue</option><option value="amber">Amber</option><option value="green">Green</option><option value="gray">Gray</option>
                 </select>
                 <input placeholder="Benefits (e.g. Late checkout, free upgrade)" value={tierForm.benefits} onChange={e => setTierForm({ ...tierForm, benefits: e.target.value })} className={inputCls} />
-                <button type="submit" className="w-full py-2.5 bg-[#123B63] text-white text-sm font-semibold rounded-full hover:bg-[#1F5A8A]">Create Tier</button>
+                <button type="submit" className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">Create Tier</button>
               </form>
             ) : (
               <form onSubmit={saveReward} className="space-y-3">
@@ -207,7 +207,7 @@ export default function LoyaltyProgram() {
                   </select>
                 </div>
                 <input placeholder="Description" value={rewardForm.description} onChange={e => setRewardForm({ ...rewardForm, description: e.target.value })} className={inputCls} />
-                <button type="submit" className="w-full py-2.5 bg-[#123B63] text-white text-sm font-semibold rounded-full hover:bg-[#1F5A8A]">Create Reward</button>
+                <button type="submit" className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">Create Reward</button>
               </form>
             )}
           </div>

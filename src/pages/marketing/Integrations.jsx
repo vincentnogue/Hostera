@@ -8,7 +8,7 @@ import { ArrowRight, Plug, UtensilsCrossed, Receipt, Check, Shield } from 'lucid
 const statusStyles = {
   'Available': 'bg-green-100 text-green-700',
   'Connector ready': 'bg-blue-100 text-blue-700',
-  'Strategic partner': 'bg-[#123B63] text-white',
+  'Strategic partner': 'bg-brand-navy text-white',
   'On roadmap': 'bg-gray-100 text-gray-500',
 };
 
@@ -16,10 +16,10 @@ export default function Integrations() {
   return (
     <div className="bg-white">
       {/* HERO */}
-      <section className="relative bg-[#123B63] py-24 overflow-hidden">
+      <section className="relative bg-brand-navy py-24 overflow-hidden">
         <div className="absolute inset-0">
           <img src="https://images.unsplash.com/photo-1564501049412-61c2a308a9d8?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover opacity-25" alt="Luxury hotel exterior" />
-          <div className="absolute inset-0 bg-[#123B63]/70"></div>
+          <div className="absolute inset-0 bg-brand-navy/70"></div>
         </div>
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <Reveal>
@@ -33,17 +33,17 @@ export default function Integrations() {
       </section>
 
       {/* LIAFRIK ECOSYSTEM — FEATURED */}
-      <section className="py-16 bg-[#F6F8FB]">
+      <section className="py-16 bg-brand-bg">
         <div className="max-w-7xl mx-auto px-6">
           <Reveal>
             <div className="text-center mb-10">
-              <span className="text-xs font-bold text-[#1F5A8A] uppercase tracking-widest">The Liafrik Ecosystem</span>
-              <h2 className="text-3xl font-bold text-[#17212B] mt-3">Strategic integrations, built together</h2>
+              <span className="text-xs font-bold text-brand-blue uppercase tracking-widest">The Liafrik Ecosystem</span>
+              <h2 className="text-3xl font-bold text-brand-ink mt-3">Strategic integrations, built together</h2>
             </div>
           </Reveal>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
             <Reveal>
-              <div className="p-5 rounded-xl bg-[#123B63] text-white relative overflow-hidden h-full flex flex-col">
+              <div className="p-5 rounded-xl bg-brand-navy text-white relative overflow-hidden h-full flex flex-col">
                 <div className="absolute top-0 right-0 w-28 h-28 bg-white/5 rounded-full blur-2xl" />
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2.5">
@@ -72,29 +72,29 @@ export default function Integrations() {
               </div>
             </Reveal>
             <Reveal delay={0.1}>
-              <div className="p-5 rounded-xl bg-white border-2 border-[#123B63] h-full flex flex-col">
+              <div className="p-5 rounded-xl bg-white border-2 border-brand-navy h-full flex flex-col">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-full bg-[#F6F8FB] flex items-center justify-center">
-                      <Receipt className="w-4 h-4 text-[#123B63]" />
+                    <div className="w-9 h-9 rounded-full bg-brand-bg flex items-center justify-center">
+                      <Receipt className="w-4 h-4 text-brand-navy" />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-[#17212B]">LiBooks</h3>
-                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-blue-50 text-[#123B63] font-semibold uppercase tracking-wide">Accounting · Finance</span>
+                      <h3 className="text-base font-bold text-brand-ink">LiBooks</h3>
+                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-blue-50 text-brand-navy font-semibold uppercase tracking-wide">Accounting · Finance</span>
                     </div>
                   </div>
                   <BrandLogo name="LiBooks" size="sm" />
                 </div>
-                <p className="text-[12px] text-[#64748B] leading-relaxed mb-4 flex-1">
+                <p className="text-[12px] text-brand-slate leading-relaxed mb-4 flex-1">
                   Invoices, credit notes, payments, taxes and refunds exported to the Liafrik accounting
                   platform — with mapping, reconciliation, retry logic and full sync logs.
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-4">
                   {['Invoice sync', 'Tax mapping', 'Reconciliation'].map(f => (
-                    <span key={f} className="text-[10px] bg-[#F6F8FB] text-[#17212B] px-2.5 py-1 rounded-full border border-[#E2E8F0]">{f}</span>
+                    <span key={f} className="text-[10px] bg-brand-bg text-brand-ink px-2.5 py-1 rounded-full border border-brand-border">{f}</span>
                   ))}
                 </div>
-                <a href="https://libooks.liafrik.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#123B63] hover:text-[#1F5A8A] transition-colors">
+                <a href="https://libooks.liafrik.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-navy hover:text-brand-blue transition-colors">
                   libooks.liafrik.com <ArrowRight className="w-3.5 h-3.5" />
                 </a>
               </div>
@@ -110,23 +110,23 @@ export default function Integrations() {
             <Reveal key={cat.name}>
               <div>
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-9 h-9 rounded-full bg-[#F6F8FB] flex items-center justify-center">
-                    <Plug className="w-4 h-4 text-[#123B63]" />
+                  <div className="w-9 h-9 rounded-full bg-brand-bg flex items-center justify-center">
+                    <Plug className="w-4 h-4 text-brand-navy" />
                   </div>
-                  <h2 className="text-xl font-bold text-[#17212B]">{cat.name}</h2>
-                  <span className="text-xs text-[#64748B]">{cat.items.length} integration{cat.items.length > 1 ? 's' : ''}</span>
+                  <h2 className="text-xl font-bold text-brand-ink">{cat.name}</h2>
+                  <span className="text-xs text-brand-slate">{cat.items.length} integration{cat.items.length > 1 ? 's' : ''}</span>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {cat.items.map(item => (
-                    <div key={item.name} className="p-5 rounded-2xl border border-[#E2E8F0] hover:border-[#1F5A8A]/40 hover:shadow-lg transition-all">
+                    <div key={item.name} className="p-5 rounded-2xl border border-brand-border hover:border-brand-blue/40 hover:shadow-lg transition-all">
                       <div className="flex items-start justify-between mb-2">
                         <BrandLogo name={item.name} size="sm" />
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${statusStyles[item.status] || statusStyles['On roadmap']}`}>
                           {item.status}
                         </span>
                       </div>
-                      <p className="text-sm font-semibold text-[#17212B]">{item.name}</p>
-                      {item.desc && <p className="text-xs text-[#64748B] mt-1 leading-relaxed">{item.desc}</p>}
+                      <p className="text-sm font-semibold text-brand-ink">{item.name}</p>
+                      {item.desc && <p className="text-xs text-brand-slate mt-1 leading-relaxed">{item.desc}</p>}
                     </div>
                   ))}
                 </div>
@@ -137,22 +137,22 @@ export default function Integrations() {
       </section>
 
       {/* ARCHITECTURE NOTE */}
-      <section className="py-16 bg-[#F6F8FB]">
+      <section className="py-16 bg-brand-bg">
         <div className="max-w-4xl mx-auto px-6">
           <Reveal>
-            <div className="p-8 rounded-2xl bg-white border border-[#E2E8F0]">
+            <div className="p-8 rounded-2xl bg-white border border-brand-border">
               <div className="flex items-center gap-3 mb-4">
-                <Shield className="w-5 h-5 text-[#123B63]" />
-                <h3 className="text-lg font-bold text-[#17212B]">A connector architecture that protects your data</h3>
+                <Shield className="w-5 h-5 text-brand-navy" />
+                <h3 className="text-lg font-bold text-brand-ink">A connector architecture that protects your data</h3>
               </div>
-              <p className="text-sm text-[#64748B] leading-relaxed mb-5">
+              <p className="text-sm text-brand-slate leading-relaxed mb-5">
                 No integration ever manipulates the database directly. Every connector flows through an
                 adapter, service layer, business logic and validation — so a failing integration can never corrupt
                 core reservation data. Every synchronization is logged with retry and error handling.
               </p>
               <div className="flex flex-wrap gap-2">
                 {['Adapter → Service → Validation → Database', 'Sync logs & retries', 'Overbooking protection', 'Never trust external systems blindly'].map(f => (
-                  <span key={f} className="flex items-center gap-1.5 text-xs text-[#17212B] bg-[#F6F8FB] px-3 py-1.5 rounded-full border border-[#E2E8F0]">
+                  <span key={f} className="flex items-center gap-1.5 text-xs text-brand-ink bg-brand-bg px-3 py-1.5 rounded-full border border-brand-border">
                     <Check className="w-3.5 h-3.5 text-green-600" />{f}
                   </span>
                 ))}
@@ -163,13 +163,13 @@ export default function Integrations() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-[#123B63]">
+      <section className="py-20 bg-brand-navy">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <Reveal>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Don&apos;t see your integration?</h2>
             <p className="text-white/70 mb-8">Our developer platform and connector architecture make new integrations fast to add — tell us what you need.</p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link to="/contact" className="inline-flex items-center gap-2 rounded-full bg-white text-[#123B63] px-8 py-3.5 text-sm font-bold hover:scale-105 transition-transform">
+              <Link to="/contact" className="inline-flex items-center gap-2 rounded-full bg-white text-brand-navy px-8 py-3.5 text-sm font-bold hover:scale-105 transition-transform">
                 Request an Integration <ArrowRight className="w-4 h-4" />
               </Link>
               <Link to="/developers" className="inline-flex items-center gap-2 rounded-full border border-white/30 text-white px-8 py-3.5 text-sm font-semibold hover:bg-white/10 transition-colors">

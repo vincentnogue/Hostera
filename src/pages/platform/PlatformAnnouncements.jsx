@@ -80,12 +80,12 @@ export default function PlatformAnnouncements() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-4 border-[#1F5A8A] border-t-white rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-brand-blue border-t-white rounded-full animate-spin"></div>
       </div>
     );
   }
 
-  const inputCls = "w-full px-3 py-2 bg-[#0C2438] border border-white/10 rounded-lg text-sm outline-none focus:border-[#1F5A8A] text-white";
+  const inputCls = "w-full px-3 py-2 bg-brand-navy-950 border border-white/10 rounded-lg text-sm outline-none focus:border-brand-blue text-white";
 
   return (
     <div className="space-y-6">
@@ -96,7 +96,7 @@ export default function PlatformAnnouncements() {
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#1F5A8A] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-brand-blue text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] transition-colors"
         >
           <Plus className="w-4 h-4" />
           New Announcement
@@ -105,13 +105,13 @@ export default function PlatformAnnouncements() {
 
       <div className="space-y-4">
         {announcements.length === 0 ? (
-          <div className="bg-[#0A1E30] border border-white/5 rounded-xl py-16 text-center">
+          <div className="bg-brand-navy-900 border border-white/5 rounded-xl py-16 text-center">
             <Megaphone className="w-12 h-12 text-white/10 mx-auto mb-3" />
             <p className="text-sm text-white/40">No announcements yet</p>
           </div>
         ) : (
           announcements.map(ann => (
-            <div key={ann.id} className="bg-[#0A1E30] border border-white/5 rounded-xl p-5">
+            <div key={ann.id} className="bg-brand-navy-900 border border-white/5 rounded-xl p-5">
               <div className="flex items-start justify-between gap-4 mb-3">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="text-sm font-semibold text-white">{ann.title}</h3>
@@ -122,7 +122,7 @@ export default function PlatformAnnouncements() {
                   <select
                     value={ann.status}
                     onChange={e => setStatus(ann, e.target.value)}
-                    className="text-xs px-2 py-1.5 rounded-lg bg-[#123B63] border border-[#1F5A8A]/40 text-white outline-none cursor-pointer capitalize"
+                    className="text-xs px-2 py-1.5 rounded-lg bg-brand-navy border border-brand-blue/40 text-white outline-none cursor-pointer capitalize"
                   >
                     {['draft', 'scheduled', 'published', 'expired'].map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
@@ -142,7 +142,7 @@ export default function PlatformAnnouncements() {
 
       {showCreate && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setShowCreate(false)}>
-          <div className="bg-[#0A1E30] border border-white/10 rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+          <div className="bg-brand-navy-900 border border-white/10 rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-white">New Announcement</h2>
               <button onClick={() => setShowCreate(false)} className="text-white/50 hover:text-white">
@@ -191,7 +191,7 @@ export default function PlatformAnnouncements() {
             </div>
             <div className="flex gap-3 mt-6">
               <button onClick={() => setShowCreate(false)} className="flex-1 px-4 py-2 border border-white/10 rounded-lg text-sm font-medium text-white/60 hover:bg-white/5">Cancel</button>
-              <button onClick={handleCreate} disabled={creating || !form.title || !form.content} className="flex-1 px-4 py-2 bg-[#1F5A8A] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] disabled:opacity-50">
+              <button onClick={handleCreate} disabled={creating || !form.title || !form.content} className="flex-1 px-4 py-2 bg-brand-blue text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] disabled:opacity-50">
                 {creating ? 'Creating...' : 'Create Announcement'}
               </button>
             </div>

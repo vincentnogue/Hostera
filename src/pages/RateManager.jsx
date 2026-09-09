@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { Tag, Plus, X, Calendar, Percent, Zap } from 'lucide-react';
 
 const seasons = ['standard', 'high', 'low', 'peak', 'weekend', 'custom'];
-const ruleTypes = { discount: { label: 'Discount', pill: 'bg-green-50 text-green-700' }, surcharge: { label: 'Surcharge', pill: 'bg-amber-50 text-amber-700' }, dynamic_pricing: { label: 'Dynamic Pricing', pill: 'bg-blue-50 text-[#123B63]' } };
+const ruleTypes = { discount: { label: 'Discount', pill: 'bg-green-50 text-green-700' }, surcharge: { label: 'Surcharge', pill: 'bg-amber-50 text-amber-700' }, dynamic_pricing: { label: 'Dynamic Pricing', pill: 'bg-blue-50 text-brand-navy' } };
 
 export default function RateManager() {
   const [plans, setPlans] = useState([]);
@@ -29,7 +29,7 @@ export default function RateManager() {
   }, []);
 
   const propertyId = properties[0]?.id;
-  const inputCls = "w-full px-3.5 py-2 border border-[#E2E8F0] rounded-full text-sm outline-none focus:border-[#123B63]";
+  const inputCls = "w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
 
   const savePlan = async (e) => {
     e.preventDefault();
@@ -59,8 +59,8 @@ export default function RateManager() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#17212B]">Rate Manager</h1>
-        <p className="text-sm text-[#64748B]">Seasonal pricing, discount tiers and dynamic rate rules.</p>
+        <h1 className="text-2xl font-bold text-brand-ink">Rate Manager</h1>
+        <p className="text-sm text-brand-slate">Seasonal pricing, discount tiers and dynamic rate rules.</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -70,36 +70,36 @@ export default function RateManager() {
           { label: 'Avg Base Price', value: plans.length ? `$${Math.round(plans.reduce((s, p) => s + (p.price || 0), 0) / plans.length)}` : '—' },
           { label: 'Discount Rules', value: rules.filter(r => r.rule_type === 'discount').length },
         ].map(k => (
-          <div key={k.label} className="bg-white rounded-xl border border-[#E2E8F0] p-4">
-            <p className="text-xl font-bold text-[#17212B]">{k.value}</p>
-            <p className="text-[11px] text-[#64748B]">{k.label}</p>
+          <div key={k.label} className="bg-white rounded-xl border border-brand-border p-4">
+            <p className="text-xl font-bold text-brand-ink">{k.value}</p>
+            <p className="text-[11px] text-brand-slate">{k.label}</p>
           </div>
         ))}
       </div>
 
       <div className="flex items-center justify-between">
         <div className="flex gap-2">
-          <button onClick={() => setTab('plans')} className={`px-4 py-2 text-sm font-medium rounded-full ${tab === 'plans' ? 'bg-[#123B63] text-white' : 'bg-white border border-[#E2E8F0] text-[#64748B] hover:border-[#123B63]'}`}>Seasonal Rate Plans</button>
-          <button onClick={() => setTab('rules')} className={`px-4 py-2 text-sm font-medium rounded-full ${tab === 'rules' ? 'bg-[#123B63] text-white' : 'bg-white border border-[#E2E8F0] text-[#64748B] hover:border-[#123B63]'}`}>Dynamic Rules & Discounts</button>
+          <button onClick={() => setTab('plans')} className={`px-4 py-2 text-sm font-medium rounded-full ${tab === 'plans' ? 'bg-brand-navy text-white' : 'bg-white border border-brand-border text-brand-slate hover:border-brand-navy'}`}>Seasonal Rate Plans</button>
+          <button onClick={() => setTab('rules')} className={`px-4 py-2 text-sm font-medium rounded-full ${tab === 'rules' ? 'bg-brand-navy text-white' : 'bg-white border border-brand-border text-brand-slate hover:border-brand-navy'}`}>Dynamic Rules & Discounts</button>
         </div>
-        <button onClick={() => setDialog(tab === 'plans' ? 'plan' : 'rule')} className="flex items-center gap-1.5 px-4 py-2.5 bg-[#123B63] text-white text-sm font-semibold rounded-full hover:bg-[#1F5A8A]">
+        <button onClick={() => setDialog(tab === 'plans' ? 'plan' : 'rule')} className="flex items-center gap-1.5 px-4 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">
           <Plus className="w-4 h-4" /> {tab === 'plans' ? 'New Rate Plan' : 'New Rule'}
         </button>
       </div>
 
       {loading ? (
-        <p className="text-sm text-[#64748B]">Loading rates…</p>
+        <p className="text-sm text-brand-slate">Loading rates…</p>
       ) : tab === 'plans' ? (
         plans.length === 0 ? (
-          <div className="bg-white rounded-xl border border-dashed border-[#E2E8F0] p-10 text-center">
+          <div className="bg-white rounded-xl border border-dashed border-brand-border p-10 text-center">
             <Tag className="w-8 h-8 text-[#C4CDD5] mx-auto mb-3" />
-            <p className="text-sm text-[#64748B]">No rate plans yet — create seasonal pricing first.</p>
+            <p className="text-sm text-brand-slate">No rate plans yet — create seasonal pricing first.</p>
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-[#E2E8F0] overflow-x-auto">
+          <div className="bg-white rounded-xl border border-brand-border overflow-x-auto">
             <table className="w-full text-sm min-w-[720px]">
               <thead>
-                <tr className="bg-[#F6F8FB] border-b border-[#E2E8F0] text-left text-xs text-[#64748B]">
+                <tr className="bg-brand-bg border-b border-brand-border text-left text-xs text-brand-slate">
                   <th className="px-5 py-3 font-semibold">Plan</th>
                   <th className="px-5 py-3 font-semibold">Season</th>
                   <th className="px-5 py-3 font-semibold">Price / Night</th>
@@ -111,11 +111,11 @@ export default function RateManager() {
               <tbody>
                 {plans.map(p => (
                   <tr key={p.id} className="border-b border-[#F1F5F9] last:border-0">
-                    <td className="px-5 py-3.5 font-medium text-[#17212B]">{p.name}</td>
-                    <td className="px-5 py-3.5"><span className="text-[11px] px-2.5 py-1 rounded-full bg-blue-50 text-[#123B63] capitalize">{p.season}</span></td>
-                    <td className="px-5 py-3.5 font-semibold text-[#17212B]">${p.price}</td>
-                    <td className="px-5 py-3.5 text-[#64748B]">{p.min_stay} night{p.min_stay > 1 ? 's' : ''}</td>
-                    <td className="px-5 py-3.5 text-[#64748B]">
+                    <td className="px-5 py-3.5 font-medium text-brand-ink">{p.name}</td>
+                    <td className="px-5 py-3.5"><span className="text-[11px] px-2.5 py-1 rounded-full bg-blue-50 text-brand-navy capitalize">{p.season}</span></td>
+                    <td className="px-5 py-3.5 font-semibold text-brand-ink">${p.price}</td>
+                    <td className="px-5 py-3.5 text-brand-slate">{p.min_stay} night{p.min_stay > 1 ? 's' : ''}</td>
+                    <td className="px-5 py-3.5 text-brand-slate">
                       {p.start_date ? `${new Date(p.start_date).toLocaleDateString()} → ${p.end_date ? new Date(p.end_date).toLocaleDateString() : '—'}` : 'Year-round'}
                     </td>
                     <td className="px-5 py-3.5 text-right">
@@ -131,40 +131,40 @@ export default function RateManager() {
         )
       ) : (
         rules.length === 0 ? (
-          <div className="bg-white rounded-xl border border-dashed border-[#E2E8F0] p-10 text-center">
+          <div className="bg-white rounded-xl border border-dashed border-brand-border p-10 text-center">
             <Zap className="w-8 h-8 text-[#C4CDD5] mx-auto mb-3" />
-            <p className="text-sm text-[#64748B]">No dynamic rules yet — automate discounts and surcharges.</p>
+            <p className="text-sm text-brand-slate">No dynamic rules yet — automate discounts and surcharges.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {rules.sort((a, b) => (a.priority || 0) - (b.priority || 0)).map(r => (
-              <div key={r.id} className="bg-white rounded-xl border border-[#E2E8F0] p-5">
+              <div key={r.id} className="bg-white rounded-xl border border-brand-border p-5">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#F6F8FB] flex items-center justify-center">
-                      {r.rule_type === 'dynamic_pricing' ? <Zap className="w-4 h-4 text-[#123B63]" /> : <Percent className="w-4 h-4 text-[#123B63]" />}
+                    <div className="w-10 h-10 rounded-full bg-brand-bg flex items-center justify-center">
+                      {r.rule_type === 'dynamic_pricing' ? <Zap className="w-4 h-4 text-brand-navy" /> : <Percent className="w-4 h-4 text-brand-navy" />}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-[#17212B]">{r.name}</p>
-                      <p className="text-[11px] text-[#64748B]">Priority {r.priority}</p>
+                      <p className="text-sm font-semibold text-brand-ink">{r.name}</p>
+                      <p className="text-[11px] text-brand-slate">Priority {r.priority}</p>
                     </div>
                   </div>
                   <span className={`text-[10px] px-2.5 py-1 rounded-full font-semibold ${ruleTypes[r.rule_type]?.pill}`}>{ruleTypes[r.rule_type]?.label}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 mb-3">
-                  <div className="p-2.5 bg-[#F6F8FB] rounded-xl">
-                    <p className="text-[10px] text-[#94A3B8] uppercase">Value</p>
-                    <p className="text-sm font-bold text-[#17212B]">{r.value_percent}%</p>
+                  <div className="p-2.5 bg-brand-bg rounded-xl">
+                    <p className="text-[10px] text-brand-slate-light uppercase">Value</p>
+                    <p className="text-sm font-bold text-brand-ink">{r.value_percent}%</p>
                   </div>
-                  <div className="p-2.5 bg-[#F6F8FB] rounded-xl">
-                    <p className="text-[10px] text-[#94A3B8] uppercase">Occupancy ≥</p>
-                    <p className="text-sm font-bold text-[#17212B]">{r.min_occupancy_percent}%</p>
+                  <div className="p-2.5 bg-brand-bg rounded-xl">
+                    <p className="text-[10px] text-brand-slate-light uppercase">Occupancy ≥</p>
+                    <p className="text-sm font-bold text-brand-ink">{r.min_occupancy_percent}%</p>
                   </div>
                 </div>
                 <div className="flex items-center justify-between pt-3 border-t border-[#F1F5F9]">
                   <div className="flex gap-1.5">
-                    {r.min_stay > 0 && <span className="text-[10px] px-2 py-0.5 bg-[#F6F8FB] border border-[#E2E8F0] rounded-full text-[#64748B]">Min stay {r.min_stay}n</span>}
-                    <span className="text-[10px] px-2 py-0.5 bg-[#F6F8FB] border border-[#E2E8F0] rounded-full text-[#64748B] capitalize">Applies: {r.applies_to}</span>
+                    {r.min_stay > 0 && <span className="text-[10px] px-2 py-0.5 bg-brand-bg border border-brand-border rounded-full text-brand-slate">Min stay {r.min_stay}n</span>}
+                    <span className="text-[10px] px-2 py-0.5 bg-brand-bg border border-brand-border rounded-full text-brand-slate capitalize">Applies: {r.applies_to}</span>
                   </div>
                   <button onClick={() => toggle(r, 'RateRule')} className={`text-[11px] px-3 py-1.5 rounded-full font-semibold ${r.status === 'active' ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
                     {r.status}
@@ -180,8 +180,8 @@ export default function RateManager() {
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setDialog(null)}>
           <div className="bg-white rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-[#17212B]">{dialog === 'plan' ? 'New Seasonal Rate Plan' : 'New Dynamic Rule'}</h3>
-              <button onClick={() => setDialog(null)}><X className="w-4 h-4 text-[#64748B]" /></button>
+              <h3 className="text-lg font-bold text-brand-ink">{dialog === 'plan' ? 'New Seasonal Rate Plan' : 'New Dynamic Rule'}</h3>
+              <button onClick={() => setDialog(null)}><X className="w-4 h-4 text-brand-slate" /></button>
             </div>
             {dialog === 'plan' ? (
               <form onSubmit={savePlan} className="space-y-3">
@@ -195,12 +195,12 @@ export default function RateManager() {
                 <div className="grid grid-cols-3 gap-3">
                   <input type="number" placeholder="Min stay" value={planForm.min_stay} onChange={e => setPlanForm({ ...planForm, min_stay: Number(e.target.value) })} className={inputCls} />
                   <div className="relative">
-                    <Calendar className="w-3.5 h-3.5 text-[#94A3B8] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <Calendar className="w-3.5 h-3.5 text-brand-slate-light absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input type="date" value={planForm.start_date} onChange={e => setPlanForm({ ...planForm, start_date: e.target.value })} className={`${inputCls} pl-8`} />
                   </div>
                   <input type="date" value={planForm.end_date} onChange={e => setPlanForm({ ...planForm, end_date: e.target.value })} className={inputCls} />
                 </div>
-                <button type="submit" className="w-full py-2.5 bg-[#123B63] text-white text-sm font-semibold rounded-full hover:bg-[#1F5A8A]">Create Rate Plan</button>
+                <button type="submit" className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">Create Rate Plan</button>
               </form>
             ) : (
               <form onSubmit={saveRule} className="space-y-3">
@@ -219,7 +219,7 @@ export default function RateManager() {
                 <select value={ruleForm.applies_to} onChange={e => setRuleForm({ ...ruleForm, applies_to: e.target.value })} className={inputCls}>
                   <option value="all">Applies to all channels</option><option value="direct">Direct bookings only</option><option value="ota">OTA bookings only</option>
                 </select>
-                <button type="submit" className="w-full py-2.5 bg-[#123B63] text-white text-sm font-semibold rounded-full hover:bg-[#1F5A8A]">Create Rule</button>
+                <button type="submit" className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">Create Rule</button>
               </form>
             )}
           </div>

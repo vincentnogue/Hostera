@@ -55,18 +55,18 @@ export default function GuestPortalConfig() {
     finally { setSaving(false); }
   };
 
-  if (loading) return <p className="text-sm text-[#64748B]">Loading portal configuration…</p>;
+  if (loading) return <p className="text-sm text-brand-slate">Loading portal configuration…</p>;
 
-  const inputCls = "w-full px-3.5 py-2 border border-[#E2E8F0] rounded-full text-sm outline-none focus:border-[#123B63]";
+  const inputCls = "w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
 
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#17212B]">Guest Portal Preview</h1>
-          <p className="text-sm text-[#64748B]">Customize the branding and features guests see on the mobile portal.</p>
+          <h1 className="text-2xl font-bold text-brand-ink">Guest Portal Preview</h1>
+          <p className="text-sm text-brand-slate">Customize the branding and features guests see on the mobile portal.</p>
         </div>
-        <button onClick={save} disabled={saving} className="flex items-center gap-2 px-5 py-2.5 bg-[#123B63] text-white text-sm font-semibold rounded-full hover:bg-[#1F5A8A] disabled:opacity-60">
+        <button onClick={save} disabled={saving} className="flex items-center gap-2 px-5 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60">
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
           {saving ? 'Saving…' : saved ? 'Saved' : 'Save Configuration'}
         </button>
@@ -74,38 +74,38 @@ export default function GuestPortalConfig() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Config */}
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-6 space-y-5">
-          <h3 className="text-sm font-semibold text-[#17212B] flex items-center gap-2">
-            <Palette className="w-4 h-4 text-[#123B63]" /> Branding
+        <div className="bg-white rounded-xl border border-brand-border p-6 space-y-5">
+          <h3 className="text-sm font-semibold text-brand-ink flex items-center gap-2">
+            <Palette className="w-4 h-4 text-brand-navy" /> Branding
           </h3>
           <div>
-            <label className="text-xs font-medium text-[#64748B] block mb-1.5">Header title</label>
+            <label className="text-xs font-medium text-brand-slate block mb-1.5">Header title</label>
             <input value={config.header_title || ''} onChange={e => setConfig({ ...config, header_title: e.target.value })} className={inputCls} />
           </div>
           <div>
-            <label className="text-xs font-medium text-[#64748B] block mb-1.5">Welcome message</label>
-            <textarea value={config.welcome_message || ''} onChange={e => setConfig({ ...config, welcome_message: e.target.value })} rows={3} className="w-full px-4 py-3 border border-[#E2E8F0] rounded-3xl text-sm outline-none focus:border-[#123B63] resize-none" />
+            <label className="text-xs font-medium text-brand-slate block mb-1.5">Welcome message</label>
+            <textarea value={config.welcome_message || ''} onChange={e => setConfig({ ...config, welcome_message: e.target.value })} rows={3} className="w-full px-4 py-3 border border-brand-border rounded-3xl text-sm outline-none focus:border-brand-navy resize-none" />
           </div>
           <div>
-            <label className="text-xs font-medium text-[#64748B] block mb-1.5">Brand color</label>
+            <label className="text-xs font-medium text-brand-slate block mb-1.5">Brand color</label>
             <div className="flex gap-2.5">
               {COLOR_CHOICES.map(c => (
-                <button key={c} onClick={() => setConfig({ ...config, brand_color: c })} className={`w-9 h-9 rounded-full transition-transform ${config.brand_color === c ? 'ring-2 ring-offset-2 ring-[#123B63] scale-110' : ''}`} style={{ background: c }} />
+                <button key={c} onClick={() => setConfig({ ...config, brand_color: c })} className={`w-9 h-9 rounded-full transition-transform ${config.brand_color === c ? 'ring-2 ring-offset-2 ring-brand-navy scale-110' : ''}`} style={{ background: c }} />
               ))}
             </div>
           </div>
 
-          <h3 className="text-sm font-semibold text-[#17212B] pt-3 border-t border-[#F1F5F9]">Portal Features</h3>
+          <h3 className="text-sm font-semibold text-brand-ink pt-3 border-t border-[#F1F5F9]">Portal Features</h3>
           <div className="space-y-2.5">
             {featureOptions.map(f => {
               const Icon = f.icon;
               return (
-                <div key={f.key} className="flex items-center justify-between p-3 rounded-xl bg-[#F6F8FB]">
+                <div key={f.key} className="flex items-center justify-between p-3 rounded-xl bg-brand-bg">
                   <div className="flex items-center gap-2.5">
-                    <Icon className="w-4 h-4 text-[#123B63]" />
-                    <p className="text-sm text-[#17212B]">{f.label}</p>
+                    <Icon className="w-4 h-4 text-brand-navy" />
+                    <p className="text-sm text-brand-ink">{f.label}</p>
                   </div>
-                  <button onClick={() => setConfig({ ...config, [f.key]: !config[f.key] })} className={`shrink-0 w-11 h-6 rounded-full relative transition-colors ${config[f.key] ? 'bg-[#123B63]' : 'bg-[#E2E8F0]'}`}>
+                  <button onClick={() => setConfig({ ...config, [f.key]: !config[f.key] })} className={`shrink-0 w-11 h-6 rounded-full relative transition-colors ${config[f.key] ? 'bg-brand-navy' : 'bg-brand-border'}`}>
                     <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${config[f.key] ? 'left-[22px]' : 'left-0.5'}`} />
                   </button>
                 </div>
@@ -115,8 +115,8 @@ export default function GuestPortalConfig() {
         </div>
 
         {/* Live preview */}
-        <div className="flex items-start justify-center bg-[#F6F8FB] rounded-xl border border-[#E2E8F0] p-8">
-          <div className="w-64 rounded-[2.2rem] border-8 border-[#17212B] bg-white overflow-hidden shadow-xl">
+        <div className="flex items-start justify-center bg-brand-bg rounded-xl border border-brand-border p-8">
+          <div className="w-64 rounded-[2.2rem] border-8 border-brand-ink bg-white overflow-hidden shadow-xl">
             <div className="p-4 text-white" style={{ background: config.brand_color || '#123B63' }}>
               <div className="flex items-center justify-between mb-3">
                 <Smartphone className="w-4 h-4 opacity-60" />
@@ -130,11 +130,11 @@ export default function GuestPortalConfig() {
                 const Icon = f.icon;
                 const on = config[f.key];
                 return (
-                  <div key={f.key} className={`flex items-center gap-2.5 p-2.5 rounded-xl border ${on ? 'border-[#E2E8F0] bg-white' : 'border-dashed border-[#F1F5F9] opacity-40'}`}>
+                  <div key={f.key} className={`flex items-center gap-2.5 p-2.5 rounded-xl border ${on ? 'border-brand-border bg-white' : 'border-dashed border-[#F1F5F9] opacity-40'}`}>
                     <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: on ? (config.brand_color || '#123B63') + '14' : '#F6F8FB' }}>
                       <Icon className="w-3.5 h-3.5" style={{ color: config.brand_color || '#123B63' }} />
                     </div>
-                    <p className="text-[10px] font-medium text-[#17212B]">{f.label}</p>
+                    <p className="text-[10px] font-medium text-brand-ink">{f.label}</p>
                   </div>
                 );
               })}

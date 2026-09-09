@@ -35,18 +35,18 @@ export default function LanguageSelector() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium text-[#17212B] hover:bg-[#F6F8FB] transition-colors"
+        className="flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium text-brand-ink hover:bg-brand-bg transition-colors"
       >
-        <Globe className="w-4 h-4 text-[#64748B]" />
+        <Globe className="w-4 h-4 text-brand-slate" />
         <span className="uppercase">{active.code}</span>
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-44 bg-white border border-[#E2E8F0] rounded-2xl shadow-xl py-2 z-50">
+        <div className="absolute right-0 top-full mt-2 w-44 bg-white border border-brand-border rounded-2xl shadow-xl py-2 z-50">
           {LANGUAGES.map(l => (
             <button
               key={l.code}
               onClick={() => choose(l.code)}
-              className="w-full flex items-center justify-between px-4 py-2 text-sm text-[#17212B] hover:bg-[#F6F8FB] transition-colors"
+              className="w-full flex items-center justify-between px-4 py-2 text-sm text-brand-ink hover:bg-brand-bg transition-colors"
             >
               <span>{l.label}</span>
               {current === l.code && <Check className="w-3.5 h-3.5 text-green-600" />}

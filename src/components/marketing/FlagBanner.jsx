@@ -32,7 +32,7 @@ export default function FlagBanner() {
   const flags = [...CODES, ...CODES];
   return (
     <div>
-      <p className="text-center text-[11px] font-bold uppercase tracking-widest text-[#1F5A8A] mb-6">
+      <p className="text-center text-[11px] font-bold uppercase tracking-widest text-brand-blue mb-6">
         One platform · Every property · Everywhere
       </p>
       <div className="relative">
@@ -46,7 +46,7 @@ export default function FlagBanner() {
               src={`https://flagcdn.com/w80/${c}.png`}
               alt={c.toUpperCase()}
               loading="lazy"
-              className="w-9 h-9 rounded-full object-cover border border-[#E2E8F0] bg-white shrink-0"
+              className="w-9 h-9 rounded-full object-cover border border-brand-border bg-white shrink-0"
             />
           ))}
         </div>

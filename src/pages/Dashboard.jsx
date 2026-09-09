@@ -59,7 +59,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-4 border-[#E2E8F0] border-t-[#123B63] rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-brand-border border-t-brand-navy rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -100,7 +100,7 @@ export default function Dashboard() {
     { label: 'Occupancy', value: `${occupancyRate}%`, icon: BedDouble, color: 'text-blue-600', bg: 'bg-blue-50', trend: '+5%' },
     { label: 'ADR', value: `$${adr}`, icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50', trend: '+$12' },
     { label: 'RevPAR', value: `$${revpar}`, icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-50', trend: '+$8' },
-    { label: 'Revenue', value: `$${totalRevenue.toLocaleString()}`, icon: DollarSign, color: 'text-[#123B63]', bg: 'bg-blue-50', trend: '+15%' },
+    { label: 'Revenue', value: `$${totalRevenue.toLocaleString()}`, icon: DollarSign, color: 'text-brand-navy', bg: 'bg-blue-50', trend: '+15%' },
     { label: 'Arrivals', value: arrivals.length, icon: LogIn, color: 'text-green-600', bg: 'bg-green-50', trend: '' },
     { label: 'Departures', value: departures.length, icon: LogOut, color: 'text-orange-600', bg: 'bg-orange-50', trend: '' },
   ];
@@ -108,8 +108,8 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#17212B]">Dashboard</h1>
-        <p className="text-sm text-[#64748B] mt-1">
+        <h1 className="text-2xl font-bold text-brand-ink">Dashboard</h1>
+        <p className="text-sm text-brand-slate mt-1">
           {new Date().toLocaleDateString('en', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
       </div>
@@ -119,7 +119,7 @@ export default function Dashboard() {
         {kpis.map((kpi) => {
           const Icon = kpi.icon;
           return (
-            <div key={kpi.label} className="bg-white rounded-xl border border-[#E2E8F0] p-4">
+            <div key={kpi.label} className="bg-white rounded-xl border border-brand-border p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className={`w-9 h-9 rounded-lg ${kpi.bg} flex items-center justify-center`}>
                   <Icon className={`w-[18px] h-[18px] ${kpi.color}`} />
@@ -131,8 +131,8 @@ export default function Dashboard() {
                   </span>
                 )}
               </div>
-              <p className="text-2xl font-bold text-[#17212B]">{kpi.value}</p>
-              <p className="text-xs text-[#64748B] mt-1">{kpi.label}</p>
+              <p className="text-2xl font-bold text-brand-ink">{kpi.value}</p>
+              <p className="text-xs text-brand-slate mt-1">{kpi.label}</p>
             </div>
           );
         })}
@@ -140,10 +140,10 @@ export default function Dashboard() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white rounded-xl border border-[#E2E8F0] p-6">
+        <div className="lg:col-span-2 bg-white rounded-xl border border-brand-border p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-semibold text-[#17212B]">Revenue Trend</h3>
-            <span className="text-xs text-[#64748B]">Last 7 days</span>
+            <h3 className="text-base font-semibold text-brand-ink">Revenue Trend</h3>
+            <span className="text-xs text-brand-slate">Last 7 days</span>
           </div>
           <ResponsiveContainer width="100%" height={250}>
             <AreaChart data={chartData}>
@@ -164,23 +164,23 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
-          <h3 className="text-base font-semibold text-[#17212B] mb-4">Room Status</h3>
+        <div className="bg-white rounded-xl border border-brand-border p-6">
+          <h3 className="text-base font-semibold text-brand-ink mb-4">Room Status</h3>
           <div className="space-y-3">
             {Object.entries(roomStatusCounts).map(([status, count]) => (
               <div key={status} className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <span className={`w-2.5 h-2.5 rounded-full ${statusColors[status] || 'bg-gray-300'}`}></span>
-                  <span className="text-sm text-[#64748B] capitalize">{status.replace(/_/g, ' ')}</span>
+                  <span className="text-sm text-brand-slate capitalize">{status.replace(/_/g, ' ')}</span>
                 </div>
-                <span className="text-sm font-semibold text-[#17212B]">{count}</span>
+                <span className="text-sm font-semibold text-brand-ink">{count}</span>
               </div>
             ))}
           </div>
-          <div className="mt-4 pt-4 border-t border-[#E2E8F0]">
+          <div className="mt-4 pt-4 border-t border-brand-border">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#64748B]">Total Rooms</span>
-              <span className="text-sm font-semibold text-[#17212B]">{rooms.length}</span>
+              <span className="text-sm text-brand-slate">Total Rooms</span>
+              <span className="text-sm font-semibold text-brand-ink">{rooms.length}</span>
             </div>
           </div>
         </div>
@@ -188,23 +188,23 @@ export default function Dashboard() {
 
       {/* Arrivals & Departures */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
-          <h3 className="text-base font-semibold text-[#17212B] mb-4">
+        <div className="bg-white rounded-xl border border-brand-border p-6">
+          <h3 className="text-base font-semibold text-brand-ink mb-4">
             Today&apos;s Arrivals ({arrivals.length})
           </h3>
           {arrivals.length === 0 ? (
-            <p className="text-sm text-[#64748B] py-8 text-center">No arrivals scheduled for today</p>
+            <p className="text-sm text-brand-slate py-8 text-center">No arrivals scheduled for today</p>
           ) : (
             <div className="space-y-2">
               {arrivals.map((res) => {
                 const guest = guests.find(g => g.id === res.guest_id);
                 return (
-                  <div key={res.id} className="flex items-center justify-between p-3 rounded-lg bg-[#F6F8FB]">
+                  <div key={res.id} className="flex items-center justify-between p-3 rounded-lg bg-brand-bg">
                     <div>
-                      <p className="text-sm font-medium text-[#17212B]">
+                      <p className="text-sm font-medium text-brand-ink">
                         {guest ? `${guest.first_name} ${guest.last_name}` : 'Unknown Guest'}
                       </p>
-                      <p className="text-xs text-[#64748B] mt-0.5">
+                      <p className="text-xs text-brand-slate mt-0.5">
                         {res.adults} adults · {res.children} children · {res.source}
                       </p>
                     </div>
@@ -218,23 +218,23 @@ export default function Dashboard() {
           )}
         </div>
 
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
-          <h3 className="text-base font-semibold text-[#17212B] mb-4">
+        <div className="bg-white rounded-xl border border-brand-border p-6">
+          <h3 className="text-base font-semibold text-brand-ink mb-4">
             Today&apos;s Departures ({departures.length})
           </h3>
           {departures.length === 0 ? (
-            <p className="text-sm text-[#64748B] py-8 text-center">No departures scheduled for today</p>
+            <p className="text-sm text-brand-slate py-8 text-center">No departures scheduled for today</p>
           ) : (
             <div className="space-y-2">
               {departures.map((res) => {
                 const guest = guests.find(g => g.id === res.guest_id);
                 return (
-                  <div key={res.id} className="flex items-center justify-between p-3 rounded-lg bg-[#F6F8FB]">
+                  <div key={res.id} className="flex items-center justify-between p-3 rounded-lg bg-brand-bg">
                     <div>
-                      <p className="text-sm font-medium text-[#17212B]">
+                      <p className="text-sm font-medium text-brand-ink">
                         {guest ? `${guest.first_name} ${guest.last_name}` : 'Unknown Guest'}
                       </p>
-                      <p className="text-xs text-[#64748B] mt-0.5">
+                      <p className="text-xs text-brand-slate mt-0.5">
                         {res.adults} adults · {res.children} children · ${res.total_amount || 0}
                       </p>
                     </div>
@@ -251,24 +251,24 @@ export default function Dashboard() {
 
       {/* In-House Guests & Alerts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
-          <h3 className="text-base font-semibold text-[#17212B] mb-4">
+        <div className="bg-white rounded-xl border border-brand-border p-6">
+          <h3 className="text-base font-semibold text-brand-ink mb-4">
             In-House Guests ({inHouse.length})
           </h3>
           {inHouse.length === 0 ? (
-            <p className="text-sm text-[#64748B] py-8 text-center">No guests currently checked in</p>
+            <p className="text-sm text-brand-slate py-8 text-center">No guests currently checked in</p>
           ) : (
             <div className="space-y-2">
               {inHouse.slice(0, 5).map((res) => {
                 const guest = guests.find(g => g.id === res.guest_id);
                 const room = rooms.find(r => r.id === res.room_id);
                 return (
-                  <div key={res.id} className="flex items-center justify-between p-3 rounded-lg bg-[#F6F8FB]">
+                  <div key={res.id} className="flex items-center justify-between p-3 rounded-lg bg-brand-bg">
                     <div>
-                      <p className="text-sm font-medium text-[#17212B]">
+                      <p className="text-sm font-medium text-brand-ink">
                         {guest ? `${guest.first_name} ${guest.last_name}` : 'Unknown Guest'}
                       </p>
-                      <p className="text-xs text-[#64748B] mt-0.5">
+                      <p className="text-xs text-brand-slate mt-0.5">
                         Room {room?.number || 'N/A'} · Check-out {res.check_out}
                       </p>
                     </div>
@@ -279,36 +279,36 @@ export default function Dashboard() {
           )}
         </div>
 
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
-          <h3 className="text-base font-semibold text-[#17212B] mb-4">Quick Stats</h3>
+        <div className="bg-white rounded-xl border border-brand-border p-6">
+          <h3 className="text-base font-semibold text-brand-ink mb-4">Quick Stats</h3>
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-lg bg-[#F6F8FB]">
+            <div className="p-4 rounded-lg bg-brand-bg">
               <div className="flex items-center gap-2 mb-2">
-                <Users className="w-4 h-4 text-[#123B63]" />
-                <span className="text-xs text-[#64748B]">Total Guests</span>
+                <Users className="w-4 h-4 text-brand-navy" />
+                <span className="text-xs text-brand-slate">Total Guests</span>
               </div>
-              <p className="text-xl font-bold text-[#17212B]">{guests.length}</p>
+              <p className="text-xl font-bold text-brand-ink">{guests.length}</p>
             </div>
-            <div className="p-4 rounded-lg bg-[#F6F8FB]">
+            <div className="p-4 rounded-lg bg-brand-bg">
               <div className="flex items-center gap-2 mb-2">
-                <CalendarCheck className="w-4 h-4 text-[#123B63]" />
-                <span className="text-xs text-[#64748B]">Active Reservations</span>
+                <CalendarCheck className="w-4 h-4 text-brand-navy" />
+                <span className="text-xs text-brand-slate">Active Reservations</span>
               </div>
-              <p className="text-xl font-bold text-[#17212B]">{activeRes.length}</p>
+              <p className="text-xl font-bold text-brand-ink">{activeRes.length}</p>
             </div>
-            <div className="p-4 rounded-lg bg-[#F6F8FB]">
+            <div className="p-4 rounded-lg bg-brand-bg">
               <div className="flex items-center gap-2 mb-2">
-                <BedDouble className="w-4 h-4 text-[#123B63]" />
-                <span className="text-xs text-[#64748B]">Available Rooms</span>
+                <BedDouble className="w-4 h-4 text-brand-navy" />
+                <span className="text-xs text-brand-slate">Available Rooms</span>
               </div>
-              <p className="text-xl font-bold text-[#17212B]">{roomStatusCounts.available}</p>
+              <p className="text-xl font-bold text-brand-ink">{roomStatusCounts.available}</p>
             </div>
-            <div className="p-4 rounded-lg bg-[#F6F8FB]">
+            <div className="p-4 rounded-lg bg-brand-bg">
               <div className="flex items-center gap-2 mb-2">
                 <AlertCircle className="w-4 h-4 text-orange-500" />
-                <span className="text-xs text-[#64748B]">Dirty Rooms</span>
+                <span className="text-xs text-brand-slate">Dirty Rooms</span>
               </div>
-              <p className="text-xl font-bold text-[#17212B]">{roomStatusCounts.dirty}</p>
+              <p className="text-xl font-bold text-brand-ink">{roomStatusCounts.dirty}</p>
             </div>
           </div>
         </div>

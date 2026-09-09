@@ -36,7 +36,7 @@ export default function Analytics() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-4 border-[#E2E8F0] border-t-[#123B63] rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-brand-border border-t-brand-navy rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -76,28 +76,28 @@ export default function Analytics() {
     { label: 'ADR', value: `$${adr}`, icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
     { label: 'RevPAR', value: `$${revpar}`, icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-50' },
     { label: 'Occupancy', value: `${occupancyRate}%`, icon: BedDouble, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { label: 'Total Revenue', value: `$${totalRevenue.toLocaleString()}`, icon: BarChart3, color: 'text-[#123B63]', bg: 'bg-blue-50' },
+    { label: 'Total Revenue', value: `$${totalRevenue.toLocaleString()}`, icon: BarChart3, color: 'text-brand-navy', bg: 'bg-blue-50' },
   ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#17212B]">Revenue Analytics</h1>
-        <p className="text-sm text-[#64748B] mt-1">ADR, RevPAR and occupancy trends for data-driven decisions</p>
+        <h1 className="text-2xl font-bold text-brand-ink">Revenue Analytics</h1>
+        <p className="text-sm text-brand-slate mt-1">ADR, RevPAR and occupancy trends for data-driven decisions</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {kpis.map((k) => {
           const Icon = k.icon;
           return (
-            <div key={k.label} className="bg-white rounded-xl border border-[#E2E8F0] p-4">
+            <div key={k.label} className="bg-white rounded-xl border border-brand-border p-4">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-lg ${k.bg} flex items-center justify-center`}>
                   <Icon className={`w-5 h-5 ${k.color}`} />
                 </div>
                 <div>
-                  <p className="text-xl font-bold text-[#17212B]">{k.value}</p>
-                  <p className="text-xs text-[#64748B]">{k.label}</p>
+                  <p className="text-xl font-bold text-brand-ink">{k.value}</p>
+                  <p className="text-xs text-brand-slate">{k.label}</p>
                 </div>
               </div>
             </div>
@@ -106,8 +106,8 @@ export default function Analytics() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
-          <h3 className="text-base font-semibold text-[#17212B] mb-4">Revenue Trend (14 days)</h3>
+        <div className="bg-white rounded-xl border border-brand-border p-6">
+          <h3 className="text-base font-semibold text-brand-ink mb-4">Revenue Trend (14 days)</h3>
           <ResponsiveContainer width="100%" height={260}>
             <AreaChart data={trendData}>
               <defs>
@@ -125,8 +125,8 @@ export default function Analytics() {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
-          <h3 className="text-base font-semibold text-[#17212B] mb-4">Occupancy Rate (14 days)</h3>
+        <div className="bg-white rounded-xl border border-brand-border p-6">
+          <h3 className="text-base font-semibold text-brand-ink mb-4">Occupancy Rate (14 days)</h3>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={trendData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
@@ -140,10 +140,10 @@ export default function Analytics() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
-          <h3 className="text-base font-semibold text-[#17212B] mb-4">Revenue by Booking Source</h3>
+        <div className="bg-white rounded-xl border border-brand-border p-6">
+          <h3 className="text-base font-semibold text-brand-ink mb-4">Revenue by Booking Source</h3>
           {sourceData.length === 0 ? (
-            <p className="text-sm text-[#64748B] py-12 text-center">No booking data yet</p>
+            <p className="text-sm text-brand-slate py-12 text-center">No booking data yet</p>
           ) : (
             <ResponsiveContainer width="100%" height={260}>
               <PieChart>
@@ -159,8 +159,8 @@ export default function Analytics() {
           )}
         </div>
 
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
-          <h3 className="text-base font-semibold text-[#17212B] mb-4">ADR Trend (14 days)</h3>
+        <div className="bg-white rounded-xl border border-brand-border p-6">
+          <h3 className="text-base font-semibold text-brand-ink mb-4">ADR Trend (14 days)</h3>
           <ResponsiveContainer width="100%" height={260}>
             <AreaChart data={trendData}>
               <defs>

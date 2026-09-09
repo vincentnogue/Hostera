@@ -23,7 +23,7 @@ export default function Onboarding() {
     { name: 'Standard Double', base_price: 120, capacity: 2 },
   ]);
 
-  const inputCls = "w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-full text-sm outline-none focus:border-[#123B63]";
+  const inputCls = "w-full px-3.5 py-2.5 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
 
   const finish = async () => {
     setSaving(true);
@@ -63,8 +63,8 @@ export default function Onboarding() {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#17212B]">Welcome to Hostera 👋</h1>
-        <p className="text-sm text-[#64748B]">Set up your business in a few steps — you can change everything later.</p>
+        <h1 className="text-2xl font-bold text-brand-ink">Welcome to Hostera 👋</h1>
+        <p className="text-sm text-brand-slate">Set up your business in a few steps — you can change everything later.</p>
       </div>
 
       {/* Stepper */}
@@ -75,24 +75,24 @@ export default function Onboarding() {
           const active = step === s.id;
           return (
             <React.Fragment key={s.id}>
-              <div className={`flex items-center gap-2.5 px-4 py-2.5 rounded-full border-2 transition-colors ${active ? 'border-[#123B63] bg-blue-50/40' : done ? 'border-green-200 bg-green-50' : 'border-[#E2E8F0]'}`}>
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${done ? 'bg-green-500 text-white' : active ? 'bg-[#123B63] text-white' : 'bg-[#F6F8FB] text-[#94A3B8]'}`}>
+              <div className={`flex items-center gap-2.5 px-4 py-2.5 rounded-full border-2 transition-colors ${active ? 'border-brand-navy bg-blue-50/40' : done ? 'border-green-200 bg-green-50' : 'border-brand-border'}`}>
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${done ? 'bg-green-500 text-white' : active ? 'bg-brand-navy text-white' : 'bg-brand-bg text-brand-slate-light'}`}>
                   {done ? <Check className="w-3.5 h-3.5" /> : <Icon className="w-3.5 h-3.5" />}
                 </div>
                 <div className={active || done ? '' : 'hidden md:block'}>
-                  <p className="text-xs font-semibold text-[#17212B]">{s.title}</p>
+                  <p className="text-xs font-semibold text-brand-ink">{s.title}</p>
                 </div>
               </div>
-              {i < STEPS.length - 1 && <div className={`flex-1 h-0.5 rounded-full ${step > s.id ? 'bg-green-300' : 'bg-[#E2E8F0]'}`} />}
+              {i < STEPS.length - 1 && <div className={`flex-1 h-0.5 rounded-full ${step > s.id ? 'bg-green-300' : 'bg-brand-border'}`} />}
             </React.Fragment>
           );
         })}
       </div>
 
-      <div className="bg-white rounded-2xl border border-[#E2E8F0] p-8">
+      <div className="bg-white rounded-2xl border border-brand-border p-8">
         {step === 1 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-[#17212B]">Tell us about your organization</h2>
+            <h2 className="text-lg font-bold text-brand-ink">Tell us about your organization</h2>
             <input placeholder="Organization name (e.g. Sunrise Hotels Group)" value={org.name} onChange={e => setOrg({ ...org, name: e.target.value })} className={inputCls} />
             <div className="grid grid-cols-2 gap-4">
               <select value={org.type} onChange={e => setOrg({ ...org, type: e.target.value })} className={inputCls}>
@@ -114,7 +114,7 @@ export default function Onboarding() {
 
         {step === 2 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-[#17212B]">Your first property</h2>
+            <h2 className="text-lg font-bold text-brand-ink">Your first property</h2>
             <input placeholder="Property name (e.g. Sunrise Boutique Marrakech)" value={property.name} onChange={e => setProperty({ ...property, name: e.target.value })} className={inputCls} />
             <div className="grid grid-cols-2 gap-4">
               <select value={property.property_type} onChange={e => setProperty({ ...property, property_type: e.target.value })} className={inputCls}>
@@ -124,11 +124,11 @@ export default function Onboarding() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-medium text-[#64748B] block mb-1.5">Check-in time</label>
+                <label className="text-xs font-medium text-brand-slate block mb-1.5">Check-in time</label>
                 <input type="time" value={property.checkin_time} onChange={e => setProperty({ ...property, checkin_time: e.target.value })} className={inputCls} />
               </div>
               <div>
-                <label className="text-xs font-medium text-[#64748B] block mb-1.5">Check-out time</label>
+                <label className="text-xs font-medium text-brand-slate block mb-1.5">Check-out time</label>
                 <input type="time" value={property.checkout_time} onChange={e => setProperty({ ...property, checkout_time: e.target.value })} className={inputCls} />
               </div>
             </div>
@@ -138,8 +138,8 @@ export default function Onboarding() {
         {step === 3 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-[#17212B]">Room types & starting rates</h2>
-              <button onClick={() => setRoomTypes([...roomTypes, { name: '', base_price: 100, capacity: 2 }])} className="text-xs px-3 py-1.5 bg-[#123B63] text-white rounded-full font-semibold hover:bg-[#1F5A8A]">+ Add type</button>
+              <h2 className="text-lg font-bold text-brand-ink">Room types & starting rates</h2>
+              <button onClick={() => setRoomTypes([...roomTypes, { name: '', base_price: 100, capacity: 2 }])} className="text-xs px-3 py-1.5 bg-brand-navy text-white rounded-full font-semibold hover:bg-brand-blue">+ Add type</button>
             </div>
             {roomTypes.map((rt, i) => (
               <div key={i} className="flex gap-3 items-center">
@@ -156,27 +156,27 @@ export default function Onboarding() {
 
         {step === 4 && (
           <div className="space-y-5">
-            <h2 className="text-lg font-bold text-[#17212B]">You&apos;re ready to launch 🚀</h2>
-            <div className="p-5 rounded-2xl bg-[#F6F8FB] space-y-2.5 text-sm">
-              <p><span className="text-[#64748B]">Organization:</span> <span className="font-semibold text-[#17212B]">{org.name || '—'}</span></p>
-              <p><span className="text-[#64748B]">Property:</span> <span className="font-semibold text-[#17212B]">{property.name || '—'}</span> {property.city && `· ${property.city}`}</p>
-              <p><span className="text-[#64748B]">Currency:</span> <span className="font-semibold text-[#17212B]">{org.currency}</span></p>
-              <p><span className="text-[#64748B]">Room types:</span> <span className="font-semibold text-[#17212B]">{roomTypes.filter(r => r.name).map(r => r.name).join(', ') || '—'}</span></p>
-              <p className="text-xs text-[#94A3B8] pt-1">Next steps: add rooms to your types, create rate plans in Rate Plans, and invite your team under Team Access.</p>
+            <h2 className="text-lg font-bold text-brand-ink">You&apos;re ready to launch 🚀</h2>
+            <div className="p-5 rounded-2xl bg-brand-bg space-y-2.5 text-sm">
+              <p><span className="text-brand-slate">Organization:</span> <span className="font-semibold text-brand-ink">{org.name || '—'}</span></p>
+              <p><span className="text-brand-slate">Property:</span> <span className="font-semibold text-brand-ink">{property.name || '—'}</span> {property.city && `· ${property.city}`}</p>
+              <p><span className="text-brand-slate">Currency:</span> <span className="font-semibold text-brand-ink">{org.currency}</span></p>
+              <p><span className="text-brand-slate">Room types:</span> <span className="font-semibold text-brand-ink">{roomTypes.filter(r => r.name).map(r => r.name).join(', ') || '—'}</span></p>
+              <p className="text-xs text-brand-slate-light pt-1">Next steps: add rooms to your types, create rate plans in Rate Plans, and invite your team under Team Access.</p>
             </div>
           </div>
         )}
 
         <div className="flex items-center justify-between pt-8">
-          <button onClick={() => setStep(s => Math.max(1, s - 1))} disabled={step === 1} className="flex items-center gap-1.5 px-5 py-2.5 border border-[#E2E8F0] text-sm font-semibold text-[#64748B] rounded-full hover:border-[#123B63] disabled:opacity-40">
+          <button onClick={() => setStep(s => Math.max(1, s - 1))} disabled={step === 1} className="flex items-center gap-1.5 px-5 py-2.5 border border-brand-border text-sm font-semibold text-brand-slate rounded-full hover:border-brand-navy disabled:opacity-40">
             <ArrowLeft className="w-4 h-4" /> Back
           </button>
           {step < 4 ? (
-            <button onClick={() => setStep(s => s + 1)} className="flex items-center gap-1.5 px-6 py-2.5 bg-[#123B63] text-white text-sm font-semibold rounded-full hover:bg-[#1F5A8A]">
+            <button onClick={() => setStep(s => s + 1)} className="flex items-center gap-1.5 px-6 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">
               Continue <ArrowRight className="w-4 h-4" />
             </button>
           ) : (
-            <button onClick={finish} disabled={saving} className="flex items-center gap-1.5 px-6 py-2.5 bg-[#123B63] text-white text-sm font-semibold rounded-full hover:bg-[#1F5A8A] disabled:opacity-60">
+            <button onClick={finish} disabled={saving} className="flex items-center gap-1.5 px-6 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60">
               <Rocket className="w-4 h-4" /> {saving ? 'Creating…' : 'Launch My Property'}
             </button>
           )}

@@ -55,7 +55,7 @@ export default function TeamAccess() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-4 border-[#E2E8F0] border-t-[#123B63] rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-brand-border border-t-brand-navy rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -64,40 +64,40 @@ export default function TeamAccess() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#17212B]">Team Access</h1>
-          <p className="text-sm text-[#64748B] mt-1">{users.length} team members with access</p>
+          <h1 className="text-2xl font-bold text-brand-ink">Team Access</h1>
+          <p className="text-sm text-brand-slate mt-1">{users.length} team members with access</p>
         </div>
         <button
           onClick={() => setShowInvite(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#123B63] text-white rounded-lg text-sm font-medium hover:bg-[#1F5A8A] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-brand-navy text-white rounded-lg text-sm font-medium hover:bg-brand-blue transition-colors"
         >
           <UserPlus className="w-4 h-4" />
           Invite Member
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden">
+      <div className="bg-white rounded-xl border border-brand-border overflow-hidden">
         {users.length === 0 ? (
           <div className="py-16 text-center">
-            <Users className="w-12 h-12 text-[#E2E8F0] mx-auto mb-3" />
-            <p className="text-sm text-[#64748B]">No team members yet</p>
+            <Users className="w-12 h-12 text-brand-border mx-auto mb-3" />
+            <p className="text-sm text-brand-slate">No team members yet</p>
           </div>
         ) : (
-          <div className="divide-y divide-[#E2E8F0]">
+          <div className="divide-y divide-brand-border">
             {users.map((user) => {
               const config = roleConfig[user.role] || roleConfig.user;
               const RoleIcon = config.icon;
               const initials = (user.full_name || user.email || '?')
                 .split(' ').map(s => s[0]).slice(0, 2).join('').toUpperCase();
               return (
-                <div key={user.id} className="p-4 flex items-center justify-between hover:bg-[#F6F8FB] transition-colors">
+                <div key={user.id} className="p-4 flex items-center justify-between hover:bg-brand-bg transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#123B63] text-white flex items-center justify-center text-sm font-medium">
+                    <div className="w-10 h-10 rounded-full bg-brand-navy text-white flex items-center justify-center text-sm font-medium">
                       {initials}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-[#17212B]">{user.full_name || user.email}</p>
-                      <p className="text-xs text-[#64748B]">{user.email}</p>
+                      <p className="text-sm font-semibold text-brand-ink">{user.full_name || user.email}</p>
+                      <p className="text-xs text-brand-slate">{user.email}</p>
                     </div>
                   </div>
                   <span className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium ${config.color}`}>
@@ -116,38 +116,38 @@ export default function TeamAccess() {
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowInvite(false)}>
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-[#17212B]">Invite Team Member</h2>
-              <button onClick={() => setShowInvite(false)} className="text-[#64748B] hover:text-[#17212B]">
+              <h2 className="text-lg font-semibold text-brand-ink">Invite Team Member</h2>
+              <button onClick={() => setShowInvite(false)} className="text-brand-slate hover:text-brand-ink">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-[#17212B] mb-1 block">Email Address</label>
+                <label className="text-sm font-medium text-brand-ink mb-1 block">Email Address</label>
                 <input
                   type="email"
                   value={form.email}
                   onChange={e => setForm({ ...form, email: e.target.value })}
                   placeholder="staff@hotel.com"
-                  className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg text-sm outline-none focus:border-[#123B63]"
+                  className="w-full px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-[#17212B] mb-2 block">Access Role</label>
+                <label className="text-sm font-medium text-brand-ink mb-2 block">Access Role</label>
                 <div className="space-y-2">
                   {roleOptions.map(r => (
-                    <label key={r.value} className={`flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${form.role === r.value ? 'border-[#123B63] bg-blue-50/30' : 'border-[#E2E8F0] hover:bg-[#F6F8FB]'}`}>
+                    <label key={r.value} className={`flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${form.role === r.value ? 'border-brand-navy bg-blue-50/30' : 'border-brand-border hover:bg-brand-bg'}`}>
                       <input
                         type="radio"
                         name="role"
                         value={r.value}
                         checked={form.role === r.value}
                         onChange={e => setForm({ ...form, role: e.target.value })}
-                        className="mt-1 accent-[#123B63]"
+                        className="mt-1 accent-brand-navy"
                       />
                       <div>
-                        <p className="text-sm font-medium text-[#17212B]">{r.label}</p>
-                        <p className="text-xs text-[#64748B]">{r.desc}</p>
+                        <p className="text-sm font-medium text-brand-ink">{r.label}</p>
+                        <p className="text-xs text-brand-slate">{r.desc}</p>
                       </div>
                     </label>
                   ))}
@@ -160,14 +160,14 @@ export default function TeamAccess() {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowInvite(false)}
-                className="flex-1 px-4 py-2 border border-[#E2E8F0] rounded-lg text-sm font-medium text-[#64748B] hover:bg-[#F6F8FB] transition-colors"
+                className="flex-1 px-4 py-2 border border-brand-border rounded-lg text-sm font-medium text-brand-slate hover:bg-brand-bg transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleInvite}
                 disabled={inviting || !form.email}
-                className="flex-1 px-4 py-2 bg-[#123B63] text-white rounded-lg text-sm font-medium hover:bg-[#1F5A8A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 bg-brand-navy text-white rounded-lg text-sm font-medium hover:bg-brand-blue transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {inviting ? 'Sending...' : 'Send Invitation'}
               </button>

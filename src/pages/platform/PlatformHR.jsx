@@ -61,7 +61,7 @@ export default function PlatformHR() {
               const Icon = k.icon;
               return (
                 <div key={k.label} className="p-5 rounded-xl bg-white/[0.04] border border-white/10">
-                  <Icon className="w-5 h-5 text-[#1F5A8A] mb-3" />
+                  <Icon className="w-5 h-5 text-brand-blue mb-3" />
                   <p className="text-2xl font-bold text-white">{k.value}</p>
                   <p className="text-[11px] text-white/40 mt-1">{k.label}</p>
                 </div>
@@ -73,7 +73,7 @@ export default function PlatformHR() {
             {/* Department distribution */}
             <div className="p-6 rounded-xl bg-white/[0.04] border border-white/10">
               <h2 className="text-sm font-semibold text-white mb-5 flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-[#1F5A8A]" /> Headcount by Department
+                <Building2 className="w-4 h-4 text-brand-blue" /> Headcount by Department
               </h2>
               {byDept.length === 0 ? (
                 <p className="text-xs text-white/40">No workforce data recorded by customers yet.</p>
@@ -86,7 +86,7 @@ export default function PlatformHR() {
                         <span className="text-white font-semibold">{d.count}</span>
                       </div>
                       <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full bg-[#1F5A8A] rounded-full" style={{ width: `${(d.count / maxDept) * 100}%` }} />
+                        <div className="h-full bg-brand-blue rounded-full" style={{ width: `${(d.count / maxDept) * 100}%` }} />
                       </div>
                     </div>
                   ))}
@@ -97,7 +97,7 @@ export default function PlatformHR() {
             {/* Expenses by category */}
             <div className="p-6 rounded-xl bg-white/[0.04] border border-white/10">
               <h2 className="text-sm font-semibold text-white mb-5 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-[#1F5A8A]" /> Customer Op. Costs by Category (MTD)
+                <TrendingUp className="w-4 h-4 text-brand-blue" /> Customer Op. Costs by Category (MTD)
               </h2>
               {catEntries.length === 0 ? (
                 <p className="text-xs text-white/40">No expense data recorded this month.</p>
@@ -117,7 +117,7 @@ export default function PlatformHR() {
           {/* Upcoming shifts across orgs */}
           <div className="p-6 rounded-xl bg-white/[0.04] border border-white/10">
             <h2 className="text-sm font-semibold text-white mb-5 flex items-center gap-2">
-              <CalendarClock className="w-4 h-4 text-[#1F5A8A]" /> Shifts Across Customer Organizations
+              <CalendarClock className="w-4 h-4 text-brand-blue" /> Shifts Across Customer Organizations
             </h2>
             {upcomingShifts.length === 0 ? (
               <p className="text-xs text-white/40">No scheduled shifts recorded.</p>

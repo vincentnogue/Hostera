@@ -71,7 +71,7 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
           alt="Luxury hotel suite"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0E243F] via-[#0E243F]/40 to-[#0E243F]/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-overlay via-brand-overlay/40 to-brand-overlay/10" />
         <div className="relative h-full flex flex-col justify-between p-12">
           <span className="inline-flex items-center gap-2 self-start px-4 py-1.5 bg-white/10 border border-white/15 backdrop-blur-sm rounded-full text-white text-xs font-semibold tracking-widest">
             <Sparkles className="w-3.5 h-3.5" aria-hidden="true" /> HOSTERA · HOSPITALITY OS

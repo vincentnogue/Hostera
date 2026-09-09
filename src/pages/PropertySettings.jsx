@@ -57,25 +57,25 @@ export default function PropertySettings() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-4 border-[#E2E8F0] border-t-[#123B63] rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-brand-border border-t-brand-navy rounded-full animate-spin"></div>
       </div>
     );
   }
 
-  const inputCls = "w-full px-3 py-2 border border-[#E2E8F0] rounded-lg text-sm outline-none focus:border-[#123B63] text-[#17212B]";
-  const labelCls = "text-sm font-medium text-[#17212B] mb-1 block";
+  const inputCls = "w-full px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy text-brand-ink";
+  const labelCls = "text-sm font-medium text-brand-ink mb-1 block";
 
   return (
     <div className="space-y-6 max-w-3xl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#17212B]">Property Settings</h1>
-          <p className="text-sm text-[#64748B] mt-1">Manage your property information and operating preferences</p>
+          <h1 className="text-2xl font-bold text-brand-ink">Property Settings</h1>
+          <p className="text-sm text-brand-slate mt-1">Manage your property information and operating preferences</p>
         </div>
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#123B63] text-white rounded-lg text-sm font-medium hover:bg-[#1F5A8A] transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-5 py-2.5 bg-brand-navy text-white rounded-lg text-sm font-medium hover:bg-brand-blue transition-colors disabled:opacity-50"
         >
           <Save className="w-4 h-4" />
           {saving ? 'Saving...' : saved ? 'Saved!' : 'Save Changes'}
@@ -83,10 +83,10 @@ export default function PropertySettings() {
       </div>
 
       {/* Property Information */}
-      <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
+      <div className="bg-white rounded-xl border border-brand-border p-6">
         <div className="flex items-center gap-2 mb-5">
-          <Building2 className="w-5 h-5 text-[#123B63]" />
-          <h2 className="text-base font-semibold text-[#17212B]">Property Information</h2>
+          <Building2 className="w-5 h-5 text-brand-navy" />
+          <h2 className="text-base font-semibold text-brand-ink">Property Information</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -125,10 +125,10 @@ export default function PropertySettings() {
       </div>
 
       {/* Operating Preferences */}
-      <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
+      <div className="bg-white rounded-xl border border-brand-border p-6">
         <div className="flex items-center gap-2 mb-5">
-          <Clock className="w-5 h-5 text-[#123B63]" />
-          <h2 className="text-base font-semibold text-[#17212B]">Operating Preferences</h2>
+          <Clock className="w-5 h-5 text-brand-navy" />
+          <h2 className="text-base font-semibold text-brand-ink">Operating Preferences</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -143,10 +143,10 @@ export default function PropertySettings() {
       </div>
 
       {/* Localization */}
-      <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
+      <div className="bg-white rounded-xl border border-brand-border p-6">
         <div className="flex items-center gap-2 mb-5">
-          <Globe className="w-5 h-5 text-[#123B63]" />
-          <h2 className="text-base font-semibold text-[#17212B]">Localization</h2>
+          <Globe className="w-5 h-5 text-brand-navy" />
+          <h2 className="text-base font-semibold text-brand-ink">Localization</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>

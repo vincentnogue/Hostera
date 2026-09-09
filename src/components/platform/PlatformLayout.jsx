@@ -50,8 +50,8 @@ export default function PlatformLayout() {
 
   if (checking) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-[#0C2438]">
-        <div className="w-8 h-8 border-4 border-[#1F5A8A] border-t-white rounded-full animate-spin"></div>
+      <div className="fixed inset-0 flex items-center justify-center bg-brand-navy-950">
+        <div className="w-8 h-8 border-4 border-brand-blue border-t-white rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -63,17 +63,17 @@ export default function PlatformLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0C2438] flex">
+    <div className="min-h-screen bg-brand-navy-950 flex">
       {/* Sidebar */}
-      <aside className="fixed top-0 left-0 z-50 h-full w-64 bg-[#0A1E30] border-r border-white/5 flex flex-col">
+      <aside className="fixed top-0 left-0 z-50 h-full w-64 bg-brand-navy-900 border-r border-white/5 flex flex-col">
         <div className="px-5 py-5 border-b border-white/5 shrink-0">
           <Link to="/platform" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg bg-[#123B63] border border-[#1F5A8A]/50 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-lg bg-brand-navy border border-brand-blue/50 flex items-center justify-center">
               <Building className="w-5 h-5 text-white" />
             </div>
             <div>
               <h1 className="text-sm font-bold text-white tracking-tight">HOSTERA</h1>
-              <p className="text-[9px] text-[#1F5A8A] uppercase tracking-widest font-semibold">Control Center</p>
+              <p className="text-[9px] text-brand-blue uppercase tracking-widest font-semibold">Control Center</p>
             </div>
           </Link>
         </div>
@@ -87,7 +87,7 @@ export default function PlatformLayout() {
                 key={item.path}
                 to={item.path}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                  active ? 'bg-[#123B63] text-white font-medium border border-[#1F5A8A]/40' : 'text-white/50 hover:text-white hover:bg-white/5'
+                  active ? 'bg-brand-navy text-white font-medium border border-brand-blue/40' : 'text-white/50 hover:text-white hover:bg-white/5'
                 }`}
               >
                 <Icon className="w-[18px] h-[18px] shrink-0" />
@@ -112,13 +112,13 @@ export default function PlatformLayout() {
       </aside>
 
       <div className="lg:ml-64 flex-1">
-        <header className="sticky top-0 z-30 bg-[#0C2438]/95 backdrop-blur-sm border-b border-white/5 px-4 lg:px-8 py-3 flex items-center justify-between">
-          <span className="text-xs font-semibold text-[#1F5A8A] uppercase tracking-widest">Platform Control Center</span>
+        <header className="sticky top-0 z-30 bg-brand-navy-950/95 backdrop-blur-sm border-b border-white/5 px-4 lg:px-8 py-3 flex items-center justify-between">
+          <span className="text-xs font-semibold text-brand-blue uppercase tracking-widest">Platform Control Center</span>
           <div className="flex items-center gap-3">
             <span className="hidden md:block text-xs text-white/40">
               {new Date().toLocaleDateString('en', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
             </span>
-            <div className="w-8 h-8 rounded-full bg-[#1F5A8A] text-white flex items-center justify-center text-xs font-bold border border-white/10">
+            <div className="w-8 h-8 rounded-full bg-brand-blue text-white flex items-center justify-center text-xs font-bold border border-white/10">
               {user?.email?.[0]?.toUpperCase() || 'A'}
             </div>
           </div>

@@ -43,7 +43,7 @@ export default function StatusPage() {
   return (
     <div className="bg-white">
       {/* HERO */}
-      <section className="bg-[#0A1E30] py-16">
+      <section className="bg-brand-navy-900 py-16">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <Reveal>
             <span className="inline-block px-4 py-1.5 bg-white/10 text-white/90 text-xs font-semibold rounded-full mb-6 border border-white/10 uppercase tracking-wide">System Status</span>
@@ -71,12 +71,12 @@ export default function StatusPage() {
             const Icon = config.icon;
             return (
               <Reveal key={name} delay={i * 0.04}>
-                <div className="flex items-center justify-between p-5 rounded-2xl border border-[#E2E8F0] hover:border-[#1F5A8A]/30 transition-colors">
+                <div className="flex items-center justify-between p-5 rounded-2xl border border-brand-border hover:border-brand-blue/30 transition-colors">
                   <div className="flex items-center gap-3">
                     <span className={`w-2.5 h-2.5 rounded-full ${loading ? 'bg-gray-300 animate-pulse' : config.dot}`} />
                     <div>
-                      <p className="text-sm font-semibold text-[#17212B]">{name}</p>
-                      <p className="text-xs text-[#64748B]">Live status</p>
+                      <p className="text-sm font-semibold text-brand-ink">{name}</p>
+                      <p className="text-xs text-brand-slate">Live status</p>
                     </div>
                   </div>
                   <span className={`flex items-center gap-1.5 text-sm font-medium ${loading ? 'text-gray-400' : config.text}`}>
@@ -91,21 +91,21 @@ export default function StatusPage() {
       </section>
 
       {/* INCIDENTS */}
-      <section className="py-14 bg-[#F6F8FB]">
+      <section className="py-14 bg-brand-bg">
         <div className="max-w-4xl mx-auto px-6">
           <Reveal>
             <div className="flex items-center gap-3 mb-8">
-              <Activity className="w-5 h-5 text-[#123B63]" />
-              <h2 className="text-2xl font-bold text-[#17212B]">Incident history</h2>
+              <Activity className="w-5 h-5 text-brand-navy" />
+              <h2 className="text-2xl font-bold text-brand-ink">Incident history</h2>
             </div>
           </Reveal>
           {loading ? (
-            <p className="text-sm text-[#64748B]">Loading incidents…</p>
+            <p className="text-sm text-brand-slate">Loading incidents…</p>
           ) : incidents.length === 0 ? (
-            <div className="p-8 rounded-2xl bg-white border border-[#E2E8F0] text-center">
+            <div className="p-8 rounded-2xl bg-white border border-brand-border text-center">
               <CheckCircle2 className="w-8 h-8 text-green-500 mx-auto mb-3" />
-              <p className="text-sm font-semibold text-[#17212B]">No incidents recorded</p>
-              <p className="text-xs text-[#64748B] mt-1">The platform has been running without incidents.</p>
+              <p className="text-sm font-semibold text-brand-ink">No incidents recorded</p>
+              <p className="text-xs text-brand-slate mt-1">The platform has been running without incidents.</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -113,15 +113,15 @@ export default function StatusPage() {
                 const resolved = inc.status === 'resolved' || inc.status === 'postmortem';
                 return (
                   <Reveal key={inc.id}>
-                    <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0]">
+                    <div className="p-6 rounded-2xl bg-white border border-brand-border">
                       <div className="flex items-center gap-3 mb-3 flex-wrap">
                         <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-semibold ${resolved ? 'bg-green-100 text-green-700' : inc.severity === 'critical' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
                           {resolved ? 'Resolved' : inc.severity.toUpperCase()}
                         </span>
-                        <h3 className="text-sm font-semibold text-[#17212B]">{inc.title}</h3>
+                        <h3 className="text-sm font-semibold text-brand-ink">{inc.title}</h3>
                       </div>
-                      <p className="text-[13px] text-[#64748B] leading-relaxed mb-3">{inc.description}</p>
-                      <div className="flex items-center gap-4 text-xs text-[#64748B] flex-wrap">
+                      <p className="text-[13px] text-brand-slate leading-relaxed mb-3">{inc.description}</p>
+                      <div className="flex items-center gap-4 text-xs text-brand-slate flex-wrap">
                         <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{inc.started_at ? new Date(inc.started_at).toLocaleString() : '—'}</span>
                         <span className="capitalize">Status: {inc.status}</span>
                         {(inc.affected_services || []).length > 0 && <span>Affected: {inc.affected_services.join(', ')}</span>}
@@ -133,9 +133,9 @@ export default function StatusPage() {
             </div>
           )}
           <Reveal>
-            <p className="text-xs text-[#64748B] mt-6">
+            <p className="text-xs text-brand-slate mt-6">
               Status is derived from live platform incident data. For questions,{' '}
-              <Link to="/contact" className="text-[#123B63] font-semibold hover:underline">contact us</Link>.
+              <Link to="/contact" className="text-brand-navy font-semibold hover:underline">contact us</Link>.
             </p>
           </Reveal>
         </div>

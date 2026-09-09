@@ -59,7 +59,7 @@ export default function Housekeeping() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-4 border-[#E2E8F0] border-t-[#123B63] rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-brand-border border-t-brand-navy rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -88,8 +88,8 @@ export default function Housekeeping() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#17212B]">Housekeeping</h1>
-        <p className="text-sm text-[#64748B] mt-1">Room status board and cleaning tasks</p>
+        <h1 className="text-2xl font-bold text-brand-ink">Housekeeping</h1>
+        <p className="text-sm text-brand-slate mt-1">Room status board and cleaning tasks</p>
       </div>
 
       {/* Stats */}
@@ -97,14 +97,14 @@ export default function Housekeeping() {
         {stats.map((s) => {
           const Icon = s.icon;
           return (
-            <div key={s.label} className="bg-white rounded-xl border border-[#E2E8F0] p-4">
+            <div key={s.label} className="bg-white rounded-xl border border-brand-border p-4">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-lg ${s.bg} flex items-center justify-center`}>
                   <Icon className={`w-5 h-5 ${s.color}`} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-[#17212B]">{s.value}</p>
-                  <p className="text-xs text-[#64748B]">{s.label}</p>
+                  <p className="text-2xl font-bold text-brand-ink">{s.value}</p>
+                  <p className="text-xs text-brand-slate">{s.label}</p>
                 </div>
               </div>
             </div>
@@ -117,7 +117,7 @@ export default function Housekeeping() {
         <button
           onClick={() => setFilter('all')}
           className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-            filter === 'all' ? 'bg-[#123B63] text-white' : 'bg-white border border-[#E2E8F0] text-[#64748B] hover:bg-[#F6F8FB]'
+            filter === 'all' ? 'bg-brand-navy text-white' : 'bg-white border border-brand-border text-brand-slate hover:bg-brand-bg'
           }`}
         >
           All ({rooms.length})
@@ -130,7 +130,7 @@ export default function Housekeeping() {
               key={status}
               onClick={() => setFilter(status)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                filter === status ? 'bg-[#123B63] text-white' : 'bg-white border border-[#E2E8F0] text-[#64748B] hover:bg-[#F6F8FB]'
+                filter === status ? 'bg-brand-navy text-white' : 'bg-white border border-brand-border text-brand-slate hover:bg-brand-bg'
               }`}
             >
               {config.label} ({count})
@@ -179,22 +179,22 @@ export default function Housekeeping() {
 
       {/* Pending Tasks */}
       {pendingTasks.length > 0 && (
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
-          <h3 className="text-base font-semibold text-[#17212B] mb-4">
+        <div className="bg-white rounded-xl border border-brand-border p-6">
+          <h3 className="text-base font-semibold text-brand-ink mb-4">
             Pending Tasks ({pendingTasks.length})
           </h3>
           <div className="space-y-2">
             {pendingTasks.map((task) => {
               const room = rooms.find(r => r.id === task.room_id);
               return (
-                <div key={task.id} className="flex items-center justify-between p-3 rounded-lg bg-[#F6F8FB]">
+                <div key={task.id} className="flex items-center justify-between p-3 rounded-lg bg-brand-bg">
                   <div className="flex items-center gap-3">
-                    <Clock className="w-4 h-4 text-[#64748B]" />
+                    <Clock className="w-4 h-4 text-brand-slate" />
                     <div>
-                      <p className="text-sm font-medium text-[#17212B]">
+                      <p className="text-sm font-medium text-brand-ink">
                         Room {room?.number || task.room_number || 'N/A'} — {task.type}
                       </p>
-                      <p className="text-xs text-[#64748B]">
+                      <p className="text-xs text-brand-slate">
                         Priority: {task.priority} · Assigned: {task.assigned_to || 'Unassigned'}
                       </p>
                     </div>
@@ -202,7 +202,7 @@ export default function Housekeeping() {
                   <select
                     value={task.status}
                     onChange={(e) => handleTaskStatusChange(task.id, e.target.value)}
-                    className="text-xs px-2 py-1.5 border border-[#E2E8F0] rounded-lg outline-none cursor-pointer bg-white"
+                    className="text-xs px-2 py-1.5 border border-brand-border rounded-lg outline-none cursor-pointer bg-white"
                   >
                     {taskStatusFlow.map(s => (
                       <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>

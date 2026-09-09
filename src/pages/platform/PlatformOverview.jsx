@@ -51,7 +51,7 @@ export default function PlatformOverview() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-4 border-[#1F5A8A] border-t-white rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-brand-blue border-t-white rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -101,8 +101,8 @@ export default function PlatformOverview() {
         {kpis.map(k => {
           const Icon = k.icon;
           return (
-            <div key={k.label} className="bg-[#0A1E30] border border-white/5 rounded-xl p-4">
-              <Icon className="w-4 h-4 text-[#1F5A8A] mb-2" />
+            <div key={k.label} className="bg-brand-navy-900 border border-white/5 rounded-xl p-4">
+              <Icon className="w-4 h-4 text-brand-blue mb-2" />
               <p className="text-xl font-bold text-white">{k.value}</p>
               <p className="text-[11px] text-white/40 mt-0.5">{k.label}</p>
             </div>
@@ -112,7 +112,7 @@ export default function PlatformOverview() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-[#0A1E30] border border-white/5 rounded-xl p-6">
+        <div className="bg-brand-navy-900 border border-white/5 rounded-xl p-6">
           <h3 className="text-base font-semibold text-white mb-4">MRR by Plan</h3>
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={mrrByPlan}>
@@ -125,7 +125,7 @@ export default function PlatformOverview() {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-[#0A1E30] border border-white/5 rounded-xl p-6">
+        <div className="bg-brand-navy-900 border border-white/5 rounded-xl p-6">
           <h3 className="text-base font-semibold text-white mb-4">Subscription Status</h3>
           {statusDist.length === 0 ? (
             <p className="text-sm text-white/40 py-16 text-center">No subscription data</p>
@@ -145,7 +145,7 @@ export default function PlatformOverview() {
 
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-[#0A1E30] border border-white/5 rounded-xl p-6">
+        <div className="bg-brand-navy-900 border border-white/5 rounded-xl p-6">
           <h3 className="text-base font-semibold text-white mb-4">Recent Organizations</h3>
           <div className="space-y-2">
             {orgs.slice(0, 5).map(org => (
@@ -164,7 +164,7 @@ export default function PlatformOverview() {
           </div>
         </div>
 
-        <div className="bg-[#0A1E30] border border-white/5 rounded-xl p-6">
+        <div className="bg-brand-navy-900 border border-white/5 rounded-xl p-6">
           <h3 className="text-base font-semibold text-white mb-4">Open Incidents</h3>
           {openIncidents === 0 ? (
             <p className="text-sm text-white/40 py-8 text-center">All systems operational</p>

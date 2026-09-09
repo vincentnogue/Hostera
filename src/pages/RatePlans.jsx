@@ -28,7 +28,7 @@ export default function RatePlans() {
   }, []);
 
   const propertyId = properties[0]?.id;
-  const inputCls = "w-full px-3.5 py-2 border border-[#E2E8F0] rounded-full text-sm outline-none focus:border-[#123B63]";
+  const inputCls = "w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
   const promoRules = rules.filter(r => r.rule_type === 'discount' && r.status === 'active');
 
   const addPlan = async (e) => {
@@ -50,10 +50,10 @@ export default function RatePlans() {
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#17212B]">Rate Plans</h1>
-          <p className="text-sm text-[#64748B]">Seasonal pricing, promotional discounts and rate logic per room type.</p>
+          <h1 className="text-2xl font-bold text-brand-ink">Rate Plans</h1>
+          <p className="text-sm text-brand-slate">Seasonal pricing, promotional discounts and rate logic per room type.</p>
         </div>
-        <button onClick={() => setShowAdd(true)} className="flex items-center gap-1.5 px-4 py-2.5 bg-[#123B63] text-white text-sm font-semibold rounded-full hover:bg-[#1F5A8A]">
+        <button onClick={() => setShowAdd(true)} className="flex items-center gap-1.5 px-4 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">
           <Plus className="w-4 h-4" /> New Rate Plan
         </button>
       </div>
@@ -65,15 +65,15 @@ export default function RatePlans() {
           { label: 'Active Plans', value: plans.filter(p => p.status === 'active').length },
           { label: 'Promo Discounts', value: promoRules.length },
         ].map(k => (
-          <div key={k.label} className="bg-white rounded-xl border border-[#E2E8F0] p-4">
-            <p className="text-xl font-bold text-[#17212B]">{k.value}</p>
-            <p className="text-[11px] text-[#64748B]">{k.label}</p>
+          <div key={k.label} className="bg-white rounded-xl border border-brand-border p-4">
+            <p className="text-xl font-bold text-brand-ink">{k.value}</p>
+            <p className="text-[11px] text-brand-slate">{k.label}</p>
           </div>
         ))}
       </div>
 
       {loading ? (
-        <p className="text-sm text-[#64748B]">Loading rate plans…</p>
+        <p className="text-sm text-brand-slate">Loading rate plans…</p>
       ) : (
         <>
           {/* Per room type */}
@@ -81,34 +81,34 @@ export default function RatePlans() {
             {roomTypes.map(rt => {
               const rtPlans = plans.filter(p => p.room_type_id === rt.id || (!p.room_type_id && plans.length === 0));
               return (
-                <div key={rt.id} className="bg-white rounded-xl border border-[#E2E8F0] p-5">
+                <div key={rt.id} className="bg-white rounded-xl border border-brand-border p-5">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[#F6F8FB] flex items-center justify-center">
-                        <BedDouble className="w-4 h-4 text-[#123B63]" />
+                      <div className="w-10 h-10 rounded-full bg-brand-bg flex items-center justify-center">
+                        <BedDouble className="w-4 h-4 text-brand-navy" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-[#17212B]">{rt.name}</p>
-                        <p className="text-[11px] text-[#64748B]">Base ${rt.base_price} · up to {rt.capacity} guests</p>
+                        <p className="text-sm font-semibold text-brand-ink">{rt.name}</p>
+                        <p className="text-[11px] text-brand-slate">Base ${rt.base_price} · up to {rt.capacity} guests</p>
                       </div>
                     </div>
-                    <button onClick={() => { setForm({ room_type_id: rt.id, name: `${rt.name} `, season: 'standard', price: rt.base_price || 0, min_stay: 1, start_date: '', end_date: '' }); setShowAdd(true); }} className="text-[11px] px-3 py-1.5 border border-[#E2E8F0] text-[#123B63] rounded-full font-semibold hover:border-[#123B63]">
+                    <button onClick={() => { setForm({ room_type_id: rt.id, name: `${rt.name} `, season: 'standard', price: rt.base_price || 0, min_stay: 1, start_date: '', end_date: '' }); setShowAdd(true); }} className="text-[11px] px-3 py-1.5 border border-brand-border text-brand-navy rounded-full font-semibold hover:border-brand-navy">
                       + Plan
                     </button>
                   </div>
                   {rtPlans.length === 0 ? (
-                    <p className="text-xs text-[#94A3B8] py-2 px-3 bg-[#F6F8FB] rounded-xl">No rate plans for this room type yet.</p>
+                    <p className="text-xs text-brand-slate-light py-2 px-3 bg-brand-bg rounded-xl">No rate plans for this room type yet.</p>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       {rtPlans.map(p => (
-                        <div key={p.id} className="p-4 rounded-xl border border-[#E2E8F0]">
+                        <div key={p.id} className="p-4 rounded-xl border border-brand-border">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-[#123B63] font-semibold capitalize">{p.season}</span>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-brand-navy font-semibold capitalize">{p.season}</span>
                             <button onClick={() => togglePlan(p)} className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${p.status === 'active' ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'}`}>{p.status}</button>
                           </div>
-                          <p className="text-base font-bold text-[#17212B]">${p.price}<span className="text-[10px] text-[#94A3B8] font-normal">/night</span></p>
-                          <p className="text-[11px] text-[#64748B] mt-1">{p.name}</p>
-                          <p className="text-[10px] text-[#94A3B8] mt-1">
+                          <p className="text-base font-bold text-brand-ink">${p.price}<span className="text-[10px] text-brand-slate-light font-normal">/night</span></p>
+                          <p className="text-[11px] text-brand-slate mt-1">{p.name}</p>
+                          <p className="text-[10px] text-brand-slate-light mt-1">
                             {p.start_date ? `${new Date(p.start_date).toLocaleDateString()} → ${p.end_date ? new Date(p.end_date).toLocaleDateString() : '—'}` : 'Year-round'} · Min {p.min_stay}n
                           </p>
                         </div>
@@ -121,12 +121,12 @@ export default function RatePlans() {
           </div>
 
           {/* Promo logic */}
-          <div className="bg-white rounded-xl border border-[#E2E8F0] p-5">
-            <h3 className="text-sm font-semibold text-[#17212B] mb-3 flex items-center gap-2">
-              <Percent className="w-4 h-4 text-[#123B63]" /> Active Promotional Logic
+          <div className="bg-white rounded-xl border border-brand-border p-5">
+            <h3 className="text-sm font-semibold text-brand-ink mb-3 flex items-center gap-2">
+              <Percent className="w-4 h-4 text-brand-navy" /> Active Promotional Logic
             </h3>
             {promoRules.length === 0 ? (
-              <p className="text-xs text-[#94A3B8]">No promotional discounts active — create rules in the Rate Manager.</p>
+              <p className="text-xs text-brand-slate-light">No promotional discounts active — create rules in the Rate Manager.</p>
             ) : (
               <div className="flex flex-wrap gap-2">
                 {promoRules.map(r => (
@@ -136,7 +136,7 @@ export default function RatePlans() {
                 ))}
               </div>
             )}
-            <p className="text-[11px] text-[#94A3B8] mt-3">Full rule builder — occupancy triggers, channel targeting, min stay — lives in Rate Manager.</p>
+            <p className="text-[11px] text-brand-slate-light mt-3">Full rule builder — occupancy triggers, channel targeting, min stay — lives in Rate Manager.</p>
           </div>
         </>
       )}
@@ -145,15 +145,15 @@ export default function RatePlans() {
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowAdd(false)}>
           <div className="bg-white rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-[#17212B]">New Rate Plan</h3>
-              <button onClick={() => setShowAdd(false)}><X className="w-4 h-4 text-[#64748B]" /></button>
+              <h3 className="text-lg font-bold text-brand-ink">New Rate Plan</h3>
+              <button onClick={() => setShowAdd(false)}><X className="w-4 h-4 text-brand-slate" /></button>
             </div>
             <form onSubmit={addPlan} className="space-y-3">
               <div>
-                <label className="text-xs font-medium text-[#64748B] block mb-1.5">Room type</label>
+                <label className="text-xs font-medium text-brand-slate block mb-1.5">Room type</label>
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   {roomTypes.map(rt => (
-                    <button type="button" key={rt.id} onClick={() => setForm({ ...form, room_type_id: rt.id })} className={`px-3 py-1.5 text-xs rounded-full border ${form.room_type_id === rt.id ? 'bg-[#123B63] text-white border-[#123B63]' : 'border-[#E2E8F0] text-[#64748B]'}`}>
+                    <button type="button" key={rt.id} onClick={() => setForm({ ...form, room_type_id: rt.id })} className={`px-3 py-1.5 text-xs rounded-full border ${form.room_type_id === rt.id ? 'bg-brand-navy text-white border-brand-navy' : 'border-brand-border text-brand-slate'}`}>
                       {rt.name}
                     </button>
                   ))}
@@ -171,7 +171,7 @@ export default function RatePlans() {
                 <input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} className={inputCls} />
                 <input type="date" value={form.end_date} onChange={e => setForm({ ...form, end_date: e.target.value })} className={inputCls} />
               </div>
-              <button type="submit" className="w-full py-2.5 bg-[#123B63] text-white text-sm font-semibold rounded-full hover:bg-[#1F5A8A]">Create Rate Plan</button>
+              <button type="submit" className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">Create Rate Plan</button>
             </form>
           </div>
         </div>

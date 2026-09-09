@@ -30,46 +30,46 @@ export default function MarketingLayout() {
 
   const linkCls = (path) =>
     `px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-      location.pathname === path ? 'bg-[#123B63] text-white' : 'text-[#17212B] hover:bg-[#F6F8FB]'
+      location.pathname === path ? 'bg-brand-navy text-white' : 'text-brand-ink hover:bg-brand-bg'
     }`;
 
   return (
     <div className="min-h-screen bg-white font-body">
       {/* ===== HEADER ===== */}
       <div className="sticky top-0 z-50" onMouseLeave={() => setOpenMenu(null)}>
-        <div className="bg-[#123B63] text-center text-[11px] font-medium px-6 py-1.5">
+        <div className="bg-brand-navy text-center text-[11px] font-medium px-6 py-1.5">
           <span className="text-white/70">Hostera — One platform. Every property. Everywhere.</span>{' '}
           <Link to="/features" className="text-white font-semibold hover:underline">Explore the platform →</Link>
         </div>
-        <header className="bg-white/90 backdrop-blur-md border-b border-[#E2E8F0]">
+        <header className="bg-white/90 backdrop-blur-md border-b border-brand-border">
           <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2.5 shrink-0">
-              <div className="w-9 h-9 rounded-full bg-[#123B63] flex items-center justify-center">
+              <div className="w-9 h-9 rounded-full bg-brand-navy flex items-center justify-center">
                 <Building2 className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-[#17212B] tracking-tight leading-none">HOSTERA</h1>
-                <p className="text-[9px] text-[#64748B] uppercase tracking-widest">Hospitality OS</p>
+                <h1 className="text-lg font-bold text-brand-ink tracking-tight leading-none">HOSTERA</h1>
+                <p className="text-[9px] text-brand-slate uppercase tracking-widest">Hospitality OS</p>
               </div>
             </Link>
 
             <nav className="hidden lg:flex items-center gap-1">
               <button
                 onMouseEnter={() => setOpenMenu('platform')}
-                className={`flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium transition-colors ${openMenu === 'platform' ? 'bg-[#F6F8FB] text-[#123B63]' : 'text-[#17212B] hover:bg-[#F6F8FB]'}`}
+                className={`flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium transition-colors ${openMenu === 'platform' ? 'bg-brand-bg text-brand-navy' : 'text-brand-ink hover:bg-brand-bg'}`}
               >
                 Platform <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openMenu === 'platform' ? 'rotate-180' : ''}`} />
               </button>
               <button
                 onMouseEnter={() => setOpenMenu('solutions')}
-                className={`flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium transition-colors ${openMenu === 'solutions' ? 'bg-[#F6F8FB] text-[#123B63]' : 'text-[#17212B] hover:bg-[#F6F8FB]'}`}
+                className={`flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium transition-colors ${openMenu === 'solutions' ? 'bg-brand-bg text-brand-navy' : 'text-brand-ink hover:bg-brand-bg'}`}
               >
                 Solutions <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openMenu === 'solutions' ? 'rotate-180' : ''}`} />
               </button>
               <Link to="/pricing" onMouseEnter={() => setOpenMenu(null)} className={linkCls('/pricing')}>Pricing</Link>
               <button
                 onMouseEnter={() => setOpenMenu('resources')}
-                className={`flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium transition-colors ${openMenu === 'resources' ? 'bg-[#F6F8FB] text-[#123B63]' : 'text-[#17212B] hover:bg-[#F6F8FB]'}`}
+                className={`flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium transition-colors ${openMenu === 'resources' ? 'bg-brand-bg text-brand-navy' : 'text-brand-ink hover:bg-brand-bg'}`}
               >
                 Resources <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openMenu === 'resources' ? 'rotate-180' : ''}`} />
               </button>
@@ -78,15 +78,15 @@ export default function MarketingLayout() {
 
             <div className="hidden lg:flex items-center gap-3">
               <LanguageSelector />
-              <Link to="/login" className="px-5 py-2 rounded-full text-sm font-semibold text-[#17212B] border border-[#E2E8F0] hover:border-[#123B63] transition-colors">
+              <Link to="/login" className="px-5 py-2 rounded-full text-sm font-semibold text-brand-ink border border-brand-border hover:border-brand-navy transition-colors">
                 Sign In
               </Link>
-              <Link to="/register" className="flex items-center gap-1.5 px-5 py-2 rounded-full text-sm font-semibold bg-[#123B63] text-white hover:bg-[#1F5A8A] transition-colors">
+              <Link to="/register" className="flex items-center gap-1.5 px-5 py-2 rounded-full text-sm font-semibold bg-brand-navy text-white hover:bg-brand-blue transition-colors">
                 Get Started <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
 
-            <button onClick={() => setMobileOpen(!mobileOpen)} className="lg:hidden p-2 text-[#17212B]">
+            <button onClick={() => setMobileOpen(!mobileOpen)} className="lg:hidden p-2 text-brand-ink">
               {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
@@ -94,24 +94,24 @@ export default function MarketingLayout() {
 
         {/* ===== MEGA MENU: Platform ===== */}
         {openMenu === 'platform' && (
-          <div className="hidden lg:block absolute left-0 right-0 bg-white border-b border-[#E2E8F0] shadow-xl">
+          <div className="hidden lg:block absolute left-0 right-0 bg-white border-b border-brand-border shadow-xl">
             <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-5 gap-8">
               {platformGroups.map(group => (
                 <div key={group.title}>
-                  <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-3">{group.title}</p>
+                  <p className="text-[11px] font-bold text-brand-slate uppercase tracking-wider mb-3">{group.title}</p>
                   <div className="space-y-1">
                     {group.keys.map(key => {
                       const mod = MODULES.find(m => m.name === key);
                       if (!mod) return null;
                       const Icon = mod.icon;
                       return (
-                        <Link key={key} to="/features" onClick={() => setOpenMenu(null)} className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-[#F6F8FB] transition-colors group">
-                          <div className="w-8 h-8 rounded-full bg-[#F6F8FB] group-hover:bg-[#123B63] flex items-center justify-center shrink-0 transition-colors">
-                            <Icon className="w-4 h-4 text-[#123B63] group-hover:text-white transition-colors" />
+                        <Link key={key} to="/features" onClick={() => setOpenMenu(null)} className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-brand-bg transition-colors group">
+                          <div className="w-8 h-8 rounded-full bg-brand-bg group-hover:bg-brand-navy flex items-center justify-center shrink-0 transition-colors">
+                            <Icon className="w-4 h-4 text-brand-navy group-hover:text-white transition-colors" />
                           </div>
                           <div>
-                            <p className="text-sm font-semibold text-[#17212B]">{mod.name}</p>
-                            <p className="text-[11px] text-[#64748B] leading-snug">{mod.desc.split('.')[0]}.</p>
+                            <p className="text-sm font-semibold text-brand-ink">{mod.name}</p>
+                            <p className="text-[11px] text-brand-slate leading-snug">{mod.desc.split('.')[0]}.</p>
                           </div>
                         </Link>
                       );
@@ -119,7 +119,7 @@ export default function MarketingLayout() {
                   </div>
                 </div>
               ))}
-              <Link to="/ai" onClick={() => setOpenMenu(null)} className="rounded-2xl bg-[#123B63] p-5 flex flex-col justify-between hover:bg-[#1F5A8A] transition-colors">
+              <Link to="/ai" onClick={() => setOpenMenu(null)} className="rounded-2xl bg-brand-navy p-5 flex flex-col justify-between hover:bg-brand-blue transition-colors">
                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
@@ -135,26 +135,26 @@ export default function MarketingLayout() {
 
         {/* ===== MEGA MENU: Solutions ===== */}
         {openMenu === 'solutions' && (
-          <div className="hidden lg:block absolute left-0 right-0 bg-white border-b border-[#E2E8F0] shadow-xl">
+          <div className="hidden lg:block absolute left-0 right-0 bg-white border-b border-brand-border shadow-xl">
             <div className="max-w-7xl mx-auto px-6 py-8">
-              <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-4">Built for every hospitality business</p>
+              <p className="text-[11px] font-bold text-brand-slate uppercase tracking-wider mb-4">Built for every hospitality business</p>
               <div className="grid grid-cols-4 gap-2">
                 {INDUSTRIES.slice(0, 8).map(ind => {
                   const Icon = ind.icon;
                   return (
-                    <Link key={ind.name} to="/industries" onClick={() => setOpenMenu(null)} className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#F6F8FB] transition-colors">
-                      <div className="w-8 h-8 rounded-full bg-[#F6F8FB] flex items-center justify-center shrink-0">
-                        <Icon className="w-4 h-4 text-[#123B63]" />
+                    <Link key={ind.name} to="/industries" onClick={() => setOpenMenu(null)} className="flex items-center gap-3 p-3 rounded-xl hover:bg-brand-bg transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-brand-bg flex items-center justify-center shrink-0">
+                        <Icon className="w-4 h-4 text-brand-navy" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-[#17212B]">{ind.name}</p>
-                        <p className="text-[11px] text-[#64748B] truncate">{ind.blurb}</p>
+                        <p className="text-sm font-semibold text-brand-ink">{ind.name}</p>
+                        <p className="text-[11px] text-brand-slate truncate">{ind.blurb}</p>
                       </div>
                     </Link>
                   );
                 })}
               </div>
-              <Link to="/industries" onClick={() => setOpenMenu(null)} className="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold text-[#123B63] hover:text-[#1F5A8A]">
+              <Link to="/industries" onClick={() => setOpenMenu(null)} className="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold text-brand-navy hover:text-brand-blue">
                 View all 16 industries <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -163,12 +163,12 @@ export default function MarketingLayout() {
 
         {/* ===== MEGA MENU: Resources ===== */}
         {openMenu === 'resources' && (
-          <div className="hidden lg:block absolute left-0 right-0 bg-white border-b border-[#E2E8F0] shadow-xl">
+          <div className="hidden lg:block absolute left-0 right-0 bg-white border-b border-brand-border shadow-xl">
             <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-4 gap-2">
               {resourcesMenu.map(r => (
-                <Link key={r.label} to={r.to} onClick={() => setOpenMenu(null)} className="p-3 rounded-xl hover:bg-[#F6F8FB] transition-colors">
-                  <p className="text-sm font-semibold text-[#17212B]">{r.label}</p>
-                  <p className="text-[11px] text-[#64748B]">{r.desc}</p>
+                <Link key={r.label} to={r.to} onClick={() => setOpenMenu(null)} className="p-3 rounded-xl hover:bg-brand-bg transition-colors">
+                  <p className="text-sm font-semibold text-brand-ink">{r.label}</p>
+                  <p className="text-[11px] text-brand-slate">{r.desc}</p>
                 </Link>
               ))}
             </div>
@@ -177,7 +177,7 @@ export default function MarketingLayout() {
 
         {/* ===== MOBILE MENU ===== */}
         {mobileOpen && (
-          <div className="lg:hidden bg-white border-b border-[#E2E8F0] max-h-[80vh] overflow-y-auto">
+          <div className="lg:hidden bg-white border-b border-brand-border max-h-[80vh] overflow-y-auto">
             <div className="px-6 py-4 space-y-1">
               {[
                 { label: 'Features', to: '/features' },
@@ -192,14 +192,14 @@ export default function MarketingLayout() {
                 { label: 'About', to: '/about' },
                 { label: 'Contact', to: '/contact' },
               ].map(l => (
-                <Link key={l.to} to={l.to} onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-full text-sm font-medium text-[#17212B] hover:bg-[#F6F8FB]">
+                <Link key={l.to} to={l.to} onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-full text-sm font-medium text-brand-ink hover:bg-brand-bg">
                   {l.label}
                 </Link>
               ))}
               <div className="pt-3 flex gap-3 items-center">
                 <LanguageSelector />
-                <Link to="/login" className="flex-1 text-center px-4 py-2.5 rounded-full text-sm font-semibold border border-[#E2E8F0]">Sign In</Link>
-                <Link to="/register" className="flex-1 text-center px-4 py-2.5 rounded-full text-sm font-semibold bg-[#123B63] text-white">Get Started</Link>
+                <Link to="/login" className="flex-1 text-center px-4 py-2.5 rounded-full text-sm font-semibold border border-brand-border">Sign In</Link>
+                <Link to="/register" className="flex-1 text-center px-4 py-2.5 rounded-full text-sm font-semibold bg-brand-navy text-white">Get Started</Link>
               </div>
             </div>
           </div>
@@ -212,15 +212,15 @@ export default function MarketingLayout() {
       </main>
 
       {/* ===== FOOTER ===== */}
-      <footer className="bg-[#0A1E30] text-white">
+      <footer className="bg-brand-navy-900 text-white">
         <div className="max-w-7xl mx-auto px-6 pt-14">
           <Reveal>
-            <div className="mb-12 p-8 rounded-2xl bg-gradient-to-r from-[#123B63] to-[#1F5A8A] border border-white/10 flex flex-col md:flex-row items-center justify-between gap-5">
+            <div className="mb-12 p-8 rounded-2xl bg-gradient-to-r from-brand-navy to-brand-blue border border-white/10 flex flex-col md:flex-row items-center justify-between gap-5">
               <div className="text-center md:text-left">
                 <h3 className="text-xl font-bold text-white">Ready to run your property on Hostera?</h3>
                 <p className="text-sm text-white/60 mt-1">Start a full-featured trial today — no credit card required.</p>
               </div>
-              <Link to="/register" className="inline-flex items-center gap-2 rounded-full bg-white text-[#123B63] px-6 py-3 text-sm font-bold hover:scale-105 transition-transform shrink-0">
+              <Link to="/register" className="inline-flex items-center gap-2 rounded-full bg-white text-brand-navy px-6 py-3 text-sm font-bold hover:scale-105 transition-transform shrink-0">
                 Get Started Free <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -230,7 +230,7 @@ export default function MarketingLayout() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
             <div className="lg:col-span-2">
               <div className="flex items-center gap-2.5 mb-4">
-                <div className="w-9 h-9 rounded-full bg-[#123B63] border border-[#1F5A8A]/50 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-full bg-brand-navy border border-brand-blue/50 flex items-center justify-center">
                   <Building2 className="w-5 h-5 text-white" />
                 </div>
                 <div>

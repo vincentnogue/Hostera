@@ -52,7 +52,7 @@ export default function PlatformSecurity() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-4 border-[#1F5A8A] border-t-white rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-brand-blue border-t-white rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -87,7 +87,7 @@ export default function PlatformSecurity() {
           { label: 'Resolved', value: alerts.filter(a => a.status === 'resolved').length },
           { label: 'Total Events', value: alerts.length },
         ].map(s => (
-          <div key={s.label} className="bg-[#0A1E30] border border-white/5 rounded-xl p-4">
+          <div key={s.label} className="bg-brand-navy-900 border border-white/5 rounded-xl p-4">
             <p className="text-xl font-bold text-white">{s.value}</p>
             <p className="text-[11px] text-white/40 mt-0.5">{s.label}</p>
           </div>
@@ -100,7 +100,7 @@ export default function PlatformSecurity() {
             key={s}
             onClick={() => setSeverityFilter(s)}
             className={`px-3 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
-              severityFilter === s ? 'bg-[#1F5A8A] text-white' : 'bg-[#0A1E30] border border-white/5 text-white/50 hover:text-white'
+              severityFilter === s ? 'bg-brand-blue text-white' : 'bg-brand-navy-900 border border-white/5 text-white/50 hover:text-white'
             }`}
           >
             {s}
@@ -108,7 +108,7 @@ export default function PlatformSecurity() {
         ))}
       </div>
 
-      <div className="bg-[#0A1E30] border border-white/5 rounded-xl overflow-hidden">
+      <div className="bg-brand-navy-900 border border-white/5 rounded-xl overflow-hidden">
         {filtered.length === 0 ? (
           <div className="py-16 text-center">
             <Shield className="w-12 h-12 text-white/10 mx-auto mb-3" />
@@ -141,7 +141,7 @@ export default function PlatformSecurity() {
                   {alert.status !== 'resolved' && (
                     <button
                       onClick={() => advanceStatus(alert)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1F5A8A] text-white text-xs font-medium rounded-lg hover:bg-[#2563EB] transition-colors shrink-0"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-blue text-white text-xs font-medium rounded-lg hover:bg-[#2563EB] transition-colors shrink-0"
                     >
                       {alert.status === 'new' ? (
                         <>Acknowledge & Investigate</>

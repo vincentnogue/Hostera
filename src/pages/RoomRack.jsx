@@ -52,7 +52,7 @@ export default function RoomRack() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-4 border-[#E2E8F0] border-t-[#123B63] rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-brand-border border-t-brand-navy rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -83,22 +83,22 @@ export default function RoomRack() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#17212B]">Room Rack</h1>
-          <p className="text-sm text-[#64748B] mt-1">Visual overview of room availability and reservations</p>
+          <h1 className="text-2xl font-bold text-brand-ink">Room Rack</h1>
+          <p className="text-sm text-brand-slate mt-1">Visual overview of room availability and reservations</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setWeekOffset(w => w - 1)}
-            className="p-2 bg-white border border-[#E2E8F0] rounded-lg text-[#64748B] hover:bg-[#F6F8FB] transition-colors"
+            className="p-2 bg-white border border-brand-border rounded-lg text-brand-slate hover:bg-brand-bg transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <span className="text-sm font-medium text-[#17212B] px-3">
+          <span className="text-sm font-medium text-brand-ink px-3">
             {dates[0].toLocaleDateString('en', { month: 'short', day: 'numeric' })} — {dates[6].toLocaleDateString('en', { month: 'short', day: 'numeric' })}
           </span>
           <button
             onClick={() => setWeekOffset(w => w + 1)}
-            className="p-2 bg-white border border-[#E2E8F0] rounded-lg text-[#64748B] hover:bg-[#F6F8FB] transition-colors"
+            className="p-2 bg-white border border-brand-border rounded-lg text-brand-slate hover:bg-brand-bg transition-colors"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -106,18 +106,18 @@ export default function RoomRack() {
       </div>
 
       {/* Room Rack Grid */}
-      <div className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden">
+      <div className="bg-white rounded-xl border border-brand-border overflow-hidden">
         {sortedRooms.length === 0 ? (
           <div className="py-16 text-center">
-            <Grid3X3 className="w-12 h-12 text-[#E2E8F0] mx-auto mb-3" />
-            <p className="text-sm text-[#64748B]">No rooms configured yet</p>
+            <Grid3X3 className="w-12 h-12 text-brand-border mx-auto mb-3" />
+            <p className="text-sm text-brand-slate">No rooms configured yet</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr>
-                  <th className="sticky left-0 z-10 bg-[#F6F8FB] border-b border-r border-[#E2E8F0] px-4 py-3 text-left text-xs font-medium text-[#64748B] min-w-[140px]">
+                  <th className="sticky left-0 z-10 bg-brand-bg border-b border-r border-brand-border px-4 py-3 text-left text-xs font-medium text-brand-slate min-w-[140px]">
                     Room
                   </th>
                   {dates.map((d, i) => {
@@ -125,8 +125,8 @@ export default function RoomRack() {
                     return (
                       <th
                         key={i}
-                        className={`border-b border-r border-[#E2E8F0] px-2 py-3 text-center text-xs font-medium min-w-[120px] ${
-                          isToday ? 'bg-blue-50 text-[#123B63]' : 'bg-[#F6F8FB] text-[#64748B]'
+                        className={`border-b border-r border-brand-border px-2 py-3 text-center text-xs font-medium min-w-[120px] ${
+                          isToday ? 'bg-blue-50 text-brand-navy' : 'bg-brand-bg text-brand-slate'
                         }`}
                       >
                         <div>{d.toLocaleDateString('en', { weekday: 'short' })}</div>
@@ -138,11 +138,11 @@ export default function RoomRack() {
               </thead>
               <tbody>
                 {sortedRooms.map((room) => (
-                  <tr key={room.id} className="hover:bg-[#F6F8FB] transition-colors">
-                    <td className="sticky left-0 z-10 bg-white border-b border-r border-[#E2E8F0] px-4 py-3">
+                  <tr key={room.id} className="hover:bg-brand-bg transition-colors">
+                    <td className="sticky left-0 z-10 bg-white border-b border-r border-brand-border px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-[#17212B]">{room.number}</span>
-                        <span className="text-xs text-[#64748B]">Fl {room.floor}</span>
+                        <span className="text-sm font-semibold text-brand-ink">{room.number}</span>
+                        <span className="text-xs text-brand-slate">Fl {room.floor}</span>
                       </div>
                     </td>
                     {dates.map((d, i) => {
@@ -151,7 +151,7 @@ export default function RoomRack() {
                       return (
                         <td
                           key={i}
-                          className={`border-b border-r border-[#E2E8F0] p-1 ${isToday ? 'bg-blue-50/30' : ''}`}
+                          className={`border-b border-r border-brand-border p-1 ${isToday ? 'bg-blue-50/30' : ''}`}
                         >
                           {res && (
                             <div
@@ -174,12 +174,12 @@ export default function RoomRack() {
       </div>
 
       {/* Legend */}
-      <div className="bg-white rounded-xl border border-[#E2E8F0] p-4">
+      <div className="bg-white rounded-xl border border-brand-border p-4">
         <div className="flex items-center gap-6 flex-wrap">
           {Object.entries(statusBlockColors).map(([status, color]) => (
             <div key={status} className="flex items-center gap-2">
               <span className={`w-3 h-3 rounded ${color}`}></span>
-              <span className="text-xs text-[#64748B] capitalize">{status.replace(/_/g, ' ')}</span>
+              <span className="text-xs text-brand-slate capitalize">{status.replace(/_/g, ' ')}</span>
             </div>
           ))}
         </div>

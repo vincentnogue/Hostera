@@ -29,7 +29,7 @@ export default function StaffDirectory() {
 
   const propertyId = properties[0]?.id;
   const filtered = staff.filter(s => dept === 'all' || s.department === dept);
-  const inputCls = "w-full px-3.5 py-2 border border-[#E2E8F0] rounded-full text-sm outline-none focus:border-[#123B63]";
+  const inputCls = "w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
 
   const addStaff = async (e) => {
     e.preventDefault();
@@ -59,10 +59,10 @@ export default function StaffDirectory() {
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#17212B]">Staff Directory</h1>
-          <p className="text-sm text-[#64748B]">Team members, department roles and shift availability.</p>
+          <h1 className="text-2xl font-bold text-brand-ink">Staff Directory</h1>
+          <p className="text-sm text-brand-slate">Team members, department roles and shift availability.</p>
         </div>
-        <button onClick={() => setShowAdd(true)} className="flex items-center gap-1.5 px-4 py-2.5 bg-[#123B63] text-white text-sm font-semibold rounded-full hover:bg-[#1F5A8A]">
+        <button onClick={() => setShowAdd(true)} className="flex items-center gap-1.5 px-4 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">
           <Plus className="w-4 h-4" /> Add Staff
         </button>
       </div>
@@ -74,41 +74,41 @@ export default function StaffDirectory() {
           { label: 'On Leave', value: staff.filter(s => s.status === 'on_leave').length },
           { label: 'Departments', value: new Set(staff.map(s => s.department)).size },
         ].map(k => (
-          <div key={k.label} className="bg-white rounded-xl border border-[#E2E8F0] p-4">
-            <p className="text-xl font-bold text-[#17212B]">{k.value}</p>
-            <p className="text-[11px] text-[#64748B]">{k.label}</p>
+          <div key={k.label} className="bg-white rounded-xl border border-brand-border p-4">
+            <p className="text-xl font-bold text-brand-ink">{k.value}</p>
+            <p className="text-[11px] text-brand-slate">{k.label}</p>
           </div>
         ))}
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <button onClick={() => setDept('all')} className={`px-3.5 py-1.5 text-xs font-medium rounded-full ${dept === 'all' ? 'bg-[#123B63] text-white' : 'bg-white border border-[#E2E8F0] text-[#64748B] hover:border-[#123B63]'}`}>All</button>
+        <button onClick={() => setDept('all')} className={`px-3.5 py-1.5 text-xs font-medium rounded-full ${dept === 'all' ? 'bg-brand-navy text-white' : 'bg-white border border-brand-border text-brand-slate hover:border-brand-navy'}`}>All</button>
         {departments.map(d => (
-          <button key={d} onClick={() => setDept(d)} className={`px-3.5 py-1.5 text-xs font-medium rounded-full ${dept === d ? 'bg-[#123B63] text-white' : 'bg-white border border-[#E2E8F0] text-[#64748B] hover:border-[#123B63]'}`}>
+          <button key={d} onClick={() => setDept(d)} className={`px-3.5 py-1.5 text-xs font-medium rounded-full ${dept === d ? 'bg-brand-navy text-white' : 'bg-white border border-brand-border text-brand-slate hover:border-brand-navy'}`}>
             {deptLabels[d]}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <p className="text-sm text-[#64748B]">Loading staff…</p>
+        <p className="text-sm text-brand-slate">Loading staff…</p>
       ) : filtered.length === 0 ? (
-        <div className="bg-white rounded-xl border border-dashed border-[#E2E8F0] p-10 text-center">
+        <div className="bg-white rounded-xl border border-dashed border-brand-border p-10 text-center">
           <UserRound className="w-8 h-8 text-[#C4CDD5] mx-auto mb-3" />
-          <p className="text-sm text-[#64748B]">No staff in this department yet.</p>
+          <p className="text-sm text-brand-slate">No staff in this department yet.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map(s => (
-            <div key={s.id} className="bg-white rounded-xl border border-[#E2E8F0] p-5">
+            <div key={s.id} className="bg-white rounded-xl border border-brand-border p-5">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-full bg-[#123B63] text-white flex items-center justify-center text-sm font-bold">
+                  <div className="w-11 h-11 rounded-full bg-brand-navy text-white flex items-center justify-center text-sm font-bold">
                     {s.full_name.split(' ').map(n => n[0]).slice(0, 2).join('')}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-[#17212B]">{s.full_name}</p>
-                    <p className="text-[11px] text-[#64748B]">{s.position || 'Staff'}</p>
+                    <p className="text-sm font-semibold text-brand-ink">{s.full_name}</p>
+                    <p className="text-[11px] text-brand-slate">{s.position || 'Staff'}</p>
                   </div>
                 </div>
                 <span className={`text-[10px] px-2.5 py-1 rounded-full font-semibold ${deptPills[s.department] || 'bg-gray-100 text-gray-600'}`}>
@@ -116,23 +116,23 @@ export default function StaffDirectory() {
                 </span>
               </div>
               <div className="space-y-1 mb-3">
-                {s.email && <p className="flex items-center gap-2 text-[11px] text-[#64748B]"><Mail className="w-3 h-3" />{s.email}</p>}
-                {s.phone && <p className="flex items-center gap-2 text-[11px] text-[#64748B]"><Phone className="w-3 h-3" />{s.phone}</p>}
+                {s.email && <p className="flex items-center gap-2 text-[11px] text-brand-slate"><Mail className="w-3 h-3" />{s.email}</p>}
+                {s.phone && <p className="flex items-center gap-2 text-[11px] text-brand-slate"><Phone className="w-3 h-3" />{s.phone}</p>}
               </div>
               <div className="flex flex-wrap gap-1.5 mb-3">
                 {(s.shift_availability || []).map(a => {
                   const Icon = availabilityIcons[a];
                   return (
-                    <span key={a} className="flex items-center gap-1 text-[10px] px-2 py-0.5 bg-[#F6F8FB] border border-[#E2E8F0] rounded-full text-[#64748B] capitalize">
+                    <span key={a} className="flex items-center gap-1 text-[10px] px-2 py-0.5 bg-brand-bg border border-brand-border rounded-full text-brand-slate capitalize">
                       {Icon && <Icon className="w-3 h-3" />}{a}
                     </span>
                   );
                 })}
-                <span className="text-[10px] px-2 py-0.5 bg-[#F6F8FB] border border-[#E2E8F0] rounded-full text-[#64748B] capitalize">{s.employment_type?.replace('_', ' ')}</span>
+                <span className="text-[10px] px-2 py-0.5 bg-brand-bg border border-brand-border rounded-full text-brand-slate capitalize">{s.employment_type?.replace('_', ' ')}</span>
               </div>
               <div className="flex items-center justify-between pt-3 border-t border-[#F1F5F9]">
                 <span className={`text-[10px] px-2.5 py-1 rounded-full font-semibold ${s.status === 'active' ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'}`}>{s.status?.replace('_', ' ')}</span>
-                <button onClick={() => toggleStatus(s)} className="text-[11px] px-3 py-1.5 border border-[#E2E8F0] text-[#64748B] rounded-full hover:border-[#123B63] hover:text-[#123B63] font-medium">
+                <button onClick={() => toggleStatus(s)} className="text-[11px] px-3 py-1.5 border border-brand-border text-brand-slate rounded-full hover:border-brand-navy hover:text-brand-navy font-medium">
                   {s.status === 'active' ? 'Set On Leave' : 'Set Active'}
                 </button>
               </div>
@@ -145,8 +145,8 @@ export default function StaffDirectory() {
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowAdd(false)}>
           <div className="bg-white rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-[#17212B]">Add Team Member</h3>
-              <button onClick={() => setShowAdd(false)}><X className="w-4 h-4 text-[#64748B]" /></button>
+              <h3 className="text-lg font-bold text-brand-ink">Add Team Member</h3>
+              <button onClick={() => setShowAdd(false)}><X className="w-4 h-4 text-brand-slate" /></button>
             </div>
             <form onSubmit={addStaff} className="space-y-3">
               <input placeholder="Full name" value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })} className={inputCls} />
@@ -164,16 +164,16 @@ export default function StaffDirectory() {
                 <option value="full_time">Full-time</option><option value="part_time">Part-time</option><option value="contract">Contract</option><option value="intern">Intern</option>
               </select>
               <div>
-                <p className="text-xs font-medium text-[#64748B] mb-1.5">Shift availability</p>
+                <p className="text-xs font-medium text-brand-slate mb-1.5">Shift availability</p>
                 <div className="flex flex-wrap gap-1.5">
                   {Object.keys(availabilityIcons).map(slot => (
-                    <button type="button" key={slot} onClick={() => toggleAvailability(slot)} className={`px-3 py-1.5 text-xs rounded-full capitalize border ${form.shift_availability.includes(slot) ? 'bg-[#123B63] text-white border-[#123B63]' : 'border-[#E2E8F0] text-[#64748B]'}`}>
+                    <button type="button" key={slot} onClick={() => toggleAvailability(slot)} className={`px-3 py-1.5 text-xs rounded-full capitalize border ${form.shift_availability.includes(slot) ? 'bg-brand-navy text-white border-brand-navy' : 'border-brand-border text-brand-slate'}`}>
                       {slot}
                     </button>
                   ))}
                 </div>
               </div>
-              <button type="submit" className="w-full py-2.5 bg-[#123B63] text-white text-sm font-semibold rounded-full hover:bg-[#1F5A8A]">Add Member</button>
+              <button type="submit" className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">Add Member</button>
             </form>
           </div>
         </div>

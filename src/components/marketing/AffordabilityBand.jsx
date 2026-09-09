@@ -4,7 +4,7 @@ import { MessageCircle } from 'lucide-react';
 import Reveal from '@/components/marketing/Reveal';
 
 const GREEN = '#A6FF00';
-const NAVY = '#0A192F';
+const NAVY = '#123B63';
 
 const G2Badge = () => (
   <div

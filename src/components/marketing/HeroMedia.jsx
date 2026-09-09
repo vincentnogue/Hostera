@@ -59,7 +59,7 @@ export default function HeroMedia() {
   const slide = SLIDES[index];
 
   return (
-    <div className="relative rounded-[1.8rem] overflow-hidden shadow-2xl border border-[#E2E8F0] bg-[#0E243F] aspect-[4/3]">
+    <div className="relative rounded-[1.8rem] overflow-hidden shadow-2xl border border-brand-border bg-brand-overlay aspect-[4/3]">
       <AnimatePresence mode="wait">
         <motion.div
           key={index}
@@ -90,7 +90,7 @@ export default function HeroMedia() {
 
       {/* Caption */}
       <div className="absolute bottom-14 left-4 right-4 flex justify-center pointer-events-none">
-        <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#0E243F]/70 text-white text-xs font-medium backdrop-blur-sm">
+        <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-brand-overlay/70 text-white text-xs font-medium backdrop-blur-sm">
           <MapPin className="w-3 h-3 text-[#A6FF00]" />
           {slide.caption}
         </span>

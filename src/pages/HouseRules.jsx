@@ -23,7 +23,7 @@ export default function HouseRules() {
   }, []);
 
   const propertyId = properties[0]?.id;
-  const inputCls = "w-full px-3.5 py-2 border border-[#E2E8F0] rounded-full text-sm outline-none focus:border-[#123B63]";
+  const inputCls = "w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
   const published = rules.find(r => r.status === 'published');
   const drafts = rules.filter(r => r.status !== 'published' && r.status !== 'archived');
 
@@ -56,10 +56,10 @@ export default function HouseRules() {
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#17212B]">House Rules</h1>
-          <p className="text-sm text-[#64748B]">Draft, edit and publish house rules and terms shared with your guests.</p>
+          <h1 className="text-2xl font-bold text-brand-ink">House Rules</h1>
+          <p className="text-sm text-brand-slate">Draft, edit and publish house rules and terms shared with your guests.</p>
         </div>
-        <button onClick={openNew} className="flex items-center gap-1.5 px-4 py-2.5 bg-[#123B63] text-white text-sm font-semibold rounded-full hover:bg-[#1F5A8A]">
+        <button onClick={openNew} className="flex items-center gap-1.5 px-4 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">
           <Plus className="w-4 h-4" /> New Draft
         </button>
       </div>
@@ -72,56 +72,56 @@ export default function HouseRules() {
       )}
 
       {/* Published */}
-      <div className="bg-white rounded-xl border-2 border-[#123B63] p-6">
+      <div className="bg-white rounded-xl border-2 border-brand-navy p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-[#17212B] flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-brand-ink flex items-center gap-2">
             <Eye className="w-4 h-4 text-green-600" /> Currently Published to Guests
           </h3>
           {published && (
             <div className="flex items-center gap-2">
-              <span className="text-[10px] text-[#94A3B8]">v{published.version} · {published.published_at ? new Date(published.published_at).toLocaleDateString() : ''}</span>
-              <button onClick={() => openEdit(published)} className="text-[11px] px-3 py-1.5 border border-[#E2E8F0] text-[#64748B] rounded-full hover:border-[#123B63] hover:text-[#123B63] font-medium">Edit</button>
-              <button onClick={() => publish(published)} className="flex items-center gap-1 text-[11px] px-3 py-1.5 border border-[#E2E8F0] text-[#64748B] rounded-full hover:border-[#123B63]"><RotateCcw className="w-3 h-3" /> Republish</button>
+              <span className="text-[10px] text-brand-slate-light">v{published.version} · {published.published_at ? new Date(published.published_at).toLocaleDateString() : ''}</span>
+              <button onClick={() => openEdit(published)} className="text-[11px] px-3 py-1.5 border border-brand-border text-brand-slate rounded-full hover:border-brand-navy hover:text-brand-navy font-medium">Edit</button>
+              <button onClick={() => publish(published)} className="flex items-center gap-1 text-[11px] px-3 py-1.5 border border-brand-border text-brand-slate rounded-full hover:border-brand-navy"><RotateCcw className="w-3 h-3" /> Republish</button>
             </div>
           )}
         </div>
         {!published ? (
-          <p className="text-xs text-[#94A3B8]">Nothing published yet — draft your house rules, then publish them to share with guests.</p>
+          <p className="text-xs text-brand-slate-light">Nothing published yet — draft your house rules, then publish them to share with guests.</p>
         ) : (
           <div>
-            <p className="text-lg font-bold text-[#17212B]">{published.title}</p>
-            <div className="text-[13px] text-[#64748B] leading-relaxed mt-3 whitespace-pre-wrap">{published.content}</div>
+            <p className="text-lg font-bold text-brand-ink">{published.title}</p>
+            <div className="text-[13px] text-brand-slate leading-relaxed mt-3 whitespace-pre-wrap">{published.content}</div>
           </div>
         )}
       </div>
 
       {/* Drafts */}
       <div>
-        <h3 className="text-sm font-semibold text-[#17212B] mb-3">Drafts & Archives</h3>
+        <h3 className="text-sm font-semibold text-brand-ink mb-3">Drafts & Archives</h3>
         {loading ? (
-          <p className="text-xs text-[#64748B]">Loading…</p>
+          <p className="text-xs text-brand-slate">Loading…</p>
         ) : rules.filter(r => r.id !== published?.id).length === 0 ? (
-          <div className="bg-white rounded-xl border border-dashed border-[#E2E8F0] p-10 text-center">
+          <div className="bg-white rounded-xl border border-dashed border-brand-border p-10 text-center">
             <ScrollText className="w-8 h-8 text-[#C4CDD5] mx-auto mb-3" />
-            <p className="text-sm text-[#64748B]">No other versions yet.</p>
+            <p className="text-sm text-brand-slate">No other versions yet.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {rules.filter(r => r.id !== published?.id).map(r => (
-              <div key={r.id} className="bg-white rounded-xl border border-[#E2E8F0] p-5">
+              <div key={r.id} className="bg-white rounded-xl border border-brand-border p-5">
                 <div className="flex items-center justify-between mb-2">
                   <span className={`text-[10px] px-2.5 py-1 rounded-full font-semibold ${r.status === 'draft' ? 'bg-amber-50 text-amber-700' : 'bg-gray-100 text-gray-500'}`}>
                     {r.status} · v{r.version || 1}
                   </span>
                   {r.status === 'draft' && (
-                    <button onClick={() => publish(r)} className="flex items-center gap-1 text-[11px] px-3 py-1.5 bg-[#123B63] text-white rounded-full font-semibold hover:bg-[#1F5A8A]">
+                    <button onClick={() => publish(r)} className="flex items-center gap-1 text-[11px] px-3 py-1.5 bg-brand-navy text-white rounded-full font-semibold hover:bg-brand-blue">
                       <Send className="w-3 h-3" /> Publish
                     </button>
                   )}
                 </div>
-                <p className="text-sm font-semibold text-[#17212B]">{r.title}</p>
-                <p className="text-[12px] text-[#64748B] mt-1.5 line-clamp-3 leading-relaxed">{r.content}</p>
-                <button onClick={() => openEdit(r)} className="text-[11px] px-3 py-1.5 border border-[#E2E8F0] text-[#64748B] rounded-full hover:border-[#123B63] hover:text-[#123B63] font-medium mt-3">Edit</button>
+                <p className="text-sm font-semibold text-brand-ink">{r.title}</p>
+                <p className="text-[12px] text-brand-slate mt-1.5 line-clamp-3 leading-relaxed">{r.content}</p>
+                <button onClick={() => openEdit(r)} className="text-[11px] px-3 py-1.5 border border-brand-border text-brand-slate rounded-full hover:border-brand-navy hover:text-brand-navy font-medium mt-3">Edit</button>
               </div>
             ))}
           </div>
@@ -132,13 +132,13 @@ export default function HouseRules() {
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setEditingId(null)}>
           <div className="bg-white rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-[#17212B]">{editingId === 'new' ? 'New House Rules Draft' : 'Edit Draft'}</h3>
-              <button onClick={() => setEditingId(null)}><X className="w-4 h-4 text-[#64748B]" /></button>
+              <h3 className="text-lg font-bold text-brand-ink">{editingId === 'new' ? 'New House Rules Draft' : 'Edit Draft'}</h3>
+              <button onClick={() => setEditingId(null)}><X className="w-4 h-4 text-brand-slate" /></button>
             </div>
             <form onSubmit={save} className="space-y-3">
               <input placeholder="Title (e.g. House Rules & Cancellation Terms)" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className={inputCls} />
-              <textarea placeholder={'e.g. Check-in from 14:00, check-out until 11:00.\nQuiet hours: 22:00 – 07:00.\nSmoking is not permitted inside the property…'} value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} rows={10} className="w-full px-4 py-3 border border-[#E2E8F0] rounded-3xl text-sm outline-none focus:border-[#123B63] resize-none" />
-              <button type="submit" className="w-full py-2.5 bg-[#123B63] text-white text-sm font-semibold rounded-full hover:bg-[#1F5A8A]">Save Draft</button>
+              <textarea placeholder={'e.g. Check-in from 14:00, check-out until 11:00.\nQuiet hours: 22:00 – 07:00.\nSmoking is not permitted inside the property…'} value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} rows={10} className="w-full px-4 py-3 border border-brand-border rounded-3xl text-sm outline-none focus:border-brand-navy resize-none" />
+              <button type="submit" className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">Save Draft</button>
             </form>
           </div>
         </div>

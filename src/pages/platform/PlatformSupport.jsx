@@ -45,7 +45,7 @@ export default function PlatformSupport() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-4 border-[#1F5A8A] border-t-white rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-brand-blue border-t-white rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -58,7 +58,7 @@ export default function PlatformSupport() {
   };
 
   const filtered = statusFilter === 'all' ? tickets : tickets.filter(t => t.status === statusFilter);
-  const selectCls = "text-xs px-2 py-1.5 rounded-lg bg-[#123B63] border border-[#1F5A8A]/40 text-white outline-none cursor-pointer";
+  const selectCls = "text-xs px-2 py-1.5 rounded-lg bg-brand-navy border border-brand-blue/40 text-white outline-none cursor-pointer";
 
   return (
     <div className="space-y-6">
@@ -76,7 +76,7 @@ export default function PlatformSupport() {
         ].map(s => {
           const Icon = s.icon;
           return (
-            <div key={s.label} className="bg-[#0A1E30] border border-white/5 rounded-xl p-4">
+            <div key={s.label} className="bg-brand-navy-900 border border-white/5 rounded-xl p-4">
               <Icon className={`w-5 h-5 ${s.color} mb-2`} />
               <p className="text-xl font-bold text-white">{s.value}</p>
               <p className="text-[11px] text-white/40 mt-0.5">{s.label}</p>
@@ -91,7 +91,7 @@ export default function PlatformSupport() {
             key={s}
             onClick={() => setStatusFilter(s)}
             className={`px-3 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
-              statusFilter === s ? 'bg-[#1F5A8A] text-white' : 'bg-[#0A1E30] border border-white/5 text-white/50 hover:text-white'
+              statusFilter === s ? 'bg-brand-blue text-white' : 'bg-brand-navy-900 border border-white/5 text-white/50 hover:text-white'
             }`}
           >
             {s.replace('_', ' ')}
@@ -99,7 +99,7 @@ export default function PlatformSupport() {
         ))}
       </div>
 
-      <div className="bg-[#0A1E30] border border-white/5 rounded-xl overflow-hidden">
+      <div className="bg-brand-navy-900 border border-white/5 rounded-xl overflow-hidden">
         {filtered.length === 0 ? (
           <div className="py-16 text-center">
             <LifeBuoy className="w-12 h-12 text-white/10 mx-auto mb-3" />

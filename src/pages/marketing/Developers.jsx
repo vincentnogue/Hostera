@@ -34,10 +34,10 @@ export default function Developers() {
   return (
     <div className="bg-white">
       {/* HERO */}
-      <section className="relative bg-[#0A1E30] py-24 overflow-hidden">
+      <section className="relative bg-brand-navy-900 py-24 overflow-hidden">
         <div className="absolute inset-0">
           <img src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover opacity-20" alt="Lakeside hotel" />
-          <div className="absolute inset-0 bg-[#0A1E30]/75"></div>
+          <div className="absolute inset-0 bg-brand-navy-900/75"></div>
         </div>
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <Reveal>
@@ -53,17 +53,17 @@ export default function Developers() {
       </section>
 
       {/* CODE SAMPLE */}
-      <section className="py-16 bg-[#F6F8FB]">
+      <section className="py-16 bg-brand-bg">
         <div className="max-w-4xl mx-auto px-6">
           <Reveal>
-            <div className="rounded-2xl overflow-hidden border border-[#E2E8F0] shadow-xl">
-              <div className="flex items-center gap-2 px-4 py-3 bg-white border-b border-[#E2E8F0]">
+            <div className="rounded-2xl overflow-hidden border border-brand-border shadow-xl">
+              <div className="flex items-center gap-2 px-4 py-3 bg-white border-b border-brand-border">
                 <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
                 <span className="w-2.5 h-2.5 rounded-full bg-green-400" />
-                <span className="text-xs text-[#64748B] font-medium ml-2">Create a reservation — REST API</span>
+                <span className="text-xs text-brand-slate font-medium ml-2">Create a reservation — REST API</span>
               </div>
-              <pre className="bg-[#0A1E30] p-6 overflow-x-auto text-[13px] leading-relaxed"><code>{`POST /v1/reservations
+              <pre className="bg-brand-navy-900 p-6 overflow-x-auto text-[13px] leading-relaxed"><code>{`POST /v1/reservations
 Authorization: Bearer <api_key>
 Content-Type: application/json
 
@@ -95,14 +95,14 @@ Content-Type: application/json
           <Reveal>
             <div>
               <div className="flex items-center gap-3 mb-5">
-                <Server className="w-5 h-5 text-[#123B63]" />
-                <h2 className="text-2xl font-bold text-[#17212B]">API domains</h2>
+                <Server className="w-5 h-5 text-brand-navy" />
+                <h2 className="text-2xl font-bold text-brand-ink">API domains</h2>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {API_DOMAINS.map(d => (
-                  <div key={d} className="flex items-center gap-2 px-4 py-2.5 bg-[#F6F8FB] rounded-full border border-[#E2E8F0]">
-                    <Braces className="w-3.5 h-3.5 text-[#1F5A8A]" />
-                    <code className="text-xs text-[#17212B] font-mono">{d}</code>
+                  <div key={d} className="flex items-center gap-2 px-4 py-2.5 bg-brand-bg rounded-full border border-brand-border">
+                    <Braces className="w-3.5 h-3.5 text-brand-blue" />
+                    <code className="text-xs text-brand-ink font-mono">{d}</code>
                   </div>
                 ))}
               </div>
@@ -111,8 +111,8 @@ Content-Type: application/json
           <Reveal delay={0.1}>
             <div>
               <div className="flex items-center gap-3 mb-5">
-                <Key className="w-5 h-5 text-[#123B63]" />
-                <h2 className="text-2xl font-bold text-[#17212B]">Platform capabilities</h2>
+                <Key className="w-5 h-5 text-brand-navy" />
+                <h2 className="text-2xl font-bold text-brand-ink">Platform capabilities</h2>
               </div>
               <div className="space-y-3">
                 {[
@@ -121,9 +121,9 @@ Content-Type: application/json
                   ['Rate limits & versioning', 'Predictable limits, versioned endpoints and a sandbox for safe development.'],
                   ['Idempotency keys', 'Financial and reservation operations can never be accidentally duplicated.'],
                 ].map(([t, d]) => (
-                  <div key={t} className="p-4 rounded-2xl border border-[#E2E8F0]">
-                    <p className="text-sm font-semibold text-[#17212B] mb-1">{t}</p>
-                    <p className="text-[13px] text-[#64748B] leading-relaxed">{d}</p>
+                  <div key={t} className="p-4 rounded-2xl border border-brand-border">
+                    <p className="text-sm font-semibold text-brand-ink mb-1">{t}</p>
+                    <p className="text-[13px] text-brand-slate leading-relaxed">{d}</p>
                   </div>
                 ))}
               </div>
@@ -133,20 +133,20 @@ Content-Type: application/json
       </section>
 
       {/* WEBHOOKS */}
-      <section className="py-16 bg-[#F6F8FB]">
+      <section className="py-16 bg-brand-bg">
         <div className="max-w-4xl mx-auto px-6">
           <Reveal>
             <div className="flex items-center gap-3 mb-6">
-              <Webhook className="w-5 h-5 text-[#123B63]" />
-              <h2 className="text-2xl font-bold text-[#17212B]">Webhooks</h2>
+              <Webhook className="w-5 h-5 text-brand-navy" />
+              <h2 className="text-2xl font-bold text-brand-ink">Webhooks</h2>
             </div>
-            <p className="text-sm text-[#64748B] mb-6 leading-relaxed max-w-2xl">
+            <p className="text-sm text-brand-slate mb-6 leading-relaxed max-w-2xl">
               Reliable event delivery with exponential-backoff retries, signature verification, delivery logs
               and replay. Duplicate events never duplicate transactions — idempotency is guaranteed.
             </p>
             <div className="flex flex-wrap gap-2">
               {WEBHOOK_EVENTS.map(e => (
-                <code key={e} className="text-xs font-mono px-3.5 py-2 bg-white border border-[#E2E8F0] rounded-full text-[#17212B]">
+                <code key={e} className="text-xs font-mono px-3.5 py-2 bg-white border border-brand-border rounded-full text-brand-ink">
                   {e}
                 </code>
               ))}
@@ -160,24 +160,24 @@ Content-Type: application/json
         <div className="max-w-3xl mx-auto px-6">
           <Reveal>
             <div className="flex items-center gap-3 mb-8">
-              <Rocket className="w-5 h-5 text-[#123B63]" />
-              <h2 className="text-2xl font-bold text-[#17212B]">Changelog</h2>
+              <Rocket className="w-5 h-5 text-brand-navy" />
+              <h2 className="text-2xl font-bold text-brand-ink">Changelog</h2>
             </div>
           </Reveal>
           <div className="space-y-4">
             {CHANGELOG.map((rel, i) => (
               <Reveal key={rel.version} delay={i * 0.06}>
-                <div className="p-6 rounded-2xl border border-[#E2E8F0]">
+                <div className="p-6 rounded-2xl border border-brand-border">
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="text-sm font-bold text-[#17212B]">{rel.version}</span>
-                    <span className="text-xs text-[#64748B]">{rel.date}</span>
-                    <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-semibold ${rel.tag === 'Launch' ? 'bg-[#123B63] text-white' : 'bg-green-100 text-green-700'}`}>
+                    <span className="text-sm font-bold text-brand-ink">{rel.version}</span>
+                    <span className="text-xs text-brand-slate">{rel.date}</span>
+                    <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-semibold ${rel.tag === 'Launch' ? 'bg-brand-navy text-white' : 'bg-green-100 text-green-700'}`}>
                       {rel.tag}
                     </span>
                   </div>
                   <ul className="space-y-2">
                     {rel.items.map(item => (
-                      <li key={item} className="flex items-start gap-2.5 text-[13px] text-[#64748B]">
+                      <li key={item} className="flex items-start gap-2.5 text-[13px] text-brand-slate">
                         <Check className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
                         {item}
                       </li>
@@ -191,13 +191,13 @@ Content-Type: application/json
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-[#123B63]">
+      <section className="py-16 bg-brand-navy">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <Reveal>
             <h2 className="text-3xl font-bold text-white mb-4">Start building</h2>
             <p className="text-white/70 mb-8">Create an organization, generate an API key and call your first endpoint in minutes.</p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link to="/register" className="inline-flex items-center gap-2 rounded-full bg-white text-[#123B63] px-8 py-3.5 text-sm font-bold hover:scale-105 transition-transform">
+              <Link to="/register" className="inline-flex items-center gap-2 rounded-full bg-white text-brand-navy px-8 py-3.5 text-sm font-bold hover:scale-105 transition-transform">
                 Create Account <ArrowRight className="w-4 h-4" />
               </Link>
               <Link to="/status" className="inline-flex items-center gap-2 rounded-full border border-white/30 text-white px-8 py-3.5 text-sm font-semibold hover:bg-white/10 transition-colors">

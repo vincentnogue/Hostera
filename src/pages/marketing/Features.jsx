@@ -25,10 +25,10 @@ export default function Features() {
   return (
     <div className="bg-white">
       {/* HERO */}
-      <section className="relative bg-[#123B63] py-24 overflow-hidden">
+      <section className="relative bg-brand-navy py-24 overflow-hidden">
         <div className="absolute inset-0">
           <img src="https://images.unsplash.com/photo-1582719478250-c89cae40dc85?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover opacity-25" alt="Luxury resort pool" />
-          <div className="absolute inset-0 bg-[#123B63]/70"></div>
+          <div className="absolute inset-0 bg-brand-navy/70"></div>
         </div>
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <Reveal>
@@ -46,13 +46,13 @@ export default function Features() {
         const mods = MODULES.filter(m => m.group === group);
         const Mockup = groupMockups[group];
         return (
-          <section key={group} className={`py-20 ${gi % 2 === 0 ? 'bg-white' : 'bg-[#F6F8FB]'}`}>
+          <section key={group} className={`py-20 ${gi % 2 === 0 ? 'bg-white' : 'bg-brand-bg'}`}>
             <div className="max-w-7xl mx-auto px-6">
               <Reveal>
                 <div className="max-w-3xl mb-12">
-                  <span className="text-xs font-bold text-[#1F5A8A] uppercase tracking-widest">{`0${gi + 1}`} — {group}</span>
-                  <h2 className="text-3xl font-bold text-[#17212B] mt-3 mb-3">{group}</h2>
-                  <p className="text-[#64748B] leading-relaxed">{groupBlurbs[group]}</p>
+                  <span className="text-xs font-bold text-brand-blue uppercase tracking-widest">{`0${gi + 1}`} — {group}</span>
+                  <h2 className="text-3xl font-bold text-brand-ink mt-3 mb-3">{group}</h2>
+                  <p className="text-brand-slate leading-relaxed">{groupBlurbs[group]}</p>
                 </div>
               </Reveal>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
@@ -60,17 +60,17 @@ export default function Features() {
                   const Icon = m.icon;
                   return (
                     <Reveal key={m.name} delay={(i % 3) * 0.07}>
-                      <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0] hover:shadow-xl hover:border-[#1F5A8A]/30 transition-all h-full">
+                      <div className="p-6 rounded-2xl bg-white border border-brand-border hover:shadow-xl hover:border-brand-blue/30 transition-all h-full">
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="w-11 h-11 rounded-full bg-[#F6F8FB] flex items-center justify-center">
-                            <Icon className="w-5 h-5 text-[#123B63]" />
+                          <div className="w-11 h-11 rounded-full bg-brand-bg flex items-center justify-center">
+                            <Icon className="w-5 h-5 text-brand-navy" />
                           </div>
-                          <h3 className="text-base font-semibold text-[#17212B]">{m.name}</h3>
+                          <h3 className="text-base font-semibold text-brand-ink">{m.name}</h3>
                         </div>
-                        <p className="text-[13px] text-[#64748B] leading-relaxed mb-4">{m.desc}</p>
+                        <p className="text-[13px] text-brand-slate leading-relaxed mb-4">{m.desc}</p>
                         <ul className="space-y-2">
                           {m.features.map(f => (
-                            <li key={f} className="flex items-start gap-2 text-[13px] text-[#17212B]">
+                            <li key={f} className="flex items-start gap-2 text-[13px] text-brand-ink">
                               <Check className="w-3.5 h-3.5 text-green-600 shrink-0 mt-0.5" />
                               {f}
                             </li>
@@ -94,12 +94,12 @@ export default function Features() {
       })}
 
       {/* CTA */}
-      <section className="py-20 bg-[#123B63]">
+      <section className="py-20 bg-brand-navy">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <Reveal>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">See it all working together</h2>
             <p className="text-white/70 mb-8">Start a full-featured trial and explore every module with your own property.</p>
-            <Link to="/register" className="inline-flex items-center gap-2 rounded-full bg-white text-[#123B63] px-8 py-3.5 text-sm font-bold hover:scale-105 transition-transform">
+            <Link to="/register" className="inline-flex items-center gap-2 rounded-full bg-white text-brand-navy px-8 py-3.5 text-sm font-bold hover:scale-105 transition-transform">
               Start Free Trial <ArrowRight className="w-4 h-4" />
             </Link>
           </Reveal>
