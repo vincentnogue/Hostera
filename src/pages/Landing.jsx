@@ -35,16 +35,27 @@ export default function Landing() {
   ];
 
   const roles = [
-    { icon: ConciergeBell, role: 'Front Desk Managers', quote: 'Arrivals, departures and walk-ins in one fast workspace — no more switching between screens during the morning rush.' },
-    { icon: SparkleIcon, role: 'Housekeeping Teams', quote: 'A real-time status board that works on any phone. Dirty rooms, priorities and assignments — always current.' },
-    { icon: TrendingUp, role: 'General Managers', quote: 'Occupancy, ADR, RevPAR and revenue trends in one dashboard. Decisions backed by data, not guesswork.' },
+    { icon: ConciergeBell, role: 'Front Desk Managers', photo: 'https://images.pexels.com/photos/3770110/pexels-photo-3770110.jpeg?auto=compress&cs=tinysrgb&w=400', quote: 'Arrivals, departures and walk-ins in one fast workspace — no more switching between screens during the morning rush.' },
+    { icon: SparkleIcon, role: 'Housekeeping Teams', photo: 'https://images.pexels.com/photos/3770106/pexels-photo-3770106.jpeg?auto=compress&cs=tinysrgb&w=400', quote: 'A real-time status board that works on any phone. Dirty rooms, priorities and assignments — always current.' },
+    { icon: TrendingUp, role: 'General Managers', photo: 'https://images.pexels.com/photos/32844861/pexels-photo-32844861.jpeg?auto=compress&cs=tinysrgb&w=400', quote: 'Occupancy, ADR, RevPAR and revenue trends in one dashboard. Decisions backed by data, not guesswork.' },
   ];
 
   return (
     <div className="bg-white">
       {/* ================= HERO (ClickMaint style) ================= */}
       <section className="bg-white relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 pt-14 pb-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="https://images.pexels.com/photos/271639/pexels-photo-271639.jpeg?auto=compress&cs=tinysrgb&w=1600"
+          className="absolute inset-0 w-full h-full object-cover opacity-[0.08] pointer-events-none"
+        >
+          <source src="https://videos.pexels.com/video-files/5378930/5378930-uhd_2732_1440_25fps.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-white via-white/90 to-white pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-6 pt-14 pb-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative">
           {/* Left column */}
           <Reveal>
             <div>
@@ -358,8 +369,11 @@ export default function Landing() {
               return (
                 <Reveal key={r.role} delay={i * 0.1}>
                   <div className="p-8 rounded-2xl bg-[#F8F9FA] border border-brand-border h-full flex flex-col">
-                    <div className="w-11 h-11 rounded-full flex items-center justify-center mb-5" style={{ background: NAVY }}>
-                      <Icon className="w-5 h-5 text-white" />
+                    <div className="relative w-11 h-11 mb-5">
+                      <img src={r.photo} alt={r.role} className="w-11 h-11 rounded-full object-cover" loading="lazy" />
+                      <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white" style={{ background: NAVY }}>
+                        <Icon className="w-2.5 h-2.5 text-white" />
+                      </div>
                     </div>
                     <p className="text-[15px] leading-relaxed flex-1" style={{ color: '#17212B' }}>&quot;{r.quote}&quot;</p>
                     <p className="text-sm font-semibold text-brand-navy mt-5">{r.role}</p>

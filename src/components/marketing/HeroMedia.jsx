@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 
-const VIDEO_URL = 'https://media.db.com/videos/public/6a9ea8143c2e0f57c497d6da/09714159a_Hero_Htel_Premium.mp4';
+const VIDEO_URL = 'https://videos.pexels.com/video-files/5378934/5378934-uhd_2732_1440_25fps.mp4';
 
 const SLIDES = [
   {
