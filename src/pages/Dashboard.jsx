@@ -1,10 +1,11 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
 import {
   TrendingUp, DollarSign, LogIn, LogOut, BedDouble,
-  Users, AlertCircle, ArrowUpRight, CalendarCheck
+  Users, AlertCircle, ArrowUpRight, ArrowDownRight, CalendarCheck
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid
@@ -31,21 +32,29 @@ const resStatusColors = {
 };
 
 export default function Dashboard() {
+  const { selectedProperty, scopeIds, loading: propsLoading } = useProperty();
   const [reservations, setReservations] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [guests, setGuests] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (propsLoading) return;
     async function fetchData() {
+      setLoading(true);
       try {
         const [resData, roomData, guestData] = await Promise.all([
           db.entities.Reservation.list(),
           db.entities.Room.list(),
           db.entities.Guest.list(),
         ]);
-        setReservations(resData || []);
-        setRooms(roomData || []);
+        // Reservation and Room carry property_id; scope to the current
+        // selection. Records with no property_id (not yet migrated /
+        // single-property setups) are kept rather than hidden, so an
+        // incomplete data model doesn't silently blank the dashboard.
+        const inScope = (r) => !r.property_id || (scopeIds || []).includes(r.property_id);
+        setReservations((resData || []).filter(inScope));
+        setRooms((roomData || []).filter(inScope));
         setGuests(guestData || []);
       } catch (e) {
         console.error(e);
@@ -54,7 +63,7 @@ export default function Dashboard() {
       }
     }
     fetchData();
-  }, []);
+  }, [propsLoading, scopeIds]);
 
   if (loading) {
     return (
@@ -63,6 +72,9 @@ export default function Dashboard() {
       </div>
     );
   }
+
+  const currency = selectedProperty?.currency || 'USD';
+  const fmt = (n) => new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n || 0);
 
   const today = new Date().toISOString().split('T')[0];
   const activeRes = reservations.filter(r => r.status !== 'cancelled' && r.status !== 'no_show');
@@ -74,6 +86,28 @@ export default function Dashboard() {
   const totalRevenue = activeRes.reduce((sum, r) => sum + (r.total_amount || 0), 0);
   const adr = activeRes.length > 0 ? Math.round(totalRevenue / activeRes.length) : 0;
   const revpar = rooms.length > 0 ? Math.round(totalRevenue / rooms.length) : 0;
+
+  // Honest week-over-week comparison from the reservations already in
+  // memory, instead of hardcoded trend numbers that never reflected
+  // anything real.
+  const msPerDay = 86400000;
+  const todayDate = new Date(today);
+  const inWindow = (dateStr, startOffset, endOffset) => {
+    if (!dateStr) return false;
+    const d = new Date(dateStr);
+    const diff = (todayDate - d) / msPerDay;
+    return diff >= endOffset && diff < startOffset;
+  };
+  const revenueInWindow = (startOffset, endOffset) =>
+    activeRes
+      .filter(r => inWindow(r.check_in, startOffset, endOffset))
+      .reduce((sum, r) => sum + (r.total_amount || 0), 0);
+  const thisWeekRevenue = revenueInWindow(7, 0);
+  const lastWeekRevenue = revenueInWindow(14, 7);
+  const revenueTrendPct = lastWeekRevenue > 0
+    ? Math.round(((thisWeekRevenue - lastWeekRevenue) / lastWeekRevenue) * 100)
+    : null;
+
 
   const chartData = Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
@@ -97,12 +131,12 @@ export default function Dashboard() {
   };
 
   const kpis = [
-    { label: 'Occupancy', value: `${occupancyRate}%`, icon: BedDouble, color: 'text-blue-600', bg: 'bg-blue-50', trend: '+5%' },
-    { label: 'ADR', value: `$${adr}`, icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50', trend: '+$12' },
-    { label: 'RevPAR', value: `$${revpar}`, icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-50', trend: '+$8' },
-    { label: 'Revenue', value: `$${totalRevenue.toLocaleString()}`, icon: DollarSign, color: 'text-brand-navy', bg: 'bg-blue-50', trend: '+15%' },
-    { label: 'Arrivals', value: arrivals.length, icon: LogIn, color: 'text-green-600', bg: 'bg-green-50', trend: '' },
-    { label: 'Departures', value: departures.length, icon: LogOut, color: 'text-orange-600', bg: 'bg-orange-50', trend: '' },
+    { label: 'Occupancy', value: `${occupancyRate}%`, icon: BedDouble, color: 'text-blue-600', bg: 'bg-blue-50', trend: null },
+    { label: 'ADR', value: fmt(adr), icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50', trend: null },
+    { label: 'RevPAR', value: fmt(revpar), icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-50', trend: null },
+    { label: 'Revenue', value: fmt(totalRevenue), icon: DollarSign, color: 'text-brand-navy', bg: 'bg-blue-50', trend: revenueTrendPct },
+    { label: 'Arrivals', value: arrivals.length, icon: LogIn, color: 'text-green-600', bg: 'bg-green-50', trend: null },
+    { label: 'Departures', value: departures.length, icon: LogOut, color: 'text-orange-600', bg: 'bg-orange-50', trend: null },
   ];
 
   return (
@@ -111,6 +145,8 @@ export default function Dashboard() {
         <h1 className="text-2xl font-bold text-brand-ink">Dashboard</h1>
         <p className="text-sm text-brand-slate mt-1">
           {new Date().toLocaleDateString('en', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          {' · '}
+          {selectedProperty ? selectedProperty.name : 'All properties'}
         </p>
       </div>
 
@@ -124,10 +160,10 @@ export default function Dashboard() {
                 <div className={`w-9 h-9 rounded-lg ${kpi.bg} flex items-center justify-center`}>
                   <Icon className={`w-[18px] h-[18px] ${kpi.color}`} />
                 </div>
-                {kpi.trend && (
-                  <span className="text-xs text-green-600 font-medium flex items-center gap-0.5">
-                    <ArrowUpRight className="w-3 h-3" />
-                    {kpi.trend}
+                {kpi.trend !== null && kpi.trend !== undefined && (
+                  <span className={`text-xs font-medium flex items-center gap-0.5 ${kpi.trend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {kpi.trend >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                    {kpi.trend >= 0 ? '+' : ''}{kpi.trend}%
                   </span>
                 )}
               </div>
@@ -235,7 +271,7 @@ export default function Dashboard() {
                         {guest ? `${guest.first_name} ${guest.last_name}` : 'Unknown Guest'}
                       </p>
                       <p className="text-xs text-brand-slate mt-0.5">
-                        {res.adults} adults · {res.children} children · ${res.total_amount || 0}
+                        {res.adults} adults · {res.children} children · {fmt(res.total_amount)}
                       </p>
                     </div>
                     <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${resStatusColors[res.status] || 'bg-gray-100'}`}>

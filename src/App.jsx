@@ -13,6 +13,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import Layout from '@/components/Layout';
 import PlatformLayout from '@/components/platform/PlatformLayout';
 import MarketingLayout from '@/components/marketing/MarketingLayout';
+import { PropertyProvider } from '@/lib/PropertyContext';
 
 // Pages are lazy-loaded (route-based code splitting) to keep the initial
 // bundle small — see PageLoader fallback below.
@@ -146,7 +147,7 @@ const AuthenticatedApp = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/guest" element={<GuestDashboard />} />
-          <Route element={<Layout />}>
+          <Route element={<PropertyProvider><Layout /></PropertyProvider>}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/front-desk" element={<FrontDesk />} />
             <Route path="/reservations" element={<Reservations />} />

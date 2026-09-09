@@ -1,7 +1,8 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import { useProperty } from '@/lib/PropertyContext';
 
 import {
   LayoutDashboard, ConciergeBell, CalendarCheck, Grid3X3, Users,
@@ -84,24 +85,9 @@ const navGroups = [
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [properties, setProperties] = useState([]);
-  const [propsLoaded, setPropsLoaded] = useState(false);
-  const [selectedProperty, setSelectedProperty] = useState('All Properties');
+  const { properties, loading, selectedPropertyId, selectProperty } = useProperty();
+  const propsLoaded = !loading;
   const location = useLocation();
-
-  useEffect(() => {
-    async function fetchProperties() {
-      try {
-        const data = await db.entities.Property.list();
-        setProperties(data || []);
-      } catch (e) {
-        // properties may not exist yet
-      } finally {
-        setPropsLoaded(true);
-      }
-    }
-    fetchProperties();
-  }, []);
 
   return (
     <div className="min-h-screen bg-brand-bg">
@@ -183,13 +169,13 @@ export default function Layout() {
             <div className="flex items-center gap-2">
               <Building2 className="w-4 h-4 text-brand-navy" />
               <select
-                value={selectedProperty}
-                onChange={(e) => setSelectedProperty(e.target.value)}
+                value={selectedPropertyId || 'all'}
+                onChange={(e) => selectProperty(e.target.value === 'all' ? null : e.target.value)}
                 className="text-sm font-medium text-brand-ink bg-transparent border-none outline-none cursor-pointer max-w-[200px]"
               >
-                <option>All Properties</option>
+                <option value="all">All Properties</option>
                 {properties.map((p) => (
-                  <option key={p.id}>{p.name}</option>
+                  <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </select>
               <ChevronDown className="w-4 h-4 text-brand-slate pointer-events-none" />
