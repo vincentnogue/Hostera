@@ -1,20 +1,43 @@
-import React, { useState } from "react";
-import { User, Building2, Sparkles, Globe2, ShieldCheck } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { User, Building2, Sparkles, Globe2, ShieldCheck, Headphones } from "lucide-react";
+import { AUTH_VIDEO, HOTEL_PHOTOS } from "@/lib/hotelMedia";
 
 export const ACCOUNT_TYPES = [
   { id: "business", label: "Business", icon: Building2, hint: "Manage hotels & properties" },
   { id: "individual", label: "Individual", icon: User, hint: "Book your stays" },
 ];
 
+// A handful of real property photos used as a rotating trust strip on the
+// Auth panel. Kept short and calm — it should support the copy, not compete
+// with it.
+const TRUST_PHOTOS = HOTEL_PHOTOS.slice(0, 5);
+
 export default function AuthLayout({ icon: Icon, title, subtitle, footer, children }) {
   const [accountType, setAccountType] = useState(
     () => localStorage.getItem("hostera_account_type") || "business"
   );
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [photoIndex, setPhotoIndex] = useState(0);
 
   const selectType = (id) => {
     setAccountType(id);
     localStorage.setItem("hostera_account_type", id);
   };
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const onChange = (e) => setReducedMotion(e.matches);
+    mq.addEventListener ? mq.addEventListener("change", onChange) : mq.addListener(onChange);
+    return () => {
+      mq.removeEventListener ? mq.removeEventListener("change", onChange) : mq.removeListener(onChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const t = setInterval(() => setPhotoIndex((i) => (i + 1) % TRUST_PHOTOS.length), 3000);
+    return () => clearInterval(t);
+  }, []);
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
@@ -65,13 +88,26 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
       </div>
 
       {/* Hotel imagery column */}
-      <div className="relative hidden lg:block overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1566073771259-6a960c26752e?q=80&w=1600&auto=format&fit=crop"
-          alt="Luxury hotel suite"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-overlay via-brand-overlay/40 to-brand-overlay/10" />
+      <div className="relative hidden lg:block overflow-hidden bg-brand-overlay">
+        {reducedMotion ? (
+          <img
+            src={AUTH_VIDEO.poster}
+            alt="Luxury hotel property running on Hostera"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster={AUTH_VIDEO.poster}
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src={AUTH_VIDEO.src} type="video/mp4" />
+          </video>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-overlay via-brand-overlay/50 to-brand-overlay/20" />
         <div className="relative h-full flex flex-col justify-between p-12">
           <span className="inline-flex items-center gap-2 self-start px-4 py-1.5 bg-white/10 border border-white/15 backdrop-blur-sm rounded-full text-white text-xs font-semibold tracking-widest">
             <Sparkles className="w-3.5 h-3.5" aria-hidden="true" /> HOSTERA · HOSPITALITY OS
@@ -91,6 +127,23 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 border border-white/15 rounded-full text-xs text-white/80 backdrop-blur-sm">
                 <ShieldCheck className="w-3.5 h-3.5 text-green-300" aria-hidden="true" /> Secure by design
               </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 border border-white/15 rounded-full text-xs text-white/80 backdrop-blur-sm">
+                <Headphones className="w-3.5 h-3.5 text-green-300" aria-hidden="true" /> 24/7 support
+              </span>
+            </div>
+
+            {/* Real property trust strip */}
+            <div className="flex items-center gap-2 mt-7">
+              {TRUST_PHOTOS.map((p, i) => (
+                <div
+                  key={p.src}
+                  className={`relative rounded-lg overflow-hidden border border-white/20 transition-all duration-500 ${
+                    i === photoIndex ? "w-16 h-12 opacity-100" : "w-10 h-12 opacity-50"
+                  }`}
+                >
+                  <img src={p.src} alt={p.caption} className="w-full h-full object-cover" loading="lazy" />
+                </div>
+              ))}
             </div>
           </div>
         </div>

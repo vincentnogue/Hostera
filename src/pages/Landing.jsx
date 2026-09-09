@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Reveal from '@/components/marketing/Reveal';
 import HeroMedia from '@/components/marketing/HeroMedia';
+import HeroBackgroundVideo from '@/components/marketing/HeroBackgroundVideo';
 import FlagBanner from '@/components/marketing/FlagBanner';
 import { RoomRackMockup, FrontDeskMockup, AnalyticsMockup } from '@/components/marketing/Mockups';
 import HotelMarquee from '@/components/marketing/HotelMarquee';
@@ -44,16 +45,7 @@ export default function Landing() {
     <div className="bg-white">
       {/* ================= HERO (ClickMaint style) ================= */}
       <section className="bg-white relative overflow-hidden">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster="https://images.pexels.com/photos/271639/pexels-photo-271639.jpeg?auto=compress&cs=tinysrgb&w=1600"
-          className="absolute inset-0 w-full h-full object-cover opacity-[0.08] pointer-events-none"
-        >
-          <source src="https://videos.pexels.com/video-files/5378930/5378930-uhd_2732_1440_25fps.mp4" type="video/mp4" />
-        </video>
+        <HeroBackgroundVideo className="opacity-[0.08]" />
         <div className="absolute inset-0 bg-gradient-to-b from-white via-white/90 to-white pointer-events-none" />
         <div className="max-w-7xl mx-auto px-6 pt-14 pb-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative">
           {/* Left column */}

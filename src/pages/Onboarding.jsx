@@ -4,14 +4,52 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { COUNTRIES, CURRENCIES } from '@/lib/referenceData';
-import { Building2, Hotel, BedDouble, Rocket, Check, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Building2, Hotel, BedDouble, Rocket, Check, ArrowLeft, ArrowRight, Quote } from 'lucide-react';
+import { HOTEL_PHOTOS } from '@/lib/hotelMedia';
 
 const STEPS = [
-  { id: 1, title: 'Your Organization', desc: 'Company details and defaults', icon: Building2 },
-  { id: 2, title: 'Your Property', desc: 'Property profile and operating times', icon: Hotel },
-  { id: 3, title: 'Rooms & Rates', desc: 'Room types and starting prices', icon: BedDouble },
-  { id: 4, title: 'Launch', desc: 'Review and start operating', icon: Rocket },
+  {
+    id: 1, title: 'Your Organization', desc: 'Company details and defaults', icon: Building2,
+    tip: 'Independent hotel, group or management company — Hostera adapts to how you operate.',
+  },
+  {
+    id: 2, title: 'Your Property', desc: 'Property profile and operating times', icon: Hotel,
+    tip: 'From boutique guest houses to full resorts, in 190+ countries.',
+  },
+  {
+    id: 3, title: 'Rooms & Rates', desc: 'Room types and starting prices', icon: BedDouble,
+    tip: 'You can always fine-tune rates later from Rate Plans and Revenue Management.',
+  },
+  {
+    id: 4, title: 'Launch', desc: 'Review and start operating', icon: Rocket,
+    tip: 'Your front desk, housekeeping and revenue tools go live the moment you launch.',
+  },
 ];
+
+// Right-hand inspiration panel — a real hotel photo paired with a short,
+// step-relevant tip. Purely presentational; it never touches wizard state.
+function OnboardingPreviewPanel({ step }) {
+  const current = STEPS[step - 1] || STEPS[0];
+  const photo = HOTEL_PHOTOS[(step - 1) % HOTEL_PHOTOS.length];
+  return (
+    <div className="hidden lg:block sticky top-8">
+      <div className="relative rounded-2xl overflow-hidden border border-brand-border shadow-sm aspect-[4/5]">
+        <img
+          key={photo.src}
+          src={photo.src}
+          alt={photo.caption}
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-overlay via-brand-overlay/30 to-transparent" />
+        <div className="relative h-full flex flex-col justify-end p-6">
+          <Quote className="w-5 h-5 text-[#A6FF00] mb-2" aria-hidden="true" />
+          <p className="text-white text-sm leading-relaxed">{current.tip}</p>
+          <p className="text-white/60 text-xs mt-3">{photo.caption}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -24,6 +62,12 @@ export default function Onboarding() {
   ]);
 
   const inputCls = "w-full px-3.5 py-2.5 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
+
+  const canContinue =
+    step === 1 ? Boolean(org.name.trim() && org.country) :
+    step === 2 ? Boolean(property.name.trim() && property.city.trim()) :
+    step === 3 ? roomTypes.some(r => r.name.trim()) :
+    true;
 
   const finish = async () => {
     setSaving(true);
@@ -61,7 +105,8 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_320px] gap-10 items-start">
+    <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-brand-ink">Welcome to Hostera 👋</h1>
         <p className="text-sm text-brand-slate">Set up your business in a few steps — you can change everything later.</p>
@@ -172,7 +217,7 @@ export default function Onboarding() {
             <ArrowLeft className="w-4 h-4" /> Back
           </button>
           {step < 4 ? (
-            <button onClick={() => setStep(s => s + 1)} className="flex items-center gap-1.5 px-6 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">
+            <button onClick={() => setStep(s => s + 1)} disabled={!canContinue} className="flex items-center gap-1.5 px-6 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-brand-navy">
               Continue <ArrowRight className="w-4 h-4" />
             </button>
           ) : (
@@ -182,6 +227,9 @@ export default function Onboarding() {
           )}
         </div>
       </div>
+    </div>
+
+    <OnboardingPreviewPanel step={step} />
     </div>
   );
 }

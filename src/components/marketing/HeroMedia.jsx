@@ -3,60 +3,26 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
+import { HOTEL_PHOTOS } from '@/lib/hotelMedia';
 
-const VIDEO_URL = 'https://videos.pexels.com/video-files/5378934/5378934-uhd_2732_1440_25fps.mp4';
+const SLIDE_DURATION = 4000;
 
-const SLIDES = [
-  {
-    type: 'video',
-    src: VIDEO_URL,
-    caption: 'The Hostera experience',
-    duration: 9000,
-  },
-  {
-    type: 'photo',
-    src: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200&auto=format&fit=crop',
-    caption: 'Overwater villas — Maldives',
-    duration: 4000,
-  },
-  {
-    type: 'photo',
-    src: 'https://images.unsplash.com/photo-1611892440504-42a792a2470f?q=80&w=1200&auto=format&fit=crop',
-    caption: 'Presidential suite — Dubai',
-    duration: 4000,
-  },
-  {
-    type: 'photo',
-    src: 'https://images.unsplash.com/photo-1590490360182-ac338c382b0f?q=80&w=1200&auto=format&fit=crop',
-    caption: 'Boutique residence — Santorini',
-    duration: 4000,
-  },
-  {
-    type: 'photo',
-    src: 'https://images.unsplash.com/photo-1582719478250-c89cae37dcdb?q=80&w=1200&auto=format&fit=crop',
-    caption: 'Infinity pool resort — Bali',
-    duration: 4000,
-  },
-  {
-    type: 'photo',
-    src: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=1200&auto=format&fit=crop',
-    caption: 'Grand atrium lobby — Singapore',
-    duration: 4000,
-  },
-];
-
+// This is the "mockup" card that floats above/beside the hero copy —
+// it cycles through real luxury hotel photography from properties
+// running on Hostera worldwide. The hero section's own background video
+// lives separately in Landing.jsx (see HeroBackgroundVideo).
 export default function HeroMedia() {
   const [index, setIndex] = useState(0);
 
-  const next = useCallback(() => setIndex(i => (i + 1) % SLIDES.length), []);
-  const prev = () => setIndex(i => (i - 1 + SLIDES.length) % SLIDES.length);
+  const next = useCallback(() => setIndex(i => (i + 1) % HOTEL_PHOTOS.length), []);
+  const prev = () => setIndex(i => (i - 1 + HOTEL_PHOTOS.length) % HOTEL_PHOTOS.length);
 
   useEffect(() => {
-    const t = setTimeout(next, SLIDES[index].duration);
+    const t = setTimeout(next, SLIDE_DURATION);
     return () => clearTimeout(t);
   }, [index, next]);
 
-  const slide = SLIDES[index];
+  const slide = HOTEL_PHOTOS[index];
 
   return (
     <div className="relative rounded-[1.8rem] overflow-hidden shadow-2xl border border-brand-border bg-brand-overlay aspect-[4/3]">
@@ -69,22 +35,12 @@ export default function HeroMedia() {
           transition={{ duration: 0.7, ease: [0.21, 0.47, 0.32, 0.98] }}
           className="absolute inset-0"
         >
-          {slide.type === 'video' ? (
-            <video
-              src={slide.src}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <img
-              src={slide.src}
-              alt={slide.caption}
-              className="w-full h-full object-cover"
-            />
-          )}
+          <img
+            src={slide.src}
+            alt={slide.caption}
+            loading={index === 0 ? 'eager' : 'lazy'}
+            className="w-full h-full object-cover"
+          />
         </motion.div>
       </AnimatePresence>
 
@@ -101,16 +57,9 @@ export default function HeroMedia() {
         <button onClick={prev} aria-label="Previous" className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center transition-colors">
           <ChevronLeft className="w-4 h-4 text-white" />
         </button>
-        <div className="flex gap-1.5">
-          {SLIDES.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setIndex(i)}
-              aria-label={`Slide ${i + 1}`}
-              className={`h-1.5 rounded-full transition-all ${i === index ? 'w-6 bg-white' : 'w-1.5 bg-white/50'}`}
-            />
-          ))}
-        </div>
+        <span className="px-3 py-1 rounded-full bg-white/15 backdrop-blur-sm text-white text-[11px] font-semibold tabular-nums">
+          {index + 1} / {HOTEL_PHOTOS.length}
+        </span>
         <button onClick={next} aria-label="Next" className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center transition-colors">
           <ChevronRight className="w-4 h-4 text-white" />
         </button>
