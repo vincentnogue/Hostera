@@ -1,6 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
 import { Search, Plus, X, PackageSearch, ArrowRight, MapPin, User } from 'lucide-react';
 
@@ -11,6 +12,7 @@ const statusPills = {
 };
 
 export default function LostAndFound() {
+  const { selectedProperty } = useProperty();
   const [items, setItems] = useState([]);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +31,7 @@ export default function LostAndFound() {
       .finally(() => setLoading(false));
   }, []);
 
-  const propertyId = properties[0]?.id;
+  const propertyId = (selectedProperty || properties[0])?.id;
   const inputCls = "w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
 
   const q = search.toLowerCase();

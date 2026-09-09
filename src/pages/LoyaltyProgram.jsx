@@ -1,12 +1,14 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
 import { Crown, Gift, Plus, X, Star, Users, Sparkles } from 'lucide-react';
 
 const tierColors = { blue: 'bg-blue-50 text-brand-navy border-blue-200', amber: 'bg-amber-50 text-amber-700 border-amber-200', gray: 'bg-gray-100 text-gray-600 border-gray-200', green: 'bg-green-50 text-green-700 border-green-200' };
 
 export default function LoyaltyProgram() {
+  const { selectedProperty } = useProperty();
   const [tiers, setTiers] = useState([]);
   const [rewards, setRewards] = useState([]);
   const [guests, setGuests] = useState([]);
@@ -28,7 +30,7 @@ export default function LoyaltyProgram() {
       .finally(() => setLoading(false));
   }, []);
 
-  const propertyId = properties[0]?.id;
+  const propertyId = (selectedProperty || properties[0])?.id;
   const inputCls = "w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
   const members = guests.filter(g => (g.loyalty_points || 0) > 0);
   const topGuests = [...guests].sort((a, b) => (b.loyalty_points || 0) - (a.loyalty_points || 0)).slice(0, 5);

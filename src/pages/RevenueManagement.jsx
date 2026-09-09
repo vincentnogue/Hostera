@@ -1,6 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
 import { Plus, X, TrendingUp, CalendarRange, Lock } from 'lucide-react';
 
@@ -14,6 +15,7 @@ const seasonColors = {
 };
 
 export default function RevenueManagement() {
+  const { selectedProperty } = useProperty();
   const [ratePlans, setRatePlans] = useState([]);
   const [roomTypes, setRoomTypes] = useState([]);
   const [properties, setProperties] = useState([]);
@@ -50,7 +52,7 @@ export default function RevenueManagement() {
     if (!form.name || !form.room_type_id) return;
     setCreating(true);
     try {
-      const property = properties[0];
+      const property = selectedProperty || properties[0];
       const roomType = roomTypes.find(rt => rt.id === form.room_type_id);
       await db.entities.RatePlan.create({
         ...form,

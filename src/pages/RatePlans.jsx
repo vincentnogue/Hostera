@@ -1,12 +1,14 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
 import { Plus, X, Percent, BedDouble, Zap } from 'lucide-react';
 
 const seasons = ['standard', 'high', 'low', 'peak', 'weekend', 'custom'];
 
 export default function RatePlans() {
+  const { selectedProperty } = useProperty();
   const [roomTypes, setRoomTypes] = useState([]);
   const [plans, setPlans] = useState([]);
   const [rules, setRules] = useState([]);
@@ -27,14 +29,15 @@ export default function RatePlans() {
       .finally(() => setLoading(false));
   }, []);
 
-  const propertyId = properties[0]?.id;
+  const currentProperty = selectedProperty || properties[0];
+  const propertyId = currentProperty?.id;
   const inputCls = "w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
   const promoRules = rules.filter(r => r.rule_type === 'discount' && r.status === 'active');
 
   const addPlan = async (e) => {
     e.preventDefault();
     if (!form.name || !propertyId) return;
-    const created = await db.entities.RatePlan.create({ ...form, property_id: propertyId, currency: 'USD', status: 'active' });
+    const created = await db.entities.RatePlan.create({ ...form, property_id: propertyId, currency: currentProperty?.currency || 'USD', status: 'active' });
     setPlans(prev => [...prev, created]);
     setForm({ room_type_id: '', name: '', season: 'standard', price: 0, min_stay: 1, start_date: '', end_date: '' });
     setShowAdd(false);

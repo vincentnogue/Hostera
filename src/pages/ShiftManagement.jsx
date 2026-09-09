@@ -1,6 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
 import { Clock, Plus, X, Sun, Coffee, Moon, ArrowRight, ClipboardList } from 'lucide-react';
 
@@ -9,6 +10,7 @@ const deptLabels = { front_desk: 'Front Desk', housekeeping: 'Housekeeping', mai
 const typeIcons = { morning: Sun, afternoon: Coffee, night: Moon };
 
 export default function ShiftManagement() {
+  const { selectedProperty } = useProperty();
   const [shifts, setShifts] = useState([]);
   const [staff, setStaff] = useState([]);
   const [properties, setProperties] = useState([]);
@@ -30,7 +32,7 @@ export default function ShiftManagement() {
       .finally(() => setLoading(false));
   }, []);
 
-  const propertyId = properties[0]?.id;
+  const propertyId = (selectedProperty || properties[0])?.id;
   const today = new Date().toISOString().slice(0, 10);
   const filtered = shifts.filter(s => dept === 'all' || s.department === dept);
   const todays = shifts.filter(s => s.date === today);

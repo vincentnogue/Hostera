@@ -1,6 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
 import { Megaphone, Plus, X, Mail, Tag, MessageSquare, Send, Eye, TrendingUp } from 'lucide-react';
 
@@ -8,6 +9,7 @@ const typeConfig = { email: { icon: Mail, pill: 'bg-blue-50 text-brand-navy' }, 
 const audienceLabels = { all_guests: 'All Guests', repeat_guests: 'Repeat Guests', vip_guests: 'VIP Guests', prospects: 'Prospects' };
 
 export default function MarketingTools() {
+  const { selectedProperty } = useProperty();
   const [campaigns, setCampaigns] = useState([]);
   const [guests, setGuests] = useState([]);
   const [properties, setProperties] = useState([]);
@@ -27,7 +29,7 @@ export default function MarketingTools() {
       .finally(() => setLoading(false));
   }, []);
 
-  const propertyId = properties[0]?.id;
+  const propertyId = (selectedProperty || properties[0])?.id;
   const filtered = campaigns.filter(c => type === 'all' || c.type === type);
   const sent = campaigns.filter(c => c.status === 'sent');
   const avgOpen = sent.length ? Math.round(sent.reduce((s, c) => s + (c.open_rate || 0), 0) / sent.length) : 0;

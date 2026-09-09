@@ -1,6 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
 import { Plus, Search, X, CalendarCheck } from 'lucide-react';
 
@@ -21,6 +22,7 @@ const sourceLabels = {
 };
 
 export default function Reservations() {
+  const { selectedProperty } = useProperty();
   const [reservations, setReservations] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [guests, setGuests] = useState([]);
@@ -61,7 +63,7 @@ export default function Reservations() {
     setCreating(true);
     try {
       const room = rooms.find(r => r.id === form.room_id);
-      const property = properties[0];
+      const property = selectedProperty || properties[0];
       const nights = Math.ceil(
         (new Date(form.check_out) - new Date(form.check_in)) / (1000 * 60 * 60 * 24)
       );
@@ -71,7 +73,7 @@ export default function Reservations() {
         room_type_id: room?.room_type_id || '',
         reservation_number: `RES-${Date.now()}`,
         status: 'confirmed',
-        currency: 'USD',
+        currency: property?.currency || 'USD',
         total_amount: nights * 150,
         paid_amount: 0,
       });

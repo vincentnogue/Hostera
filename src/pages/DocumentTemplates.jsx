@@ -1,6 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
 import { FileText, LayoutTemplate, Eye, Plus, X, Globe } from 'lucide-react';
 
@@ -14,6 +15,7 @@ const typeConfig = {
 };
 
 export default function DocumentTemplates() {
+  const { selectedProperty } = useProperty();
   const [templates, setTemplates] = useState([]);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +45,7 @@ export default function DocumentTemplates() {
     if (!form.name || !form.type) return;
     setCreating(true);
     try {
-      const property = properties[0];
+      const property = selectedProperty || properties[0];
       await db.entities.DocumentTemplate.create({
         ...form,
         property_id: property?.id || '',

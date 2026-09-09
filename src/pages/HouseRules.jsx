@@ -1,10 +1,12 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
 import { ScrollText, Plus, X, Send, Eye, RotateCcw, Check } from 'lucide-react';
 
 export default function HouseRules() {
+  const { selectedProperty } = useProperty();
   const [rules, setRules] = useState([]);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +24,7 @@ export default function HouseRules() {
       .finally(() => setLoading(false));
   }, []);
 
-  const propertyId = properties[0]?.id;
+  const propertyId = (selectedProperty || properties[0])?.id;
   const inputCls = "w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
   const published = rules.find(r => r.status === 'published');
   const drafts = rules.filter(r => r.status !== 'published' && r.status !== 'archived');

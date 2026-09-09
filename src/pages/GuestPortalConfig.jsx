@@ -1,6 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
 import { Palette, Save, Check, Loader2, Smartphone, Sparkles, UtensilsCrossed, MapPin, LogOut, Crown, Brush } from 'lucide-react';
 
@@ -15,6 +16,7 @@ const featureOptions = [
 ];
 
 export default function GuestPortalConfig() {
+  const { selectedProperty } = useProperty();
   const [config, setConfig] = useState(null);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +31,7 @@ export default function GuestPortalConfig() {
       .then(async ([configs, props]) => {
         setProperties(props || []);
         let c = (configs || [])[0];
-        const propertyId = (props || [])[0]?.id;
+        const propertyId = (selectedProperty || (props || [])[0])?.id;
         if (!c && propertyId) {
           c = await db.entities.GuestPortalConfig.create({ property_id: propertyId, header_title: 'Welcome to your stay', welcome_message: 'Everything you need, right from your phone.', brand_color: '#123B63' });
         }

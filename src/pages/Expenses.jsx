@@ -1,6 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
 import { Banknote, Plus, X, Check, TrendingDown, Building, CalendarDays } from 'lucide-react';
 
@@ -8,6 +9,7 @@ const categories = ['utilities', 'maintenance', 'housekeeping', 'food_beverage',
 const statusPills = { pending: 'bg-amber-50 text-amber-700', approved: 'bg-green-50 text-green-700', rejected: 'bg-red-50 text-red-600' };
 
 export default function Expenses() {
+  const { selectedProperty } = useProperty();
   const [expenses, setExpenses] = useState([]);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,7 +28,8 @@ export default function Expenses() {
       .finally(() => setLoading(false));
   }, []);
 
-  const propertyId = properties[0]?.id;
+  const currentProperty = selectedProperty || properties[0];
+  const propertyId = currentProperty?.id;
   const vendors = [...new Set(expenses.map(e => e.vendor).filter(Boolean))];
   const filtered = expenses.filter(e => (cat === 'all' || e.category === cat) && (vendor === 'all' || e.vendor === vendor));
 
@@ -42,7 +45,7 @@ export default function Expenses() {
   const addExpense = async (e) => {
     e.preventDefault();
     if (!form.description || !propertyId) return;
-    const created = await db.entities.Expense.create({ ...form, property_id: propertyId, currency: 'USD', status: 'pending' });
+    const created = await db.entities.Expense.create({ ...form, property_id: propertyId, currency: currentProperty?.currency || 'USD', status: 'pending' });
     setExpenses(prev => [created, ...prev]);
     setForm({ description: '', category: 'utilities', amount: 0, vendor: '', expense_date: new Date().toISOString().slice(0, 10) });
     setShowAdd(false);

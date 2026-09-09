@@ -1,6 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
 import { Plug, Plus, X, Check, Link2, RefreshCw, Receipt, CreditCard, Building2, MessageSquare, BarChart3, Sparkles } from 'lucide-react';
 import BrandLogo from '@/components/marketing/BrandLogos';
@@ -24,6 +25,7 @@ const integrationCatalog = [
 ];
 
 export default function IntegrationHub() {
+  const { selectedProperty } = useProperty();
   const [settings, setSettings] = useState([]);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,7 +43,7 @@ export default function IntegrationHub() {
       .finally(() => setLoading(false));
   }, []);
 
-  const propertyId = properties[0]?.id;
+  const propertyId = (selectedProperty || properties[0])?.id;
   const filtered = settings.filter(s => activeCat === 'all' || s.category === activeCat);
   const connectedCount = settings.filter(s => s.status === 'connected').length;
 

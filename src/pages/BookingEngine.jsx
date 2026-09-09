@@ -1,6 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
 import { Globe, Save, Check, Loader2 } from 'lucide-react';
 
@@ -13,6 +14,7 @@ const toggles = [
 ];
 
 export default function BookingEngine() {
+  const { selectedProperty } = useProperty();
   const [config, setConfig] = useState(null);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,7 +29,7 @@ export default function BookingEngine() {
       .then(async ([settings, props]) => {
         setProperties(props || []);
         let s = (settings || [])[0];
-        const propertyId = (props || [])[0]?.id;
+        const propertyId = (selectedProperty || (props || [])[0])?.id;
         if (!s && propertyId) {
           s = await db.entities.BookingEngineSetting.create({ property_id: propertyId });
         }

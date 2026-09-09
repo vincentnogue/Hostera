@@ -1,6 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
 import { Plus, X, Wrench, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
 
@@ -24,6 +25,7 @@ const categoryLabels = {
 };
 
 export default function Maintenance() {
+  const { selectedProperty } = useProperty();
   const [tickets, setTickets] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [properties, setProperties] = useState([]);
@@ -56,7 +58,7 @@ export default function Maintenance() {
     if (!form.title) return;
     setCreating(true);
     try {
-      const property = properties[0];
+      const property = selectedProperty || properties[0];
       await db.entities.MaintenanceTicket.create({
         ...form,
         property_id: property?.id || '',
