@@ -20,6 +20,7 @@ export default function BookingEngine() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const currentProperty = selectedProperty || properties[0];
 
   useEffect(() => {
     Promise.all([
@@ -74,6 +75,17 @@ export default function BookingEngine() {
     </div>
   );
 
+  const bookingUrl = currentProperty?.id
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/book/${currentProperty.id}`
+    : '';
+  const [copied, setCopied] = useState(false);
+  const copyLink = () => {
+    if (!bookingUrl) return;
+    navigator.clipboard?.writeText(bookingUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   if (loading) {
     return <p className="text-sm text-brand-slate">Loading booking engine settings…</p>;
   }
@@ -90,6 +102,18 @@ export default function BookingEngine() {
           {saving ? 'Saving…' : saved ? 'Saved' : 'Save Settings'}
         </button>
       </div>
+
+      {bookingUrl && (
+        <div className="bg-white rounded-xl border border-brand-border p-4 flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-brand-slate">Your public booking page</p>
+            <p className="text-sm text-brand-navy truncate">{bookingUrl}</p>
+          </div>
+          <button onClick={copyLink} className="shrink-0 px-4 py-2 rounded-full border border-brand-border text-xs font-semibold text-brand-ink hover:border-brand-navy">
+            {copied ? 'Copied' : 'Copy link'}
+          </button>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Toggles */}

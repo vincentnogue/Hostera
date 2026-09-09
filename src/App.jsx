@@ -88,6 +88,7 @@ const Developers = lazy(() => import('@/pages/marketing/Developers'));
 const StatusPage = lazy(() => import('@/pages/marketing/StatusPage'));
 const Legal = lazy(() => import('@/pages/marketing/Legal'));
 const GuestDashboard = lazy(() => import('@/pages/GuestDashboard'));
+const PublicBooking = lazy(() => import('@/pages/PublicBooking'));
 
 const PageLoader = () => (
   <div className="fixed inset-0 flex items-center justify-center">
@@ -145,6 +146,7 @@ const AuthenticatedApp = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/book/:propertyId" element={<PublicBooking />} />
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/guest" element={<GuestDashboard />} />
           <Route element={<PropertyProvider><Layout /></PropertyProvider>}>
