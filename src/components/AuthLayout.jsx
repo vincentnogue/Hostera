@@ -78,7 +78,7 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
           </span>
           <div>
             <h2 className="text-white text-3xl font-bold leading-tight max-w-md">
-              Where the world's hospitality comes to run — and to stay
+              Where the world&apos;s hospitality comes to run — and to stay
             </h2>
             <p className="text-white/70 mt-3 max-w-md leading-relaxed">
               Business accounts manage hotels, motels, inns and resorts worldwide. Individual accounts search

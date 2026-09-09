@@ -101,7 +101,7 @@ export default function Legal({ doc = 'privacy' }) {
               <p className="text-xs text-[#64748B] leading-relaxed">
                 Hostera is developed by{' '}
                 <a href="https://liafrik.com" target="_blank" rel="noopener noreferrer" className="text-[#123B63] font-semibold hover:underline">Liafrik</a>.
-                These documents describe the platform's policies and practices; they are not legal advice, and
+                These documents describe the platform&apos;s policies and practices; they are not legal advice, and
                 compliance with your local regulations depends on your configuration and obligations.
               </p>
               <Link to="/" className="inline-flex items-center gap-2 mt-4 text-sm font-semibold text-[#123B63] hover:text-[#1F5A8A]">

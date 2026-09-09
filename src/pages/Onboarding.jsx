@@ -156,7 +156,7 @@ export default function Onboarding() {
 
         {step === 4 && (
           <div className="space-y-5">
-            <h2 className="text-lg font-bold text-[#17212B]">You're ready to launch 🚀</h2>
+            <h2 className="text-lg font-bold text-[#17212B]">You&apos;re ready to launch 🚀</h2>
             <div className="p-5 rounded-2xl bg-[#F6F8FB] space-y-2.5 text-sm">
               <p><span className="text-[#64748B]">Organization:</span> <span className="font-semibold text-[#17212B]">{org.name || '—'}</span></p>
               <p><span className="text-[#64748B]">Property:</span> <span className="font-semibold text-[#17212B]">{property.name || '—'}</span> {property.city && `· ${property.city}`}</p>

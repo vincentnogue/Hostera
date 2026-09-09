@@ -95,7 +95,7 @@ export default function Security() {
                 compliance requirements are configurable per property.
               </p>
               <p className="text-xs text-[#64748B]">
-                We don't claim automatic legal compliance for your jurisdiction — compliance depends on how you configure
+                We don&apos;t claim automatic legal compliance for your jurisdiction — compliance depends on how you configure
                 the platform and your local obligations. Read our{' '}
                 <Link to="/legal/privacy" className="text-[#123B63] font-semibold hover:underline">Privacy Policy</Link> and{' '}
                 <Link to="/legal/data-processing" className="text-[#123B63] font-semibold hover:underline">Data Processing terms</Link>.

@@ -92,7 +92,7 @@ export default function FrontDesk() {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold text-[#17212B]">Front Desk</h1>
-          <p className="text-sm text-[#64748B] mt-1">Manage today's arrivals, departures and in-house guests</p>
+          <p className="text-sm text-[#64748B] mt-1">Manage today&apos;s arrivals, departures and in-house guests</p>
         </div>
         <button className="flex items-center gap-2 px-4 py-2 bg-[#123B63] text-white rounded-lg text-sm font-medium hover:bg-[#1F5A8A] transition-colors">
           <Plus className="w-4 h-4" />
@@ -135,7 +135,7 @@ export default function FrontDesk() {
       {/* Arrivals & Departures */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
-          <h3 className="text-base font-semibold text-[#17212B] mb-4">Today's Arrivals</h3>
+          <h3 className="text-base font-semibold text-[#17212B] mb-4">Today&apos;s Arrivals</h3>
           {filterBySearch(arrivals).length === 0 ? (
             <p className="text-sm text-[#64748B] py-8 text-center">No arrivals for today</p>
           ) : (
@@ -170,7 +170,7 @@ export default function FrontDesk() {
         </div>
 
         <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
-          <h3 className="text-base font-semibold text-[#17212B] mb-4">Today's Departures</h3>
+          <h3 className="text-base font-semibold text-[#17212B] mb-4">Today&apos;s Departures</h3>
           {filterBySearch(departures).length === 0 ? (
             <p className="text-sm text-[#64748B] py-8 text-center">No departures for today</p>
           ) : (

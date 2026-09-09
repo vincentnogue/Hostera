@@ -166,7 +166,7 @@ export default function Integrations() {
       <section className="py-20 bg-[#123B63]">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <Reveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Don't see your integration?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Don&apos;t see your integration?</h2>
             <p className="text-white/70 mb-8">Our developer platform and connector architecture make new integrations fast to add — tell us what you need.</p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link to="/contact" className="inline-flex items-center gap-2 rounded-full bg-white text-[#123B63] px-8 py-3.5 text-sm font-bold hover:scale-105 transition-transform">

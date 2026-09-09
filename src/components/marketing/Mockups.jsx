@@ -75,7 +75,7 @@ export function DashboardMockup() {
               </div>
             </div>
             <div className="bg-white rounded-xl border border-[#E2E8F0] p-4">
-              <p className="text-xs font-semibold text-[#17212B] mb-3 text-left">Today's Arrivals</p>
+              <p className="text-xs font-semibold text-[#17212B] mb-3 text-left">Today&apos;s Arrivals</p>
               {[['A. Al-Rashid', 'Rm 505'], ['J. Anderson', 'Rm 606'], ['S. Martin', 'Rm 404']].map(([n, r], i) => (
                 <div key={n} className="flex items-center justify-between py-1.5">
                   <div className="text-left">
@@ -159,7 +159,7 @@ export function FrontDeskMockup() {
           ))}
         </div>
         <div className="bg-white rounded-xl border border-[#E2E8F0] p-3">
-          <p className="text-xs font-semibold text-[#17212B] mb-2 text-left">Today's Arrivals</p>
+          <p className="text-xs font-semibold text-[#17212B] mb-2 text-left">Today&apos;s Arrivals</p>
           {rows.map(([name, info, status, canCheckIn]) => (
             <div key={name} className="flex items-center justify-between py-2 border-b border-[#E2E8F0] last:border-0">
               <div className="text-left">

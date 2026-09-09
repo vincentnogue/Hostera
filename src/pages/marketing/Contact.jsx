@@ -32,7 +32,7 @@ export default function Contact() {
             <span className="inline-block px-4 py-1.5 bg-white/10 text-white/90 text-xs font-semibold rounded-full mb-6 border border-white/10 uppercase tracking-wide">Contact</span>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-5">Talk to our team</h1>
             <p className="text-lg text-white/70 max-w-2xl mx-auto">
-              Questions about plans, onboarding, migrations or partnerships — we're here.
+              Questions about plans, onboarding, migrations or partnerships — we&apos;re here.
             </p>
           </Reveal>
         </div>
@@ -81,7 +81,7 @@ export default function Contact() {
                 <h2 className="text-xl font-bold text-[#17212B]">Send us a message</h2>
               </div>
               <p className="text-[13px] text-[#64748B] mb-6">
-                Fill in the form and we'll open your email client with everything prefilled — your message goes
+                Fill in the form and we&apos;ll open your email client with everything prefilled — your message goes
                 straight to our team through your own email, keeping a copy in your sent folder.
               </p>
               {composed ? (

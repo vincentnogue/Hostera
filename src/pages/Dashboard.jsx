@@ -190,7 +190,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
           <h3 className="text-base font-semibold text-[#17212B] mb-4">
-            Today's Arrivals ({arrivals.length})
+            Today&apos;s Arrivals ({arrivals.length})
           </h3>
           {arrivals.length === 0 ? (
             <p className="text-sm text-[#64748B] py-8 text-center">No arrivals scheduled for today</p>
@@ -220,7 +220,7 @@ export default function Dashboard() {
 
         <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
           <h3 className="text-base font-semibold text-[#17212B] mb-4">
-            Today's Departures ({departures.length})
+            Today&apos;s Departures ({departures.length})
           </h3>
           {departures.length === 0 ? (
             <p className="text-sm text-[#64748B] py-8 text-center">No departures scheduled for today</p>

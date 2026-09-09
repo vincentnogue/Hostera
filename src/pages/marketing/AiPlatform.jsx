@@ -78,7 +78,7 @@ export default function AiPlatform() {
           <Reveal>
             <div className="text-center mb-14">
               <h2 className="text-3xl font-bold text-white mb-3">AI with boundaries</h2>
-              <p className="text-white/60 max-w-2xl mx-auto">AI must never access data the requesting user cannot access. That's not a feature — it's architecture.</p>
+              <p className="text-white/60 max-w-2xl mx-auto">AI must never access data the requesting user cannot access. That&apos;s not a feature — it&apos;s architecture.</p>
             </div>
           </Reveal>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">

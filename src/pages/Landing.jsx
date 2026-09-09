@@ -302,7 +302,7 @@ export default function Landing() {
               <h2 className="text-3xl md:text-4xl font-bold text-white mt-2 mb-4">An AI that respects your data</h2>
               <p className="text-white/60 max-w-2xl mx-auto">
                 Ask questions about performance, get forecasting, pricing suggestions and automated reports —
-                powered by an AI layer that never accesses data your team can't access.
+                powered by an AI layer that never accesses data your team can&apos;t access.
               </p>
             </div>
           </Reveal>
@@ -379,7 +379,7 @@ export default function Landing() {
                     <div className="w-11 h-11 rounded-full flex items-center justify-center mb-5" style={{ background: NAVY }}>
                       <Icon className="w-5 h-5 text-white" />
                     </div>
-                    <p className="text-[15px] leading-relaxed flex-1" style={{ color: '#17212B' }}>"{r.quote}"</p>
+                    <p className="text-[15px] leading-relaxed flex-1" style={{ color: '#17212B' }}>&quot;{r.quote}&quot;</p>
                     <p className="text-sm font-semibold text-[#123B63] mt-5">{r.role}</p>
                   </div>
                 </Reveal>

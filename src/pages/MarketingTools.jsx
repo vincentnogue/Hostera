@@ -117,7 +117,7 @@ export default function MarketingTools() {
                     {c.status}
                   </span>
                 </div>
-                {c.subject && <p className="text-[12px] font-medium text-[#17212B] mb-1">"{c.subject}"</p>}
+                {c.subject && <p className="text-[12px] font-medium text-[#17212B] mb-1">&quot;{c.subject}&quot;</p>}
                 {c.content && <p className="text-[12px] text-[#64748B] leading-relaxed mb-3 line-clamp-2 flex-1">{c.content}</p>}
                 <div className="flex items-center justify-between pt-3 border-t border-[#F1F5F9]">
                   <span className="text-[10px] text-[#94A3B8]">{audienceLabels[c.audience] || c.audience} · {c.recipients || audienceCount(c.audience)} recipients</span>
