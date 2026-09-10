@@ -2,6 +2,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
+import AvailabilityCalendar from '@/components/AvailabilityCalendar';
 import {
   MapPin, Users, BedDouble, Calendar, Phone, Mail, Check,
   ShieldCheck, Loader2, ChevronLeft, Building2
@@ -12,6 +13,8 @@ export default function PublicBooking() {
   const [searchParams] = useSearchParams();
   const [property, setProperty] = useState(null);
   const [roomTypes, setRoomTypes] = useState([]);
+  const [rooms, setRooms] = useState([]);
+  const [reservations, setReservations] = useState([]);
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -29,10 +32,12 @@ export default function PublicBooking() {
   useEffect(() => {
     async function load() {
       try {
-        const [props, allRoomTypes, allSettings] = await Promise.all([
+        const [props, allRoomTypes, allSettings, allRooms, allReservations] = await Promise.all([
           db.entities.Property.list(),
           db.entities.RoomType.list(),
           db.entities.BookingEngineSetting.list(),
+          db.entities.Room.list(),
+          db.entities.Reservation.list(),
         ]);
         const prop = (props || []).find(p => p.id === propertyId);
         if (!prop) {
@@ -41,6 +46,8 @@ export default function PublicBooking() {
         }
         setProperty(prop);
         setRoomTypes((allRoomTypes || []).filter(rt => rt.property_id === propertyId));
+        setRooms((allRooms || []).filter(r => r.property_id === propertyId));
+        setReservations((allReservations || []).filter(r => r.property_id === propertyId));
         setSettings((allSettings || []).find(s => s.property_id === propertyId) || {
           direct_bookings_enabled: true,
           show_availability: true,
@@ -169,50 +176,41 @@ export default function PublicBooking() {
     );
   }
 
+  const coverPhoto = property.photo_urls?.[0];
+
   return (
     <div className="min-h-screen bg-brand-bg">
-      <div className="max-w-3xl mx-auto px-4 py-10">
-        <div className="mb-6">
+      {coverPhoto ? (
+        <div className="relative h-56 md:h-72 w-full overflow-hidden">
+          <img src={coverPhoto} alt={property.name} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 max-w-3xl mx-auto px-4 pb-5">
+            <h1 className="text-2xl md:text-3xl font-bold text-white">{property.name}</h1>
+            <p className="text-sm text-white/90 flex items-center gap-1.5 mt-1">
+              <MapPin className="w-4 h-4" />
+              {[property.city, property.country].filter(Boolean).join(', ')}
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="max-w-3xl mx-auto px-4 pt-10">
           <h1 className="text-2xl font-bold text-brand-ink">{property.name}</h1>
           <p className="text-sm text-brand-slate flex items-center gap-1.5 mt-1">
             <MapPin className="w-4 h-4" />
             {[property.city, property.country].filter(Boolean).join(', ')}
           </p>
         </div>
+      )}
+      <div className="max-w-3xl mx-auto px-4 py-10">
+        {property.photo_urls?.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto mb-8 -mt-2">
+            {property.photo_urls.slice(1).map(url => (
+              <img key={url} src={url} alt="" className="w-32 h-24 rounded-xl object-cover shrink-0" loading="lazy" />
+            ))}
+          </div>
+        )}
 
         <form onSubmit={submitBooking} className="space-y-6">
-          {/* Dates & occupancy */}
-          <div className="bg-white border border-brand-border rounded-2xl p-5 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <label className="text-xs font-medium text-brand-slate flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />Check-in</label>
-              <input type="date" required min={minCheckIn} max={maxCheckIn} value={checkIn}
-                onChange={e => setCheckIn(e.target.value)}
-                className="w-full mt-1 px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy" />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-brand-slate flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />Check-out</label>
-              <input type="date" required min={checkIn || minCheckIn} value={checkOut}
-                onChange={e => setCheckOut(e.target.value)}
-                className="w-full mt-1 px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy" />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-brand-slate flex items-center gap-1"><Users className="w-3.5 h-3.5" />Adults</label>
-              <input type="number" min={1} value={adults} onChange={e => setAdults(Number(e.target.value))}
-                className="w-full mt-1 px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy" />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-brand-slate flex items-center gap-1"><Users className="w-3.5 h-3.5" />Children</label>
-              <input type="number" min={0} value={children} onChange={e => setChildren(Number(e.target.value))}
-                className="w-full mt-1 px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy" />
-            </div>
-            {nights > 0 && (
-              <p className="col-span-2 md:col-span-4 text-xs text-brand-slate">
-                {nights} night{nights > 1 ? 's' : ''}
-                {settings?.min_stay_default > 1 && ` · ${settings.min_stay_default}-night minimum stay`}
-              </p>
-            )}
-          </div>
-
           {/* Room types */}
           <div className="space-y-3">
             <h2 className="text-sm font-semibold text-brand-ink">Choose a room</h2>
@@ -224,34 +222,82 @@ export default function PublicBooking() {
                 type="button"
                 key={rt.id}
                 onClick={() => setSelectedRoomType(rt)}
-                className={`w-full text-left bg-white border rounded-2xl p-4 flex items-center justify-between gap-4 transition ${
+                className={`w-full text-left bg-white border rounded-2xl p-4 flex flex-col gap-3 transition ${
                   selectedRoomType?.id === rt.id ? 'border-brand-navy ring-1 ring-brand-navy' : 'border-brand-border hover:border-brand-slate-light'
                 }`}
               >
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-brand-bg flex items-center justify-center shrink-0">
-                    <BedDouble className="w-5 h-5 text-brand-navy" />
+                {(rt.photo_urls || []).length > 0 && (
+                  <div className="flex gap-1.5 overflow-x-auto -mx-1 px-1">
+                    {rt.photo_urls.map(url => (
+                      <img key={url} src={url} alt={rt.name} className="w-24 h-16 rounded-lg object-cover shrink-0" loading="lazy" />
+                    ))}
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-brand-ink">{rt.name}</p>
-                    {rt.description && <p className="text-xs text-brand-slate mt-0.5 max-w-md">{rt.description}</p>}
-                    <p className="text-xs text-brand-slate-light mt-1">
-                      Up to {rt.capacity} guests{rt.size_sqm ? ` · ${rt.size_sqm} m²` : ''}{rt.bed_type ? ` · ${rt.bed_type}` : ''}
-                    </p>
+                )}
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-brand-bg flex items-center justify-center shrink-0">
+                      <BedDouble className="w-5 h-5 text-brand-navy" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-brand-ink">{rt.name}</p>
+                      {rt.description && <p className="text-xs text-brand-slate mt-0.5 max-w-md">{rt.description}</p>}
+                      <p className="text-xs text-brand-slate-light mt-1">
+                        Up to {rt.capacity} guests{rt.size_sqm ? ` · ${rt.size_sqm} m²` : ''}{rt.bed_type ? ` · ${rt.bed_type}` : ''}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="text-right shrink-0">
-                  {settings?.show_rates_publicly === false ? (
-                    <span className="text-xs text-brand-slate">Contact for rate</span>
-                  ) : (
-                    <>
-                      <p className="text-sm font-bold text-brand-ink">{fmt(rt.base_price)}</p>
-                      <p className="text-[11px] text-brand-slate">/ night</p>
-                    </>
-                  )}
+                  <div className="text-right shrink-0">
+                    {settings?.show_rates_publicly === false ? (
+                      <span className="text-xs text-brand-slate">Contact for rate</span>
+                    ) : (
+                      <>
+                        <p className="text-sm font-bold text-brand-ink">{fmt(rt.base_price)}</p>
+                        <p className="text-[11px] text-brand-slate">/ night</p>
+                      </>
+                    )}
+                  </div>
                 </div>
               </button>
             ))}
+          </div>
+
+          {/* Availability calendar */}
+          {selectedRoomType && (
+            <div>
+              <h2 className="text-sm font-semibold text-brand-ink mb-3 flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5" /> Select your dates
+              </h2>
+              <AvailabilityCalendar
+                rooms={rooms}
+                reservations={reservations}
+                roomTypeId={selectedRoomType.id}
+                checkIn={checkIn}
+                checkOut={checkOut}
+                minDate={minCheckIn}
+                maxDate={maxCheckIn}
+                onSelectRange={(ci, co) => { setCheckIn(ci); setCheckOut(co); }}
+              />
+              {nights > 0 && (
+                <p className="text-xs text-brand-slate mt-2">
+                  {checkIn} → {checkOut} · {nights} night{nights > 1 ? 's' : ''}
+                  {settings?.min_stay_default > 1 && ` · ${settings.min_stay_default}-night minimum stay`}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Guests */}
+          <div className="bg-white border border-brand-border rounded-2xl p-5 grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-medium text-brand-slate flex items-center gap-1"><Users className="w-3.5 h-3.5" />Adults</label>
+              <input type="number" min={1} value={adults} onChange={e => setAdults(Number(e.target.value))}
+                className="w-full mt-1 px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-brand-slate flex items-center gap-1"><Users className="w-3.5 h-3.5" />Children</label>
+              <input type="number" min={0} value={children} onChange={e => setChildren(Number(e.target.value))}
+                className="w-full mt-1 px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy" />
+            </div>
           </div>
 
           {/* Guest details */}

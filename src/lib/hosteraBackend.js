@@ -178,11 +178,13 @@ const buildEntityClient = (entityName) => {
 
     async update(id, payload) {
       const { columns, data } = splitPayload(table, payload);
-      const updateRow = { ...columns };
+      const updateRow = { ...columns, updated_at: new Date().toISOString() };
       if (Object.keys(data).length > 0) {
         // Merge into the existing `data` blob so a partial update (e.g.
         // { base_price: 120 }) doesn't wipe out sibling fields that were
-        // already stored (name, capacity, ...).
+        // already stored (name, capacity, ...). There's no DB trigger that
+        // bumps updated_at on UPDATE (only a default on INSERT), so it's
+        // set manually above too.
         let existingQuery = supabase.from(table).select('data').eq('id', id);
         existingQuery = await scoped(existingQuery);
         const { data: existingRow, error: fetchError } = await existingQuery.maybeSingle();
