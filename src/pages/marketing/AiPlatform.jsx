@@ -24,7 +24,7 @@ export default function AiPlatform() {
       {/* HERO */}
       <section className="relative bg-brand-navy-900 py-24 overflow-hidden">
         <div className="absolute inset-0">
-          <img src="https://images.unsplash.com/photo-1564501049412-61c2a308a9d8?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover opacity-15" alt="Hotel at dusk" />
+          <img src="/images/hotels/hotel-05-coastal-tower.jpg" className="w-full h-full object-cover opacity-15" alt="Coastal resort tower — Asia" />
           <div className="absolute inset-0 bg-brand-navy-900/70"></div>
         </div>
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-brand-blue/20 rounded-full blur-3xl" />

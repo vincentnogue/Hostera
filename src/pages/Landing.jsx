@@ -57,6 +57,8 @@ export default function Landing() {
     { icon: FileText, title: 'Append-Only Audit Logs', desc: 'Every staff action is recorded in an immutable audit trail.' },
   ];
 
+  const [activeModuleGroup, setActiveModuleGroup] = useState(MODULE_GROUPS[0]);
+
   const roles = [
     { icon: ConciergeBell, role: 'Front Desk Managers', photo: 'https://images.pexels.com/photos/3770110/pexels-photo-3770110.jpeg?auto=compress&cs=tinysrgb&w=400', quote: 'Arrivals, departures and walk-ins in one fast workspace — no more switching between screens during the morning rush.' },
     { icon: SparkleIcon, role: 'Housekeeping Teams', photo: 'https://images.pexels.com/photos/3770106/pexels-photo-3770106.jpeg?auto=compress&cs=tinysrgb&w=400', quote: 'A real-time status board that works on any phone. Dirty rooms, priorities and assignments — always current.' },
