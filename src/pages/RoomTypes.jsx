@@ -3,7 +3,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
 
-import { Plus, X, BedDouble, Users, DollarSign, Maximize2, Globe2 } from 'lucide-react';
+import { Plus, X, BedDouble, Users, DollarSign, Maximize2, Globe2, Camera, Loader2 } from 'lucide-react';
 
 const bedTypeLabels = {
   single: 'Single', double: 'Double', twin: 'Twin',
@@ -20,8 +20,10 @@ export default function RoomTypes() {
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({
     name: '', description: '', capacity: 2, bed_type: 'double',
-    base_price: 0, size_sqm: 0, view: '',
+    base_price: 0, size_sqm: 0, view: '', photo_urls: [],
   });
+  const [uploadingFor, setUploadingFor] = useState(null);
+  const [formUploading, setFormUploading] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -54,7 +56,7 @@ export default function RoomTypes() {
         amenities: ['wifi', 'tv', 'ac'],
       });
       setShowCreate(false);
-      setForm({ name: '', description: '', capacity: 2, bed_type: 'double', base_price: 0, size_sqm: 0, view: '' });
+      setForm({ name: '', description: '', capacity: 2, bed_type: 'double', base_price: 0, size_sqm: 0, view: '', photo_urls: [] });
       fetchData();
     } catch (e) {
       console.error(e);
@@ -75,6 +77,50 @@ export default function RoomTypes() {
       await db.entities.RoomType.update(rt.id, { marketplace_visible: rt.marketplace_visible === false });
       fetchData();
     } catch (e) { console.error(e); }
+  };
+
+  const handleFormPhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFormUploading(true);
+    try {
+      const { file_url } = await db.integrations.Core.UploadFile({ file, bucket: 'uploads' });
+      if (file_url) setForm(prev => ({ ...prev, photo_urls: [...(prev.photo_urls || []), file_url] }));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setFormUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const removeFormPhoto = (url) => {
+    setForm(prev => ({ ...prev, photo_urls: (prev.photo_urls || []).filter(u => u !== url) }));
+  };
+
+  const handleRoomTypePhotoUpload = async (rt, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingFor(rt.id);
+    try {
+      const { file_url } = await db.integrations.Core.UploadFile({ file, bucket: 'uploads' });
+      if (file_url) {
+        await db.entities.RoomType.update(rt.id, { photo_urls: [...(rt.photo_urls || []), file_url] });
+        fetchData();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setUploadingFor(null);
+      e.target.value = '';
+    }
+  };
+
+  const removeRoomTypePhoto = async (rt, url) => {
+    try {
+      await db.entities.RoomType.update(rt.id, { photo_urls: (rt.photo_urls || []).filter(u => u !== url) });
+      fetchData();
+    } catch (err) { console.error(err); }
   };
 
   if (loading) {
@@ -121,6 +167,30 @@ export default function RoomTypes() {
                   <span className="text-xs px-2.5 py-1 rounded-full bg-brand-bg text-brand-slate font-medium">
                     {roomCount} rooms
                   </span>
+                </div>
+
+                {/* Photo gallery */}
+                <div className="flex gap-1.5 mb-3 overflow-x-auto">
+                  {(rt.photo_urls || []).map(url => (
+                    <div key={url} className="relative shrink-0 w-16 h-16 rounded-lg overflow-hidden group">
+                      <img src={url} alt={rt.name} className="w-full h-full object-cover" loading="lazy" />
+                      <button
+                        type="button"
+                        onClick={() => removeRoomTypePhoto(rt, url)}
+                        className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                      >
+                        <X className="w-4 h-4 text-white" />
+                      </button>
+                    </div>
+                  ))}
+                  <label className="shrink-0 w-16 h-16 rounded-lg border border-dashed border-brand-border flex items-center justify-center cursor-pointer hover:border-brand-navy text-brand-slate">
+                    {uploadingFor === rt.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Camera className="w-4 h-4" />
+                    )}
+                    <input type="file" accept="image/*" className="hidden" onChange={e => handleRoomTypePhotoUpload(rt, e)} disabled={uploadingFor === rt.id} />
+                  </label>
                 </div>
                 <h3 className="text-sm font-semibold text-brand-ink mb-1">{rt.name}</h3>
                 {rt.description && <p className="text-xs text-brand-slate mb-3 line-clamp-2">{rt.description}</p>}
@@ -227,6 +297,23 @@ export default function RoomTypes() {
                 <div>
                   <label className="text-sm font-medium text-brand-ink mb-1 block">View</label>
                   <input type="text" value={form.view} onChange={e => setForm({...form, view: e.target.value})} placeholder="e.g. city, ocean..." className={inputCls} />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-brand-ink mb-1 block">Photos</label>
+                <div className="flex gap-1.5 flex-wrap">
+                  {(form.photo_urls || []).map(url => (
+                    <div key={url} className="relative w-16 h-16 rounded-lg overflow-hidden group">
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                      <button type="button" onClick={() => removeFormPhoto(url)} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <X className="w-4 h-4 text-white" />
+                      </button>
+                    </div>
+                  ))}
+                  <label className="w-16 h-16 rounded-lg border border-dashed border-brand-border flex items-center justify-center cursor-pointer hover:border-brand-navy text-brand-slate">
+                    {formUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+                    <input type="file" accept="image/*" className="hidden" onChange={handleFormPhotoUpload} disabled={formUploading} />
+                  </label>
                 </div>
               </div>
             </div>
