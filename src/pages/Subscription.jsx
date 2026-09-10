@@ -3,7 +3,8 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect } from 'react';
 
 import BrandLogo from '@/components/marketing/BrandLogos';
-import { CreditCard, Plus, X, Check, Star, ArrowUpCircle } from 'lucide-react';
+import { CreditCard, Plus, X, Check, Star, ArrowUpCircle, Building2, Users as UsersIcon } from 'lucide-react';
+import { PLANS, ONBOARDING } from '@/lib/marketing';
 
 const PSPS = [
   { id: 'payunit', name: 'PayUnit', label: 'PayUnit — Mobile money & cards (Africa)' },
@@ -14,17 +15,19 @@ const PSPS = [
   { id: 'korapay', name: 'Kora Pay', label: 'Kora Pay — Africa payouts' },
 ];
 
-const PLAN_PRICES = { starter: 49, professional: 129, business: 299, enterprise: 499 };
-const PLAN_INFO = {
-  starter: 'Up to 5 users · 1 property · Core PMS',
-  professional: 'Up to 15 users · Channel Manager · Revenue Management',
-  business: 'Up to 50 users · Integration Hub · API · Hostera AI',
-  enterprise: 'Unlimited users & properties · Consolidated reporting',
-};
+// Single source of truth for plan pricing/limits lives in src/lib/marketing.js
+// (PLANS) — this used to be duplicated here with stale numbers, which had
+// drifted out of sync with the public Pricing page. Deriving it here instead
+// keeps the in-app "Change Plan" panel and the marketing site permanently
+// in agreement.
+const PLAN_KEYS = PLANS.map(p => p.name.toLowerCase());
+const PLAN_BY_KEY = Object.fromEntries(PLANS.map(p => [p.name.toLowerCase(), p]));
 
 export default function Subscription() {
   const [settings, setSettings] = useState(null);
   const [methods, setMethods] = useState([]);
+  const [propertyCount, setPropertyCount] = useState(null);
+  const [userCount, setUserCount] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
@@ -35,8 +38,10 @@ export default function Subscription() {
       db.entities.SubscriptionSetting.list(),
       db.entities.SubscriptionPaymentMethod.list(),
       db.entities.Organization.list().catch(() => []),
+      db.entities.Property.list().catch(() => []),
+      db.entities.User.list().catch(() => []),
     ])
-      .then(async ([subs, pm, orgs]) => {
+      .then(async ([subs, pm, orgs, properties, members]) => {
         let s = (subs || [])[0];
         if (!s) {
           const orgName = (orgs || [])[0]?.name || 'My Organization';
@@ -45,6 +50,8 @@ export default function Subscription() {
         }
         setSettings(s);
         setMethods(pm || []);
+        setPropertyCount((properties || []).length);
+        setUserCount((members || []).length);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -86,6 +93,12 @@ export default function Subscription() {
 
   if (loading) return <p className="text-sm text-brand-slate">Loading subscription…</p>;
 
+  const currentPlan = PLAN_BY_KEY[settings.plan] || PLANS[0];
+  const propertiesUsed = propertyCount ?? 0;
+  const usersUsed = userCount ?? 0;
+  const propertyLimitHit = currentPlan.maxProperties != null && propertiesUsed >= currentPlan.maxProperties;
+  const userLimitHit = currentPlan.maxUsers != null && usersUsed >= currentPlan.maxUsers;
+
   return (
     <div className="space-y-6">
       <div>
@@ -104,8 +117,8 @@ export default function Subscription() {
                     <Star className="w-4 h-4 text-white fill-white" />
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-brand-ink capitalize">{settings.plan} Plan</p>
-                    <p className="text-xs text-brand-slate">{PLAN_INFO[settings.plan]}</p>
+                    <p className="text-lg font-bold text-brand-ink capitalize">{currentPlan.name} Plan</p>
+                    <p className="text-xs text-brand-slate">{currentPlan.accessNote}</p>
                   </div>
                 </div>
               </div>
@@ -115,9 +128,9 @@ export default function Subscription() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { label: 'Monthly price', value: `$${PLAN_PRICES[settings.plan]}` },
+                { label: 'Monthly price', value: `$${currentPlan.price}` },
                 { label: 'Billing cycle', value: settings.billing_cycle },
-                { label: 'Seats', value: settings.seats },
+                { label: 'Onboarding', value: 'Self-service' },
                 { label: 'Next billing', value: settings.next_billing_date ? new Date(settings.next_billing_date).toLocaleDateString() : '—' },
               ].map(k => (
                 <div key={k.label} className="p-3 bg-brand-bg rounded-xl">
@@ -125,6 +138,24 @@ export default function Subscription() {
                   <p className="text-sm font-semibold text-brand-ink capitalize">{k.value}</p>
                 </div>
               ))}
+            </div>
+
+            {/* Usage vs plan limits */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+              <div className={`p-3.5 rounded-xl border ${propertyLimitHit ? 'border-amber-300 bg-amber-50' : 'border-brand-border bg-white'}`}>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-xs font-medium text-brand-ink"><Building2 className="w-3.5 h-3.5 text-brand-navy" /> Properties</span>
+                  <span className="text-xs font-bold text-brand-ink">{propertiesUsed} / {currentPlan.maxProperties ?? '∞'}</span>
+                </div>
+                {propertyLimitHit && <p className="text-[10px] text-amber-700 mt-1.5">Limit reached — upgrade to add another property.</p>}
+              </div>
+              <div className={`p-3.5 rounded-xl border ${userLimitHit ? 'border-amber-300 bg-amber-50' : 'border-brand-border bg-white'}`}>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-xs font-medium text-brand-ink"><UsersIcon className="w-3.5 h-3.5 text-brand-navy" /> Users</span>
+                  <span className="text-xs font-bold text-brand-ink">{usersUsed} / {currentPlan.maxUsers ?? '∞'}</span>
+                </div>
+                {userLimitHit && <p className="text-[10px] text-amber-700 mt-1.5">Limit reached — upgrade to invite more users.</p>}
+              </div>
             </div>
           </div>
 
@@ -134,7 +165,7 @@ export default function Subscription() {
               <ArrowUpCircle className="w-4 h-4 text-brand-navy" /> Change Plan
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {Object.keys(PLAN_PRICES).map(p => (
+              {PLAN_KEYS.map(p => (
                 <button
                   key={p}
                   disabled={saving}
@@ -142,7 +173,7 @@ export default function Subscription() {
                   className={`p-3.5 rounded-xl border-2 text-left transition-all disabled:opacity-60 ${settings.plan === p ? 'border-brand-navy bg-blue-50/30' : 'border-brand-border hover:border-brand-blue/50'}`}
                 >
                   <p className="text-sm font-bold text-brand-ink capitalize">{p}</p>
-                  <p className="text-xs text-brand-navy font-semibold">${PLAN_PRICES[p]}/mo</p>
+                  <p className="text-xs text-brand-navy font-semibold">${PLAN_BY_KEY[p].price}/mo</p>
                   {settings.plan === p && <span className="text-[9px] text-green-600 font-semibold">Current</span>}
                 </button>
               ))}
@@ -155,6 +186,10 @@ export default function Subscription() {
                 </button>
               ))}
             </div>
+            <p className="text-[11px] text-brand-slate mt-4 pt-4 border-t border-brand-border">
+              Self-service onboarding is included on every plan. Need a white-glove setup instead?{' '}
+              <span className="font-semibold text-brand-ink">Assisted onboarding starts at ${ONBOARDING.assistedOnboardingFromPrice}</span>, and is included on Enterprise.
+            </p>
           </div>
         </div>
 

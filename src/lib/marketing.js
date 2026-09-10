@@ -48,36 +48,52 @@ export const INDUSTRIES = [
   { icon: Briefcase, name: 'Corporate Operators', blurb: 'Housing programs for business travelers.', points: ['Corporate billing', 'Credit limits', 'Negotiated rates'] },
 ];
 
+// Plan limits are structured fields (not just prose) so they can be
+// enforced in-app (property creation, team invites) and displayed
+// consistently everywhere pricing is shown — Landing, Pricing page,
+// Subscription page, Onboarding.
 export const PLANS = [
   {
-    name: 'Starter', price: 49, desc: 'For small properties getting started',
-    accessNote: 'Up to 10 rooms · 1 property',
-    features: ['Up to 10 rooms', 'Core PMS modules', 'Guest CRM', 'Email support'],
+    name: 'Starter', price: 49, desc: 'For a single property getting started',
+    maxProperties: 1, maxUsers: 5, maxRoomsPerProperty: 10,
+    accessNote: '1 property · up to 10 rooms · up to 5 users',
+    features: ['1 property, up to 10 rooms', 'Up to 5 users', 'Core PMS modules', 'Self-service onboarding', 'Email support'],
     modules: ['Dashboard', 'Front Desk', 'Reservations', 'Room Rack', 'Room Types', 'Guest CRM', 'Housekeeping', 'Maintenance'],
     popular: false,
   },
   {
-    name: 'Professional', price: 129, desc: 'For growing hotels',
-    accessNote: 'Up to 69 rooms · 1 property',
-    features: ['Up to 69 rooms', 'Channel Manager', 'Revenue Management', 'Priority support'],
+    name: 'Professional', price: 149, desc: 'For growing hotels with more than one address',
+    maxProperties: 2, maxUsers: 15, maxRoomsPerProperty: null,
+    accessNote: 'Up to 2 properties · up to 15 users',
+    features: ['Up to 2 properties', 'Up to 15 users', 'Channel Manager', 'Revenue Management', 'Self-service onboarding', 'Priority support'],
     modules: ['Everything in Starter', 'Channel Manager', 'Revenue Management', 'Analytics', 'Booking Engine', 'Loyalty Program', 'Reputation Management', 'Guest Portal'],
     popular: true,
   },
   {
-    name: 'Business', price: 299, desc: 'For serious operations',
-    accessNote: 'Up to 199 rooms · 1 property',
-    features: ['Up to 199 rooms', 'API access', 'Integration Hub', 'Hostera AI'],
+    name: 'Business', price: 499, desc: 'For serious, multi-property operations',
+    maxProperties: 10, maxUsers: 50, maxRoomsPerProperty: null,
+    accessNote: 'Up to 10 properties · up to 50 users',
+    features: ['Up to 10 properties', 'Up to 50 users', 'API access', 'Integration Hub', 'Self-service onboarding', 'Assisted onboarding available'],
     modules: ['Everything in Professional', 'Integration Hub', 'Inventory Management', 'Expenses', 'Marketing Tools', 'Document Templates', 'API & Webhooks', 'Hostera AI'],
     popular: false,
   },
   {
-    name: 'Enterprise', price: 499, desc: 'For multi-property groups',
-    accessNote: 'Unlimited rooms · unlimited properties',
-    features: ['Unlimited rooms', 'Consolidated reporting', 'Dedicated support', 'Custom onboarding'],
-    modules: ['Everything in Business', 'Unlimited properties', 'Consolidated reporting', 'Staff & Shift Management', 'Custom onboarding'],
+    name: 'Enterprise', price: 899, desc: 'For hotel groups and premium/luxury portfolios',
+    maxProperties: null, maxUsers: null, maxRoomsPerProperty: null,
+    accessNote: 'Unlimited properties · unlimited users',
+    features: ['Unlimited properties & users', 'Multi-property / group console', 'Consolidated reporting', 'Self-service onboarding', 'Assisted onboarding included', 'Dedicated success manager'],
+    modules: ['Everything in Business', 'Unlimited properties', 'Consolidated reporting', 'Staff & Shift Management', 'Custom branding', 'Assisted onboarding'],
     popular: false,
   },
 ];
+
+// Onboarding is self-service on every plan; assisted (white-glove) setup is
+// a paid add-on starting at $499, bundled into Business/Enterprise.
+export const ONBOARDING = {
+  selfServiceIncludedOnAllPlans: true,
+  assistedOnboardingFromPrice: 499,
+  assistedOnboardingIncludedOn: ['Enterprise'],
+};
 
 export const INTEGRATION_CATEGORIES = [
   {

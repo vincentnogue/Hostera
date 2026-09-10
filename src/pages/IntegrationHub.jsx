@@ -44,8 +44,9 @@ export default function IntegrationHub() {
   }, []);
 
   const propertyId = (selectedProperty || properties[0])?.id;
-  const filtered = settings.filter(s => activeCat === 'all' || s.category === activeCat);
-  const connectedCount = settings.filter(s => s.status === 'connected').length;
+  const scopedSettings = settings.filter(s => !propertyId || s.property_id === propertyId);
+  const filtered = scopedSettings.filter(s => activeCat === 'all' || s.category === activeCat);
+  const connectedCount = scopedSettings.filter(s => s.status === 'connected').length;
 
   const toggle = async (setting) => {
     const next = setting.status === 'connected' ? 'disconnected' : 'connected';
@@ -77,7 +78,9 @@ export default function IntegrationHub() {
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-brand-ink">Integration Hub</h1>
-          <p className="text-sm text-brand-slate">Toggle connections to accounting, payments and hospitality tools.</p>
+          <p className="text-sm text-brand-slate">
+            Payments, accounting and hospitality tools for {(selectedProperty || properties[0])?.name || 'this property'} — each property connects its own providers.
+          </p>
         </div>
         <button onClick={() => setShowAdd(true)} className="flex items-center gap-1.5 px-4 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">
           <Plus className="w-4 h-4" /> Add Integration
@@ -86,10 +89,10 @@ export default function IntegrationHub() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Tools', value: settings.length },
+          { label: 'Total Tools', value: scopedSettings.length },
           { label: 'Connected', value: connectedCount },
           { label: 'Available Categories', value: categories.length },
-          { label: 'Needs Attention', value: settings.filter(s => s.status === 'error').length },
+          { label: 'Needs Attention', value: scopedSettings.filter(s => s.status === 'error').length },
         ].map(k => (
           <div key={k.label} className="bg-white rounded-xl border border-brand-border p-4">
             <p className="text-xl font-bold text-brand-ink">{k.value}</p>

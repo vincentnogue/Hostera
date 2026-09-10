@@ -106,19 +106,25 @@ export default function Landing() {
                 <Check className="w-4 h-4" style={{ color: '#16A34A' }} />
                 No credit card required. Get instant access to Hostera.
               </p>
-
-              {/* Global marketplace search — hotels listed on Hostera become
-                  bookable here immediately, from any origin to any destination. */}
-              <div className="mt-8 max-w-xl">
-                <BookingSearchBar />
-                <BookingSearchWorldwideNote className="mt-3" />
-              </div>
             </div>
           </Reveal>
 
           {/* Right column — real video + premium hotel photo slideshow */}
           <Reveal delay={0.15} y={36}>
             <HeroMedia />
+          </Reveal>
+        </div>
+
+        {/* Global marketplace search — full-width so every field (destination,
+            dates, guests, search) stays readable instead of being squeezed
+            into the narrow left column. Hotels listed on Hostera become
+            bookable here immediately, from any origin to any destination. */}
+        <div className="max-w-7xl mx-auto px-6 pb-16 md:pb-20 relative">
+          <Reveal delay={0.2}>
+            <div className="max-w-5xl mx-auto">
+              <BookingSearchBar />
+              <BookingSearchWorldwideNote className="mt-3 justify-center md:justify-start" />
+            </div>
           </Reveal>
         </div>
       </section>

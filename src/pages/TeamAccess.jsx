@@ -2,7 +2,8 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect } from 'react';
 
-import { UserPlus, X, Shield, Users, UserCog } from 'lucide-react';
+import { UserPlus, X, Shield, Users, UserCog, Lock } from 'lucide-react';
+import { PLANS } from '@/lib/marketing';
 
 const roleConfig = {
   admin: { icon: Shield, color: 'bg-purple-100 text-purple-700', label: 'Admin' },
@@ -21,11 +22,16 @@ export default function TeamAccess() {
   const [inviting, setInviting] = useState(false);
   const [inviteMsg, setInviteMsg] = useState('');
   const [form, setForm] = useState({ email: '', role: 'user' });
+  const [plan, setPlan] = useState(null);
 
   const fetchData = async () => {
     try {
-      const data = await db.entities.User.list();
+      const [data, subs] = await Promise.all([
+        db.entities.User.list(),
+        db.entities.SubscriptionSetting.list().catch(() => []),
+      ]);
       setUsers(data || []);
+      setPlan(PLANS.find(p => p.name.toLowerCase() === (subs || [])[0]?.plan) || PLANS[0]);
     } catch (e) {
       console.error(e);
     } finally {
@@ -35,8 +41,10 @@ export default function TeamAccess() {
 
   useEffect(() => { fetchData(); }, []);
 
+  const atUserLimit = plan?.maxUsers != null && users.length >= plan.maxUsers;
+
   const handleInvite = async () => {
-    if (!form.email) return;
+    if (!form.email || atUserLimit) return;
     setInviting(true);
     setInviteMsg('');
     try {
@@ -65,16 +73,28 @@ export default function TeamAccess() {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold text-brand-ink">Team Access</h1>
-          <p className="text-sm text-brand-slate mt-1">{users.length} team members with access</p>
+          <p className="text-sm text-brand-slate mt-1">
+            {users.length} team members with access
+            {plan && <span className="text-brand-slate-light"> · {plan.maxUsers != null ? `${plan.maxUsers} max on ${plan.name}` : `Unlimited on ${plan.name}`}</span>}
+          </p>
         </div>
         <button
-          onClick={() => setShowInvite(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-brand-navy text-white rounded-lg text-sm font-medium hover:bg-brand-blue transition-colors"
+          onClick={() => atUserLimit ? null : setShowInvite(true)}
+          disabled={atUserLimit}
+          title={atUserLimit ? `You've reached the ${plan.maxUsers}-user limit on the ${plan.name} plan — upgrade to invite more.` : undefined}
+          className="flex items-center gap-2 px-4 py-2 bg-brand-navy text-white rounded-lg text-sm font-medium hover:bg-brand-blue transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-brand-navy"
         >
-          <UserPlus className="w-4 h-4" />
-          Invite Member
+          {atUserLimit ? <Lock className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
+          {atUserLimit ? 'User limit reached' : 'Invite Member'}
         </button>
       </div>
+
+      {atUserLimit && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-xl px-4 py-3">
+          You&apos;ve reached the {plan.maxUsers}-user limit on the {plan.name} plan.{' '}
+          <a href="/subscription" className="font-semibold underline">Upgrade your plan</a> to invite more team members.
+        </div>
+      )}
 
       <div className="bg-white rounded-xl border border-brand-border overflow-hidden">
         {users.length === 0 ? (
