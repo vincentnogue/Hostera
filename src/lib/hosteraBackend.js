@@ -65,6 +65,54 @@ supabase.auth.onAuthStateChange((_event, session) => {
 });
 
 // ---------------------------------------------------------------------------
+// data-column flattening
+// ---------------------------------------------------------------------------
+// The real Postgres tables (see supabase/schema.sql) store almost every
+// field inside a single `data jsonb` column — only `id`, `organization_id`,
+// `created_at` and `updated_at` (plus a couple of historical exceptions
+// below) are real typed columns. Every page in this app, though, reads and
+// writes plain flat fields (`property.name`, `roomType.base_price`, ...).
+// This layer bridges the two transparently, in one place, so no page has
+// to know or care which fields happen to be real columns vs. jsonb.
+const STANDARD_COLUMNS = new Set(['id', 'organization_id', 'data', 'created_at', 'updated_at']);
+
+// A few tables were created with some fields promoted to real typed
+// columns instead of living inside `data` — reflected here so writes to
+// those specific fields target the real column instead of being nested.
+const EXTRA_REAL_COLUMNS = {
+  organization: new Set(['name']),
+  platform_admin: new Set(['user_id', 'email', 'role', 'added_by']),
+};
+
+const isRealColumn = (table, key) => STANDARD_COLUMNS.has(key) || (EXTRA_REAL_COLUMNS[table]?.has(key) ?? false);
+
+// Merges the jsonb `data` blob up to the top level so callers can read
+// `row.name` regardless of whether `name` is a real column or lives in
+// `data`. Real top-level columns win on the rare chance of a name clash.
+const flattenRow = (table, row) => {
+  if (!row) return row;
+  const { data, ...rest } = row;
+  return { ...(data || {}), ...rest };
+};
+
+// Splits a flat payload into { columns, data } for writing: known real
+// columns stay top-level, everything else nests under `data`.
+const splitPayload = (table, payload) => {
+  const columns = {};
+  const data = {};
+  for (const [key, value] of Object.entries(payload || {})) {
+    if (isRealColumn(table, key)) columns[key] = value;
+    else data[key] = value;
+  }
+  return { columns, data };
+};
+
+// PostgREST supports filtering/ordering on a jsonb path when the column
+// name is passed as e.g. "data->>field". Real columns are referenced
+// directly; anything else is redirected into the jsonb blob.
+const columnRef = (table, field) => (isRealColumn(table, field) ? field : `data->>${field}`);
+
+// ---------------------------------------------------------------------------
 // Generic entity CRUD, backed by Supabase tables
 // ---------------------------------------------------------------------------
 const buildEntityClient = (entityName) => {
@@ -87,24 +135,24 @@ const buildEntityClient = (entityName) => {
       if (sort) {
         const descending = sort.startsWith('-');
         const field = descending ? sort.slice(1) : sort;
-        query = query.order(field, { ascending: !descending });
+        query = query.order(columnRef(table, field), { ascending: !descending });
       }
       if (limit) query = query.limit(limit);
       query = await scoped(query);
       const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+      return (data || []).map(row => flattenRow(table, row));
     },
 
     async filter(criteria = {}) {
       let query = supabase.from(table).select('*');
       Object.entries(criteria).forEach(([key, value]) => {
-        query = query.eq(key, value);
+        query = query.eq(columnRef(table, key), value);
       });
       query = await scoped(query);
       const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+      return (data || []).map(row => flattenRow(table, row));
     },
 
     async get(id) {
@@ -112,26 +160,40 @@ const buildEntityClient = (entityName) => {
       query = await scoped(query);
       const { data, error } = await query.maybeSingle();
       if (error) throw error;
-      return data;
+      return flattenRow(table, data);
     },
 
     async create(payload) {
       const user = await getCurrentUser();
-      const row = { ...payload };
-      if (isOrgScoped && user?.organization_id && row.organization_id == null) {
-        row.organization_id = user.organization_id;
+      const merged = { ...payload };
+      if (isOrgScoped && user?.organization_id && merged.organization_id == null) {
+        merged.organization_id = user.organization_id;
       }
-      const { data, error } = await supabase.from(table).insert(row).select().single();
+      const { columns, data } = splitPayload(table, merged);
+      const row = { ...columns, data };
+      const { data: created, error } = await supabase.from(table).insert(row).select().single();
       if (error) throw error;
-      return data;
+      return flattenRow(table, created);
     },
 
     async update(id, payload) {
-      let query = supabase.from(table).update(payload).eq('id', id);
+      const { columns, data } = splitPayload(table, payload);
+      const updateRow = { ...columns };
+      if (Object.keys(data).length > 0) {
+        // Merge into the existing `data` blob so a partial update (e.g.
+        // { base_price: 120 }) doesn't wipe out sibling fields that were
+        // already stored (name, capacity, ...).
+        let existingQuery = supabase.from(table).select('data').eq('id', id);
+        existingQuery = await scoped(existingQuery);
+        const { data: existingRow, error: fetchError } = await existingQuery.maybeSingle();
+        if (fetchError) throw fetchError;
+        updateRow.data = { ...(existingRow?.data || {}), ...data };
+      }
+      let query = supabase.from(table).update(updateRow).eq('id', id);
       query = await scoped(query);
-      const { data, error } = await query.select().maybeSingle();
+      const { data: updated, error } = await query.select().maybeSingle();
       if (error) throw error;
-      return data;
+      return flattenRow(table, updated);
     },
 
     async delete(id) {
