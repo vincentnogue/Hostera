@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Reveal from '@/components/marketing/Reveal';
 import HeroMedia from '@/components/marketing/HeroMedia';
@@ -7,7 +7,7 @@ import FlagBanner from '@/components/marketing/FlagBanner';
 import { RoomRackMockup, FrontDeskMockup, AnalyticsMockup } from '@/components/marketing/Mockups';
 import HotelMarquee from '@/components/marketing/HotelMarquee';
 import AffordabilityBand from '@/components/marketing/AffordabilityBand';
-import { MODULES, INDUSTRIES, PLANS } from '@/lib/marketing';
+import { MODULES, MODULE_GROUPS, INDUSTRIES, PLANS } from '@/lib/marketing';
 import {
   ArrowRight, Check, Sparkles, Shield, Users, ConciergeBell,
   Sparkles as SparkleIcon, TrendingUp, Zap, Lock, BarChart3,
@@ -34,6 +34,8 @@ export default function Landing() {
     { icon: Shield, title: 'Role-Based Access', desc: 'Granular permissions for every team member, from admins to housekeepers.' },
     { icon: FileText, title: 'Append-Only Audit Logs', desc: 'Every staff action is recorded in an immutable audit trail.' },
   ];
+
+  const [activeModuleGroup, setActiveModuleGroup] = useState(MODULE_GROUPS[0]);
 
   const roles = [
     { icon: ConciergeBell, role: 'Front Desk Managers', photo: 'https://images.pexels.com/photos/3770110/pexels-photo-3770110.jpeg?auto=compress&cs=tinysrgb&w=400', quote: 'Arrivals, departures and walk-ins in one fast workspace — no more switching between screens during the morning rush.' },
@@ -127,8 +129,25 @@ export default function Landing() {
               </p>
             </div>
           </Reveal>
+
+          <div className="flex flex-wrap justify-center gap-2 mb-10">
+            {MODULE_GROUPS.map(group => (
+              <button
+                key={group}
+                onClick={() => setActiveModuleGroup(group)}
+                className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+                  activeModuleGroup === group
+                    ? 'bg-brand-navy text-white'
+                    : 'bg-brand-bg text-brand-ink hover:bg-brand-border'
+                }`}
+              >
+                {group}
+              </button>
+            ))}
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {MODULES.map((m, i) => {
+            {MODULES.filter(m => m.group === activeModuleGroup).map((m, i) => {
               const Icon = m.icon;
               return (
                 <Reveal key={m.name + m.group} delay={(i % 4) * 0.06}>

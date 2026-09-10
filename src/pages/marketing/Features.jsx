@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Reveal from '@/components/marketing/Reveal';
 import { RoomRackMockup, FrontDeskMockup, AnalyticsMockup, DashboardMockup } from '@/components/marketing/Mockups';
@@ -22,12 +22,17 @@ const groupMockups = {
 };
 
 export default function Features() {
+  const [activeGroup, setActiveGroup] = useState(MODULE_GROUPS[0]);
+  const activeMods = MODULES.filter(m => m.group === activeGroup);
+  const ActiveMockup = groupMockups[activeGroup];
+  const activeIndex = MODULE_GROUPS.indexOf(activeGroup);
+
   return (
     <div className="bg-white">
       {/* HERO */}
       <section className="relative bg-brand-navy py-24 overflow-hidden">
         <div className="absolute inset-0">
-          <img src="https://images.unsplash.com/photo-1582719478250-c89cae40dc85?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover opacity-25" alt="Luxury resort pool" />
+          <img src="/images/hotels/hotel-02-maldives-overwater.jpg" className="w-full h-full object-cover opacity-25" alt="Overwater villas — Maldives" />
           <div className="absolute inset-0 bg-brand-navy/70"></div>
         </div>
         <div className="relative max-w-4xl mx-auto px-6 text-center">
@@ -41,57 +46,70 @@ export default function Features() {
         </div>
       </section>
 
-      {/* GROUPS */}
-      {MODULE_GROUPS.map((group, gi) => {
-        const mods = MODULES.filter(m => m.group === group);
-        const Mockup = groupMockups[group];
-        return (
-          <section key={group} className={`py-20 ${gi % 2 === 0 ? 'bg-white' : 'bg-brand-bg'}`}>
-            <div className="max-w-7xl mx-auto px-6">
-              <Reveal>
-                <div className="max-w-3xl mb-12">
-                  <span className="text-xs font-bold text-brand-blue uppercase tracking-widest">{`0${gi + 1}`} — {group}</span>
-                  <h2 className="text-3xl font-bold text-brand-ink mt-3 mb-3">{group}</h2>
-                  <p className="text-brand-slate leading-relaxed">{groupBlurbs[group]}</p>
-                </div>
-              </Reveal>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
-                {mods.map((m, i) => {
-                  const Icon = m.icon;
-                  return (
-                    <Reveal key={m.name} delay={(i % 3) * 0.07}>
-                      <div className="p-6 rounded-2xl bg-white border border-brand-border hover:shadow-xl hover:border-brand-blue/30 transition-all h-full">
-                        <div className="flex items-center gap-3 mb-4">
-                          <div className="w-11 h-11 rounded-full bg-brand-bg flex items-center justify-center">
-                            <Icon className="w-5 h-5 text-brand-navy" />
-                          </div>
-                          <h3 className="text-base font-semibold text-brand-ink">{m.name}</h3>
-                        </div>
-                        <p className="text-[13px] text-brand-slate leading-relaxed mb-4">{m.desc}</p>
-                        <ul className="space-y-2">
-                          {m.features.map(f => (
-                            <li key={f} className="flex items-start gap-2 text-[13px] text-brand-ink">
-                              <Check className="w-3.5 h-3.5 text-green-600 shrink-0 mt-0.5" />
-                              {f}
-                            </li>
-                          ))}
-                        </ul>
+      {/* TABS */}
+      <div className="sticky top-16 z-20 bg-white border-b border-brand-border">
+        <div className="max-w-7xl mx-auto px-6 flex gap-1 overflow-x-auto">
+          {MODULE_GROUPS.map((group, gi) => (
+            <button
+              key={group}
+              onClick={() => setActiveGroup(group)}
+              className={`shrink-0 px-5 py-4 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
+                activeGroup === group
+                  ? 'border-brand-navy text-brand-navy'
+                  : 'border-transparent text-brand-slate hover:text-brand-ink'
+              }`}
+            >
+              {`0${gi + 1}`} — {group}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ACTIVE GROUP */}
+      <section className={`py-20 ${activeIndex % 2 === 0 ? 'bg-white' : 'bg-brand-bg'}`}>
+        <div className="max-w-7xl mx-auto px-6">
+          <Reveal key={activeGroup}>
+            <div className="max-w-3xl mb-12">
+              <span className="text-xs font-bold text-brand-blue uppercase tracking-widest">{`0${activeIndex + 1}`} — {activeGroup}</span>
+              <h2 className="text-3xl font-bold text-brand-ink mt-3 mb-3">{activeGroup}</h2>
+              <p className="text-brand-slate leading-relaxed">{groupBlurbs[activeGroup]}</p>
+            </div>
+          </Reveal>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
+            {activeMods.map((m, i) => {
+              const Icon = m.icon;
+              return (
+                <Reveal key={m.name} delay={(i % 3) * 0.07}>
+                  <div className="p-6 rounded-2xl bg-white border border-brand-border hover:shadow-xl hover:border-brand-blue/30 transition-all h-full">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-11 h-11 rounded-full bg-brand-bg flex items-center justify-center">
+                        <Icon className="w-5 h-5 text-brand-navy" />
                       </div>
-                    </Reveal>
-                  );
-                })}
-              </div>
-              {gi === 0 && (
-                <Reveal>
-                  <div className="max-w-4xl mx-auto">
-                    <Mockup />
+                      <h3 className="text-base font-semibold text-brand-ink">{m.name}</h3>
+                    </div>
+                    <p className="text-[13px] text-brand-slate leading-relaxed mb-4">{m.desc}</p>
+                    <ul className="space-y-2">
+                      {m.features.map(f => (
+                        <li key={f} className="flex items-start gap-2 text-[13px] text-brand-ink">
+                          <Check className="w-3.5 h-3.5 text-green-600 shrink-0 mt-0.5" />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </Reveal>
-              )}
-            </div>
-          </section>
-        );
-      })}
+              );
+            })}
+          </div>
+          {ActiveMockup && (
+            <Reveal>
+              <div className="max-w-4xl mx-auto">
+                <ActiveMockup />
+              </div>
+            </Reveal>
+          )}
+        </div>
+      </section>
 
       {/* CTA */}
       <section className="py-20 bg-brand-navy">

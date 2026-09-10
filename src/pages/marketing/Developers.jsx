@@ -36,7 +36,7 @@ export default function Developers() {
       {/* HERO */}
       <section className="relative bg-brand-navy-900 py-24 overflow-hidden">
         <div className="absolute inset-0">
-          <img src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover opacity-20" alt="Lakeside hotel" />
+          <img src="/images/hotels/hotel-07-lakeside-palace.jpg" className="w-full h-full object-cover opacity-20" alt="Lakeside palace — Lucerne" />
           <div className="absolute inset-0 bg-brand-navy-900/75"></div>
         </div>
         <div className="relative max-w-4xl mx-auto px-6 text-center">

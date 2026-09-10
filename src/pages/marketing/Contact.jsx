@@ -24,7 +24,7 @@ export default function Contact() {
       {/* HERO */}
       <section className="relative bg-brand-navy py-24 overflow-hidden">
         <div className="absolute inset-0">
-          <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover opacity-25" alt="Hotel room" />
+          <img src="/images/hotels/hotel-01-oceanview-suite.jpg" className="w-full h-full object-cover opacity-25" alt="Oceanview suite — Lima" />
           <div className="absolute inset-0 bg-brand-navy/70"></div>
         </div>
         <div className="relative max-w-4xl mx-auto px-6 text-center">

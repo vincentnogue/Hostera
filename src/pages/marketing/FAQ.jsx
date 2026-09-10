@@ -12,7 +12,7 @@ export default function FAQ() {
       {/* HERO */}
       <section className="relative bg-brand-navy py-24 overflow-hidden">
         <div className="absolute inset-0">
-          <img src="https://images.unsplash.com/photo-1445019980597-93fa8acb2469?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover opacity-25" alt="Resort building" />
+          <img src="/images/hotels/hotel-06-garden-villa.jpg" className="w-full h-full object-cover opacity-25" alt="Garden villas — Dubai" />
           <div className="absolute inset-0 bg-brand-navy/70"></div>
         </div>
         <div className="relative max-w-4xl mx-auto px-6 text-center">

@@ -49,7 +49,7 @@ export default function Pricing() {
       {/* HERO */}
       <section className="relative bg-brand-navy py-24 overflow-hidden">
         <div className="absolute inset-0">
-          <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f3?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover opacity-25" alt="Luxury hotel" />
+          <img src="/images/hotels/hotel-09-grand-lobby.jpg" className="w-full h-full object-cover opacity-25" alt="Marble lobby — flagship property" />
           <div className="absolute inset-0 bg-brand-navy/70"></div>
         </div>
         <div className="relative max-w-4xl mx-auto px-6 text-center">

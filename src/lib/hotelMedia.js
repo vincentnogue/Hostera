@@ -8,6 +8,7 @@ export const HERO_VIDEOS = [
   { src: '/videos/hero-1.mp4', poster: '/videos/hero-1-poster.jpg' },
   { src: '/videos/hero-2.mp4', poster: '/videos/hero-2-poster.jpg' },
   { src: '/videos/hero-3.mp4', poster: '/videos/hero-3-poster.jpg' },
+  { src: '/videos/auth-vertical.mp4', poster: '/videos/auth-vertical-poster.jpg' },
 ];
 
 // Portrait video — used on the Auth (Login/Register/Forgot/Reset) side panel

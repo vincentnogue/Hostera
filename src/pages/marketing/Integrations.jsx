@@ -18,7 +18,7 @@ export default function Integrations() {
       {/* HERO */}
       <section className="relative bg-brand-navy py-24 overflow-hidden">
         <div className="absolute inset-0">
-          <img src="https://images.unsplash.com/photo-1564501049412-61c2a308a9d8?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover opacity-25" alt="Luxury hotel exterior" />
+          <img src="/images/hotels/hotel-04-modern-facade.jpg" className="w-full h-full object-cover opacity-25" alt="Radisson-style facade — India" />
           <div className="absolute inset-0 bg-brand-navy/70"></div>
         </div>
         <div className="relative max-w-4xl mx-auto px-6 text-center">
