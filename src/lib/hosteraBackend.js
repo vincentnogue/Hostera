@@ -36,6 +36,26 @@ const PLATFORM_LEVEL_ENTITIES = new Set([
 ]);
 
 // ---------------------------------------------------------------------------
+// JSONB payload <-> flat object mapping
+// ---------------------------------------------------------------------------
+// supabase/schema.sql gives every table just { id, organization_id, data
+// jsonb, created_at, updated_at } — every entity-specific field (name,
+// check_in, base_price, ...) lives inside `data`. These are the only real
+// top-level columns; anything else must be read/written through `data`.
+const REAL_COLUMNS = new Set(['id', 'organization_id', 'created_at', 'updated_at']);
+
+// Column reference for filtering/ordering: real columns as-is, everything
+// else via the JSONB text-extraction operator.
+const columnRef = (field) => (REAL_COLUMNS.has(field) ? field : `data->>${field}`);
+
+// DB row -> flat object the rest of the app expects (r.check_in, r.name, ...).
+const flatten = (row) => {
+  if (!row) return row;
+  const { data, ...rest } = row;
+  return { ...rest, ...(data || {}) };
+};
+
+// ---------------------------------------------------------------------------
 // Current-user / organization context
 // ---------------------------------------------------------------------------
 let cachedUser = null;
@@ -87,24 +107,24 @@ const buildEntityClient = (entityName) => {
       if (sort) {
         const descending = sort.startsWith('-');
         const field = descending ? sort.slice(1) : sort;
-        query = query.order(field, { ascending: !descending });
+        query = query.order(columnRef(field), { ascending: !descending });
       }
       if (limit) query = query.limit(limit);
       query = await scoped(query);
       const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+      return (data || []).map(flatten);
     },
 
     async filter(criteria = {}) {
       let query = supabase.from(table).select('*');
       Object.entries(criteria).forEach(([key, value]) => {
-        query = query.eq(key, value);
+        query = query.eq(columnRef(key), value);
       });
       query = await scoped(query);
       const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+      return (data || []).map(flatten);
     },
 
     async get(id) {
@@ -112,26 +132,38 @@ const buildEntityClient = (entityName) => {
       query = await scoped(query);
       const { data, error } = await query.maybeSingle();
       if (error) throw error;
-      return data;
+      return flatten(data);
     },
 
     async create(payload) {
       const user = await getCurrentUser();
-      const row = { ...payload };
-      if (isOrgScoped && user?.organization_id && row.organization_id == null) {
-        row.organization_id = user.organization_id;
+      const { organization_id: explicitOrg, ...entityFields } = payload || {};
+      const row = { data: entityFields };
+      if (isOrgScoped) {
+        row.organization_id = explicitOrg ?? user?.organization_id ?? null;
+      } else if (explicitOrg != null) {
+        row.organization_id = explicitOrg;
       }
       const { data, error } = await supabase.from(table).insert(row).select().single();
       if (error) throw error;
-      return data;
+      return flatten(data);
     },
 
     async update(id, payload) {
-      let query = supabase.from(table).update(payload).eq('id', id);
+      // The JSONB `data` column has to be merged client-side — Postgres
+      // won't merge a partial JSON object into an existing one on its own
+      // via a plain .update() call, it would just overwrite `data` entirely.
+      let currentQuery = supabase.from(table).select('data').eq('id', id);
+      currentQuery = await scoped(currentQuery);
+      const { data: existing, error: readError } = await currentQuery.maybeSingle();
+      if (readError) throw readError;
+      const mergedData = { ...(existing?.data || {}), ...payload };
+
+      let query = supabase.from(table).update({ data: mergedData, updated_at: new Date().toISOString() }).eq('id', id);
       query = await scoped(query);
       const { data, error } = await query.select().maybeSingle();
       if (error) throw error;
-      return data;
+      return flatten(data);
     },
 
     async delete(id) {
