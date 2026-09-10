@@ -1,50 +1,46 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
-import { Save, Building2, Clock, Globe, DollarSign } from 'lucide-react';
+import { Save, Building2, Clock, Globe, DollarSign, Camera, Loader2, X } from 'lucide-react';
 
 export default function PropertySettings() {
+  const { selectedProperty, properties, refreshProperties } = useProperty();
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [form, setForm] = useState({
     name: '', legal_name: '', phone: '', email: '', website: '',
     address: '', city: '', country: '', postal_code: '',
     checkin_time: '14:00', checkout_time: '11:00',
-    currency: 'USD', timezone: 'UTC',
+    currency: 'USD', timezone: 'UTC', photo_urls: [],
   });
 
   useEffect(() => {
-    async function fetchProperty() {
-      try {
-        const props = await db.entities.Property.list();
-        if (props && props.length > 0) {
-          const p = props[0];
-          setProperty(p);
-          setForm({
-            name: p.name || '', legal_name: p.legal_name || '', phone: p.phone || '',
-            email: p.email || '', website: p.website || '', address: p.address || '',
-            city: p.city || '', country: p.country || '', postal_code: p.postal_code || '',
-            checkin_time: p.checkin_time || '14:00', checkout_time: p.checkout_time || '11:00',
-            currency: p.currency || 'USD', timezone: p.timezone || 'UTC',
-          });
-        }
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
+    const p = selectedProperty || properties[0];
+    if (p) {
+      setProperty(p);
+      setForm({
+        name: p.name || '', legal_name: p.legal_name || '', phone: p.phone || '',
+        email: p.email || '', website: p.website || '', address: p.address || '',
+        city: p.city || '', country: p.country || '', postal_code: p.postal_code || '',
+        checkin_time: p.checkin_time || '14:00', checkout_time: p.checkout_time || '11:00',
+        currency: p.currency || 'USD', timezone: p.timezone || 'UTC',
+        photo_urls: p.photo_urls || [],
+      });
     }
-    fetchProperty();
-  }, []);
+    setLoading(false);
+  }, [selectedProperty, properties]);
 
   const handleSave = async () => {
     if (!property) return;
     setSaving(true);
     try {
       await db.entities.Property.update(property.id, form);
+      await refreshProperties();
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (e) {
@@ -52,6 +48,25 @@ export default function PropertySettings() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPhoto(true);
+    try {
+      const { file_url } = await db.integrations.Core.UploadFile({ file, bucket: 'uploads' });
+      if (file_url) setForm(prev => ({ ...prev, photo_urls: [...(prev.photo_urls || []), file_url] }));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setUploadingPhoto(false);
+      e.target.value = '';
+    }
+  };
+
+  const removePhoto = (url) => {
+    setForm(prev => ({ ...prev, photo_urls: (prev.photo_urls || []).filter(u => u !== url) }));
   };
 
   if (loading) {
@@ -80,6 +95,34 @@ export default function PropertySettings() {
           <Save className="w-4 h-4" />
           {saving ? 'Saving...' : saved ? 'Saved!' : 'Save Changes'}
         </button>
+      </div>
+
+      {/* Cover Photos */}
+      <div className="bg-white rounded-xl border border-brand-border p-6">
+        <div className="flex items-center gap-2 mb-5">
+          <Camera className="w-5 h-5 text-brand-navy" />
+          <h2 className="text-base font-semibold text-brand-ink">Cover Photos</h2>
+        </div>
+        <p className="text-xs text-brand-slate mb-4">
+          Shown on your public booking page. The first photo becomes the main cover image.
+        </p>
+        <div className="flex gap-3 flex-wrap">
+          {(form.photo_urls || []).map((url, i) => (
+            <div key={url} className="relative w-28 h-20 rounded-lg overflow-hidden group">
+              <img src={url} alt="" className="w-full h-full object-cover" />
+              {i === 0 && (
+                <span className="absolute top-1 left-1 text-[9px] px-1.5 py-0.5 bg-brand-navy text-white rounded-full font-semibold">Cover</span>
+              )}
+              <button type="button" onClick={() => removePhoto(url)} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+          ))}
+          <label className="w-28 h-20 rounded-lg border border-dashed border-brand-border flex items-center justify-center cursor-pointer hover:border-brand-navy text-brand-slate">
+            {uploadingPhoto ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+            <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={uploadingPhoto} />
+          </label>
+        </div>
       </div>
 
       {/* Property Information */}

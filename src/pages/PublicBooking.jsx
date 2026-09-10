@@ -176,16 +176,39 @@ export default function PublicBooking() {
     );
   }
 
+  const coverPhoto = property.photo_urls?.[0];
+
   return (
     <div className="min-h-screen bg-brand-bg">
-      <div className="max-w-3xl mx-auto px-4 py-10">
-        <div className="mb-6">
+      {coverPhoto ? (
+        <div className="relative h-56 md:h-72 w-full overflow-hidden">
+          <img src={coverPhoto} alt={property.name} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 max-w-3xl mx-auto px-4 pb-5">
+            <h1 className="text-2xl md:text-3xl font-bold text-white">{property.name}</h1>
+            <p className="text-sm text-white/90 flex items-center gap-1.5 mt-1">
+              <MapPin className="w-4 h-4" />
+              {[property.city, property.country].filter(Boolean).join(', ')}
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="max-w-3xl mx-auto px-4 pt-10">
           <h1 className="text-2xl font-bold text-brand-ink">{property.name}</h1>
           <p className="text-sm text-brand-slate flex items-center gap-1.5 mt-1">
             <MapPin className="w-4 h-4" />
             {[property.city, property.country].filter(Boolean).join(', ')}
           </p>
         </div>
+      )}
+      <div className="max-w-3xl mx-auto px-4 py-10">
+        {property.photo_urls?.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto mb-8 -mt-2">
+            {property.photo_urls.slice(1).map(url => (
+              <img key={url} src={url} alt="" className="w-32 h-24 rounded-xl object-cover shrink-0" loading="lazy" />
+            ))}
+          </div>
+        )}
 
         <form onSubmit={submitBooking} className="space-y-6">
           {/* Room types */}
