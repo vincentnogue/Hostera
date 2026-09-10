@@ -67,6 +67,7 @@ export default function MarketingLayout() {
                 Solutions <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openMenu === 'solutions' ? 'rotate-180' : ''}`} />
               </button>
               <Link to="/pricing" onMouseEnter={() => setOpenMenu(null)} className={linkCls('/pricing')}>Pricing</Link>
+              <Link to="/marketplace" onMouseEnter={() => setOpenMenu(null)} className={linkCls('/marketplace')}>Marketplace</Link>
               <button
                 onMouseEnter={() => setOpenMenu('resources')}
                 className={`flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium transition-colors ${openMenu === 'resources' ? 'bg-brand-bg text-brand-navy' : 'text-brand-ink hover:bg-brand-bg'}`}
@@ -183,6 +184,7 @@ export default function MarketingLayout() {
                 { label: 'Features', to: '/features' },
                 { label: 'Industries', to: '/industries' },
                 { label: 'Pricing', to: '/pricing' },
+                { label: 'Marketplace', to: '/marketplace' },
                 { label: 'Integrations', to: '/integrations' },
                 { label: 'Hostera AI', to: '/ai' },
                 { label: 'Security', to: '/security' },

@@ -1,7 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import {
   MapPin, Users, BedDouble, Calendar, Phone, Mail, Check,
   ShieldCheck, Loader2, ChevronLeft, Building2
@@ -9,15 +9,16 @@ import {
 
 export default function PublicBooking() {
   const { propertyId } = useParams();
+  const [searchParams] = useSearchParams();
   const [property, setProperty] = useState(null);
   const [roomTypes, setRoomTypes] = useState([]);
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  const [checkIn, setCheckIn] = useState('');
-  const [checkOut, setCheckOut] = useState('');
-  const [adults, setAdults] = useState(2);
+  const [checkIn, setCheckIn] = useState(searchParams.get('checkin') || '');
+  const [checkOut, setCheckOut] = useState(searchParams.get('checkout') || '');
+  const [adults, setAdults] = useState(Number(searchParams.get('guests')) || 2);
   const [children, setChildren] = useState(0);
   const [selectedRoomType, setSelectedRoomType] = useState(null);
   const [guestInfo, setGuestInfo] = useState({ full_name: '', email: '', phone: '' });

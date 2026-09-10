@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { COUNTRIES, CURRENCIES } from '@/lib/referenceData';
 import { Building2, Hotel, BedDouble, Rocket, Check, ArrowLeft, ArrowRight, Quote } from 'lucide-react';
-import { HOTEL_PHOTOS } from '@/lib/hotelMedia';
+import { HOTEL_PHOTOS, AUTH_VIDEOS } from '@/lib/hotelMedia';
 
 const STEPS = [
   {
@@ -31,15 +31,21 @@ const STEPS = [
 function OnboardingPreviewPanel({ step }) {
   const current = STEPS[step - 1] || STEPS[0];
   const photo = HOTEL_PHOTOS[(step - 1) % HOTEL_PHOTOS.length];
+  const video = AUTH_VIDEOS[(step - 1) % AUTH_VIDEOS.length];
   return (
     <div className="hidden lg:block sticky top-8">
-      <div className="relative rounded-2xl overflow-hidden border border-brand-border shadow-sm aspect-[4/5]">
-        <img
-          key={photo.src}
-          src={photo.src}
-          alt={photo.caption}
-          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
-        />
+      <div className="relative rounded-2xl overflow-hidden border border-brand-border shadow-sm aspect-[4/5] bg-brand-overlay">
+        <video
+          key={video.src}
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster={video.poster}
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src={video.src} type="video/mp4" />
+        </video>
         <div className="absolute inset-0 bg-gradient-to-t from-brand-overlay via-brand-overlay/30 to-transparent" />
         <div className="relative h-full flex flex-col justify-end p-6">
           <Quote className="w-5 h-5 text-[#A6FF00] mb-2" aria-hidden="true" />

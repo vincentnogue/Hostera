@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { User, Building2, Sparkles, Globe2, ShieldCheck, Headphones } from "lucide-react";
-import { AUTH_VIDEO, HOTEL_PHOTOS } from "@/lib/hotelMedia";
+import { AUTH_VIDEOS, HOTEL_PHOTOS } from "@/lib/hotelMedia";
 
 export const ACCOUNT_TYPES = [
   { id: "business", label: "Business", icon: Building2, hint: "Manage hotels & properties" },
@@ -18,6 +18,7 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
   );
   const [reducedMotion, setReducedMotion] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
+  const [videoIndex, setVideoIndex] = useState(0);
 
   const selectType = (id) => {
     setAccountType(id);
@@ -38,6 +39,14 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
     const t = setInterval(() => setPhotoIndex((i) => (i + 1) % TRUST_PHOTOS.length), 3000);
     return () => clearInterval(t);
   }, []);
+
+  useEffect(() => {
+    if (reducedMotion || AUTH_VIDEOS.length <= 1) return;
+    const t = setInterval(() => setVideoIndex((i) => (i + 1) % AUTH_VIDEOS.length), 10000);
+    return () => clearInterval(t);
+  }, [reducedMotion]);
+
+  const currentVideo = AUTH_VIDEOS[videoIndex] || AUTH_VIDEOS[0];
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
@@ -91,20 +100,21 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
       <div className="relative hidden lg:block overflow-hidden bg-brand-overlay">
         {reducedMotion ? (
           <img
-            src={AUTH_VIDEO.poster}
+            src={currentVideo.poster}
             alt="Luxury hotel property running on Hostera"
             className="absolute inset-0 w-full h-full object-cover"
           />
         ) : (
           <video
+            key={currentVideo.src}
             autoPlay
             muted
             loop
             playsInline
-            poster={AUTH_VIDEO.poster}
+            poster={currentVideo.poster}
             className="absolute inset-0 w-full h-full object-cover"
           >
-            <source src={AUTH_VIDEO.src} type="video/mp4" />
+            <source src={currentVideo.src} type="video/mp4" />
           </video>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-brand-overlay via-brand-overlay/50 to-brand-overlay/20" />

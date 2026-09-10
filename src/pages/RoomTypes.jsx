@@ -3,7 +3,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
 
-import { Plus, X, BedDouble, Users, DollarSign, Maximize2 } from 'lucide-react';
+import { Plus, X, BedDouble, Users, DollarSign, Maximize2, Globe2 } from 'lucide-react';
 
 const bedTypeLabels = {
   single: 'Single', double: 'Double', twin: 'Twin',
@@ -66,6 +66,13 @@ export default function RoomTypes() {
   const handlePriceUpdate = async (rtId, newPrice) => {
     try {
       await db.entities.RoomType.update(rtId, { base_price: parseFloat(newPrice) || 0 });
+      fetchData();
+    } catch (e) { console.error(e); }
+  };
+
+  const handleMarketplaceToggle = async (rt) => {
+    try {
+      await db.entities.RoomType.update(rt.id, { marketplace_visible: rt.marketplace_visible === false });
       fetchData();
     } catch (e) { console.error(e); }
   };
@@ -153,6 +160,24 @@ export default function RoomTypes() {
                     <span className="text-xs text-brand-slate">{rt.currency}/night</span>
                   </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => handleMarketplaceToggle(rt)}
+                  className={`w-full mt-3 flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                    rt.marketplace_visible === false
+                      ? 'bg-brand-bg text-brand-slate hover:bg-brand-border/40'
+                      : 'bg-green-50 text-green-700 hover:bg-green-100'
+                  }`}
+                  title="Toggle whether this room type appears on the Hostera Marketplace"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Globe2 className="w-3.5 h-3.5" />
+                    {rt.marketplace_visible === false ? 'Hidden from marketplace' : 'Live on marketplace'}
+                  </span>
+                  <span className={`w-8 h-4 rounded-full relative transition-colors ${rt.marketplace_visible === false ? 'bg-brand-border' : 'bg-green-500'}`}>
+                    <span className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${rt.marketplace_visible === false ? 'left-0.5' : 'left-4'}`} />
+                  </span>
+                </button>
               </div>
             );
           })

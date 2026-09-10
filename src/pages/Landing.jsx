@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import Reveal from '@/components/marketing/Reveal';
 import HeroMedia from '@/components/marketing/HeroMedia';
 import HeroBackgroundVideo from '@/components/marketing/HeroBackgroundVideo';
+import BookingSearchBar, { BookingSearchWorldwideNote } from '@/components/marketing/BookingSearchBar';
 import FlagBanner from '@/components/marketing/FlagBanner';
 import { RoomRackMockup, FrontDeskMockup, AnalyticsMockup } from '@/components/marketing/Mockups';
 import HotelMarquee from '@/components/marketing/HotelMarquee';
 import AffordabilityBand from '@/components/marketing/AffordabilityBand';
-import { MODULES, INDUSTRIES, PLANS } from '@/lib/marketing';
+import { MODULES, MODULE_GROUPS, INDUSTRIES, PLANS } from '@/lib/marketing';
+import { fetchMarketplaceListings, REGIONS } from '@/lib/marketplace';
+import { HOTEL_PHOTOS } from '@/lib/hotelMedia';
 import {
   ArrowRight, Check, Sparkles, Shield, Users, ConciergeBell,
   Sparkles as SparkleIcon, TrendingUp, Zap, Lock, BarChart3,
@@ -19,6 +22,25 @@ const GREEN = '#A6FF00';
 const NAVY = '#123B63';
 
 export default function Landing() {
+  const [moduleGroup, setModuleGroup] = useState(MODULE_GROUPS[0]);
+  const [listings, setListings] = useState([]);
+  const [listingsLoading, setListingsLoading] = useState(true);
+  const [marketplaceRegion, setMarketplaceRegion] = useState('All');
+
+  useEffect(() => {
+    fetchMarketplaceListings()
+      .then(setListings)
+      .catch(() => setListings([]))
+      .finally(() => setListingsLoading(false));
+  }, []);
+
+  const visibleListings = useMemo(() => {
+    const filtered = marketplaceRegion === 'All' ? listings : listings.filter(l => l.region === marketplaceRegion);
+    return filtered.slice(0, 6);
+  }, [listings, marketplaceRegion]);
+
+  const visibleModules = useMemo(() => MODULES.filter(m => m.group === moduleGroup), [moduleGroup]);
+
   const aiFeatures = [
     { icon: TrendingUp, title: 'Revenue Insights', desc: 'Ask why revenue changed and get plain-language answers.' },
     { icon: BarChart3, title: 'Demand Forecasting', desc: 'Predict occupancy and demand curves before they happen.' },
@@ -82,6 +104,13 @@ export default function Landing() {
                 <Check className="w-4 h-4" style={{ color: '#16A34A' }} />
                 No credit card required. Get instant access to Hostera.
               </p>
+
+              {/* Global marketplace search — hotels listed on Hostera become
+                  bookable here immediately, from any origin to any destination. */}
+              <div className="mt-8 max-w-xl">
+                <BookingSearchBar />
+                <BookingSearchWorldwideNote className="mt-3" />
+              </div>
             </div>
           </Reveal>
 
@@ -113,6 +142,105 @@ export default function Landing() {
         </Reveal>
       </section>
 
+      {/* ================= LIVE MARKETPLACE PREVIEW ================= */}
+      <section className="py-24 bg-[#F8F9FA]">
+        <div className="max-w-7xl mx-auto px-6">
+          <Reveal>
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: '#1F5A8A' }}>Marketplace</span>
+                <h2 className="text-3xl md:text-4xl font-bold mt-3 mb-3" style={{ color: NAVY }}>
+                  Live, bookable inventory — right on the platform
+                </h2>
+                <p className="max-w-xl" style={{ color: '#4A4A4A' }}>
+                  The moment a hotel lists its rooms on Hostera, they become bookable here — no separate listing process, no delay.
+                </p>
+              </div>
+              <Link
+                to="/marketplace"
+                className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold shrink-0 hover:scale-[1.03] transition-transform"
+                style={{ background: NAVY, color: 'white' }}
+              >
+                Browse the Marketplace <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </Reveal>
+
+          {/* Region tabs */}
+          <Reveal delay={0.05}>
+            <div className="flex flex-wrap gap-2 mb-8">
+              {['All', ...REGIONS].map(r => (
+                <button
+                  key={r}
+                  onClick={() => setMarketplaceRegion(r)}
+                  className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                    marketplaceRegion === r
+                      ? 'text-white border-transparent'
+                      : 'bg-white border-brand-border hover:border-brand-navy'
+                  }`}
+                  style={marketplaceRegion === r ? { background: NAVY } : { color: NAVY }}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+          </Reveal>
+
+          {listingsLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="bg-white rounded-2xl border border-brand-border aspect-[4/3] animate-pulse" />
+              ))}
+            </div>
+          ) : visibleListings.length === 0 ? (
+            <Reveal>
+              <div className="bg-white border border-dashed border-brand-border rounded-2xl py-16 text-center">
+                <p className="text-sm font-semibold" style={{ color: NAVY }}>No properties listed for this region yet</p>
+                <p className="text-sm mt-1" style={{ color: '#4A4A4A' }}>As soon as a hotel registers and publishes its rooms, it appears here automatically.</p>
+              </div>
+            </Reveal>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {visibleListings.map((l, i) => (
+                <Reveal key={l.property.id} delay={(i % 3) * 0.08}>
+                  <Link
+                    to={`/book/${l.property.id}`}
+                    className="group block bg-white rounded-2xl border border-brand-border overflow-hidden hover:shadow-xl hover:border-brand-blue/40 transition-all h-full"
+                  >
+                    <div className="aspect-[4/3] overflow-hidden relative bg-brand-overlay">
+                      <img
+                        src={l.property.cover_photo_url || HOTEL_PHOTOS[i % HOTEL_PHOTOS.length].src}
+                        alt={l.property.name}
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-[10px] font-bold uppercase tracking-wide" style={{ color: NAVY }}>
+                        {l.region}
+                      </span>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-sm font-semibold truncate" style={{ color: NAVY }}>{l.property.name}</h3>
+                      <p className="text-xs mt-1" style={{ color: '#4A4A4A' }}>
+                        {[l.property.city, l.property.country].filter(Boolean).join(', ') || 'Location on request'}
+                      </p>
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-brand-border">
+                        <span className="text-[11px]" style={{ color: '#4A4A4A' }}>{l.roomTypes.length} room type{l.roomTypes.length > 1 ? 's' : ''}</span>
+                        <span className="text-sm font-bold" style={{ color: NAVY }}>
+                          {l.fromPrice
+                            ? new Intl.NumberFormat(undefined, { style: 'currency', currency: l.currency, maximumFractionDigits: 0 }).format(l.fromPrice)
+                            : 'Inquire'}
+                          {l.fromPrice && <span className="text-[10px] font-normal"> /night</span>}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* ================= ALL MODULES ================= */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6">
@@ -127,8 +255,27 @@ export default function Landing() {
               </p>
             </div>
           </Reveal>
+
+          {/* Group tabs — keeps 19 modules from turning into a wall of cards */}
+          <Reveal>
+            <div className="flex flex-wrap justify-center gap-2 mb-10">
+              {MODULE_GROUPS.map(g => (
+                <button
+                  key={g}
+                  onClick={() => setModuleGroup(g)}
+                  className={`px-4 py-2 rounded-full text-xs font-semibold border transition-colors ${
+                    moduleGroup === g ? 'text-white border-transparent' : 'bg-white border-brand-border hover:border-brand-navy'
+                  }`}
+                  style={moduleGroup === g ? { background: NAVY } : { color: NAVY }}
+                >
+                  {g}
+                </button>
+              ))}
+            </div>
+          </Reveal>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {MODULES.map((m, i) => {
+            {visibleModules.map((m, i) => {
               const Icon = m.icon;
               return (
                 <Reveal key={m.name + m.group} delay={(i % 4) * 0.06}>
