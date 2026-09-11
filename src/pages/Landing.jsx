@@ -134,7 +134,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-6 text-center">
           <Reveal>
             <h2 className="text-lg font-bold mb-8" style={{ color: NAVY }}>
-              Trusted by thousands of hospitality & property professionals worldwide
+              Built for every kind of property, worldwide
             </h2>
           </Reveal>
           <Reveal delay={0.1}>

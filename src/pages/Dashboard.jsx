@@ -1,11 +1,13 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useProperty } from '@/lib/PropertyContext';
 
 import {
   TrendingUp, DollarSign, LogIn, LogOut, BedDouble,
-  Users, AlertCircle, ArrowUpRight, ArrowDownRight, CalendarCheck
+  Users, AlertCircle, ArrowUpRight, ArrowDownRight, CalendarCheck,
+  Plus, ClipboardList, Wrench, UserPlus
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid
@@ -148,6 +150,28 @@ export default function Dashboard() {
           {' · '}
           {selectedProperty ? selectedProperty.name : 'All properties'}
         </p>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="flex flex-wrap gap-3">
+        {[
+          { to: '/reservations', label: 'New Reservation', icon: Plus },
+          { to: '/front-desk', label: 'Check-in Guest', icon: UserPlus },
+          { to: '/housekeeping', label: 'Housekeeping', icon: ClipboardList },
+          { to: '/maintenance', label: 'Report Issue', icon: Wrench },
+        ].map(action => {
+          const Icon = action.icon;
+          return (
+            <Link
+              key={action.to}
+              to={action.to}
+              className="flex items-center gap-2 px-4 py-2.5 bg-white border border-brand-border rounded-full text-sm font-medium text-brand-ink hover:border-brand-navy hover:text-brand-navy transition-colors"
+            >
+              <Icon className="w-4 h-4" />
+              {action.label}
+            </Link>
+          );
+        })}
       </div>
 
       {/* KPI Cards */}
