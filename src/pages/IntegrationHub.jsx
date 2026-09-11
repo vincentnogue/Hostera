@@ -10,8 +10,51 @@ const categories = ['ai', 'accounting', 'payment', 'hospitality', 'communication
 const categoryIcons = { ai: Sparkles, accounting: Receipt, payment: CreditCard, hospitality: Building2, communication: MessageSquare, analytics: BarChart3, automation: Workflow };
 const integrationCatalog = [
   { tool_name: 'LiBooks', category: 'accounting', description: 'Liafrik accounting — invoices, payments & tax sync.' },
-  { tool_name: 'Stripe', category: 'payment', description: 'Card payments and deposits for direct bookings.' },
-  { tool_name: 'Adyen', category: 'payment', description: 'Multi-currency payment gateway.' },
+
+  // Payments — worldwide PSP catalog. A hotel picks whichever provider(s)
+  // actually pay out in their country/currency; guest checkout on the
+  // marketplace and direct booking page routes through whatever this
+  // property has connected here.
+  { tool_name: 'Stripe', category: 'payment', region: 'Global', description: 'Cards, wallets & payouts in 45+ countries.' },
+  { tool_name: 'Adyen', category: 'payment', region: 'Global', description: 'Enterprise multi-currency payment gateway.' },
+  { tool_name: 'PayPal', category: 'payment', region: 'Global', description: 'Wallet checkout, accepted worldwide.' },
+  { tool_name: 'Checkout.com', category: 'payment', region: 'Global', description: 'Enterprise cards & local payment methods.' },
+  { tool_name: 'Braintree', category: 'payment', region: 'Global', description: 'PayPal-owned cards, wallets & Venmo.' },
+  { tool_name: 'Worldpay', category: 'payment', region: 'Global', description: 'Cards & bank payments, enterprise scale.' },
+  { tool_name: 'Square', category: 'payment', region: 'Americas', description: 'Cards, in-person & online, US/CA/AU/UK/JP.' },
+  { tool_name: 'Mercado Pago', category: 'payment', region: 'Americas', description: 'Cards, wallets & installments across Latin America.' },
+  { tool_name: 'dLocal', category: 'payment', region: 'Americas', description: 'Local payment methods across Latin America.' },
+  { tool_name: 'PagSeguro / PagBank', category: 'payment', region: 'Americas', description: 'Cards, Pix & boleto in Brazil.' },
+  { tool_name: 'Conekta', category: 'payment', region: 'Americas', description: 'Cards & OXXO cash payments in Mexico.' },
+  { tool_name: 'Mollie', category: 'payment', region: 'Europe', description: 'Cards, iDEAL, SEPA & wallets across the EU.' },
+  { tool_name: 'Klarna', category: 'payment', region: 'Europe', description: 'Buy-now-pay-later across Europe & the US.' },
+  { tool_name: 'Viva Wallet', category: 'payment', region: 'Europe', description: 'Cards & wallets across the EU.' },
+  { tool_name: 'SumUp', category: 'payment', region: 'Europe', description: 'Cards for smaller EU/UK properties.' },
+  { tool_name: 'iyzico', category: 'payment', region: 'Europe', description: 'Cards & local wallets in Turkey.' },
+  { tool_name: 'Trustly', category: 'payment', region: 'Europe', description: 'Direct bank payments across Europe.' },
+  { tool_name: 'Flutterwave', category: 'payment', region: 'Africa', description: 'Cards, mobile money & bank transfers across Africa.' },
+  { tool_name: 'Paystack', category: 'payment', region: 'Africa', description: 'Cards & mobile money in Nigeria, Ghana & South Africa.' },
+  { tool_name: 'PayUnit', category: 'payment', region: 'Africa', description: 'Mobile money & cards across Central/West Africa.' },
+  { tool_name: 'Kora Pay', category: 'payment', region: 'Africa', description: 'Payments & payouts across Africa.' },
+  { tool_name: 'DPO Group', category: 'payment', region: 'Africa', description: 'Pan-African payment processing.' },
+  { tool_name: 'M-Pesa', category: 'payment', region: 'Africa', description: 'Mobile money across East Africa.' },
+  { tool_name: 'Yoco', category: 'payment', region: 'Africa', description: 'Cards & in-person payments in South Africa.' },
+  { tool_name: 'Paymob', category: 'payment', region: 'Middle East', description: 'Cards & wallets across Egypt & MENA.' },
+  { tool_name: 'PayTabs', category: 'payment', region: 'Middle East', description: 'Cards & local wallets across the Gulf & MENA.' },
+  { tool_name: 'Telr', category: 'payment', region: 'Middle East', description: 'Cards & local payment methods in the UAE & Gulf.' },
+  { tool_name: 'HyperPay', category: 'payment', region: 'Middle East', description: 'Cards, Mada & STC Pay in Saudi Arabia.' },
+  { tool_name: 'Tap Payments', category: 'payment', region: 'Middle East', description: 'Cards & wallets across the GCC.' },
+  { tool_name: 'Razorpay', category: 'payment', region: 'Asia-Pacific', description: 'Cards, UPI & wallets in India.' },
+  { tool_name: 'PayU', category: 'payment', region: 'Asia-Pacific', description: 'Cards & local methods across Asia & Latin America.' },
+  { tool_name: 'Alipay', category: 'payment', region: 'Asia-Pacific', description: 'China\u2019s leading digital wallet.' },
+  { tool_name: 'WeChat Pay', category: 'payment', region: 'Asia-Pacific', description: 'Wallet payments popular with Chinese travelers.' },
+  { tool_name: 'Xendit', category: 'payment', region: 'Asia-Pacific', description: 'Cards, e-wallets & bank transfer across Southeast Asia.' },
+  { tool_name: 'Midtrans', category: 'payment', region: 'Asia-Pacific', description: 'Cards & local wallets in Indonesia.' },
+  { tool_name: 'GrabPay', category: 'payment', region: 'Asia-Pacific', description: 'Wallet payments across Southeast Asia.' },
+  { tool_name: '2C2P', category: 'payment', region: 'Asia-Pacific', description: 'Cards & local payment methods across Southeast Asia.' },
+  { tool_name: 'Airwallex', category: 'payment', region: 'Asia-Pacific', description: 'Multi-currency payments & payouts, APAC-founded.' },
+  { tool_name: 'Toss Payments', category: 'payment', region: 'Asia-Pacific', description: 'Cards & wallets in South Korea.' },
+
   { tool_name: 'Nutro', category: 'hospitality', description: 'Liafrik F&B — restaurant orders posted to folios.' },
   { tool_name: 'Door Locks API', category: 'hospitality', description: 'Smart lock & keycard systems.' },
   { tool_name: 'Email', category: 'communication', description: 'Guest email notifications, sent from your own professional address.' },
@@ -231,19 +274,43 @@ export default function IntegrationHub() {
             <h3 className="text-lg font-bold text-brand-ink mb-4">Add Integration</h3>
             <div className="space-y-3">
               <div>
+                <label className="text-xs font-medium text-brand-slate block mb-1">Category</label>
+                <select value={newTool.category} onChange={e => setNewTool({ ...newTool, category: e.target.value, tool_name: '', description: '' })} className={inputCls}>
+                  {categories.map(c => <option key={c} value={c} className="capitalize">{c}</option>)}
+                </select>
+              </div>
+              <div>
                 <label className="text-xs font-medium text-brand-slate block mb-1">Quick pick</label>
-                <div className="flex flex-wrap gap-1.5">
-                  {integrationCatalog.map(c => (
-                    <button key={c.tool_name} onClick={() => setNewTool({ tool_name: c.tool_name, category: c.category, description: c.description })} className={`px-3 py-1.5 text-xs rounded-full border ${newTool.tool_name === c.tool_name ? 'bg-brand-navy text-white border-brand-navy' : 'border-brand-border text-brand-slate'}`}>
-                      {c.tool_name}
-                    </button>
-                  ))}
-                </div>
+                {newTool.category === 'payment' ? (
+                  <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
+                    {['Global', 'Americas', 'Europe', 'Africa', 'Middle East', 'Asia-Pacific'].map(region => {
+                      const items = integrationCatalog.filter(c => c.category === 'payment' && c.region === region);
+                      if (items.length === 0) return null;
+                      return (
+                        <div key={region}>
+                          <p className="text-[10px] font-semibold text-brand-slate-light uppercase tracking-wide mb-1">{region}</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {items.map(c => (
+                              <button key={c.tool_name} type="button" onClick={() => setNewTool({ tool_name: c.tool_name, category: c.category, description: c.description })} className={`px-3 py-1.5 text-xs rounded-full border ${newTool.tool_name === c.tool_name ? 'bg-brand-navy text-white border-brand-navy' : 'border-brand-border text-brand-slate'}`}>
+                                {c.tool_name}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-1.5">
+                    {integrationCatalog.filter(c => c.category === newTool.category).map(c => (
+                      <button key={c.tool_name} type="button" onClick={() => setNewTool({ tool_name: c.tool_name, category: c.category, description: c.description })} className={`px-3 py-1.5 text-xs rounded-full border ${newTool.tool_name === c.tool_name ? 'bg-brand-navy text-white border-brand-navy' : 'border-brand-border text-brand-slate'}`}>
+                        {c.tool_name}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               <input placeholder="Tool name" value={newTool.tool_name} onChange={e => setNewTool({ ...newTool, tool_name: e.target.value })} className={inputCls} />
-              <select value={newTool.category} onChange={e => setNewTool({ ...newTool, category: e.target.value })} className={inputCls}>
-                {categories.map(c => <option key={c} value={c} className="capitalize">{c}</option>)}
-              </select>
               <input placeholder="Description (optional)" value={newTool.description} onChange={e => setNewTool({ ...newTool, description: e.target.value })} className={inputCls} />
               <div className="flex gap-2 pt-2">
                 <button onClick={addIntegration} className="flex-1 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">Add</button>
