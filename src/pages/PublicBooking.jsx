@@ -5,7 +5,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import AvailabilityCalendar from '@/components/AvailabilityCalendar';
 import {
   MapPin, Users, BedDouble, Calendar, Phone, Mail, Check,
-  ShieldCheck, Loader2, ChevronLeft, Building2
+  ShieldCheck, Loader2, ChevronLeft, Building2, LifeBuoy, Send, CheckCircle2
 } from 'lucide-react';
 
 export default function PublicBooking() {
@@ -28,6 +28,11 @@ export default function PublicBooking() {
   const [submitting, setSubmitting] = useState(false);
   const [confirmed, setConfirmed] = useState(null);
   const [formError, setFormError] = useState('');
+  const [showSupport, setShowSupport] = useState(false);
+  const [supportMsg, setSupportMsg] = useState('');
+  const [supportEmail, setSupportEmail] = useState('');
+  const [supportSent, setSupportSent] = useState(false);
+  const [sendingSupport, setSendingSupport] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -71,6 +76,27 @@ export default function PublicBooking() {
 
   const currency = property?.currency || 'USD';
   const fmt = (n) => new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n || 0);
+
+  const submitSupportRequest = async (e) => {
+    e.preventDefault();
+    if (!supportMsg.trim()) return;
+    setSendingSupport(true);
+    try {
+      await db.entities.SupportTicket.create({
+        subject: 'Question from booking page',
+        description: supportMsg.trim(),
+        priority: 'medium',
+        status: 'open',
+        source: 'guest',
+        requester_email: supportEmail.trim(),
+        property_id: property?.id,
+        organization_id: property?.organization_id,
+      });
+      setSupportSent(true);
+      setSupportMsg('');
+    } catch (err) { console.error(err); }
+    finally { setSendingSupport(false); }
+  };
 
   const nights = checkIn && checkOut
     ? Math.round((new Date(checkOut) - new Date(checkIn)) / 86400000)
@@ -336,6 +362,32 @@ export default function PublicBooking() {
             </div>
           )}
         </form>
+
+        {/* Guest support — no account needed, per spec section 37 */}
+        <div className="mt-6 border-t border-brand-border pt-5">
+          {!showSupport ? (
+            <button onClick={() => setShowSupport(true)} className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-navy hover:underline">
+              <LifeBuoy className="w-3.5 h-3.5" /> Need help with this booking?
+            </button>
+          ) : supportSent ? (
+            <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 rounded-lg p-3.5">
+              <CheckCircle2 className="w-4 h-4 shrink-0" /> Sent — the property will follow up by email.
+            </div>
+          ) : (
+            <form onSubmit={submitSupportRequest} className="space-y-2">
+              <p className="text-xs font-semibold text-brand-ink flex items-center gap-1.5"><LifeBuoy className="w-3.5 h-3.5 text-brand-navy" /> Contact the property</p>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input type="email" required value={supportEmail} onChange={e => setSupportEmail(e.target.value)} placeholder="Your email"
+                  className="flex-1 px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
+                <input value={supportMsg} onChange={e => setSupportMsg(e.target.value)} placeholder="Your question"
+                  className="flex-[2] px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
+                <button type="submit" disabled={sendingSupport} className="flex items-center justify-center gap-1.5 px-4 py-2 bg-brand-navy text-white text-xs font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60 shrink-0">
+                  <Send className="w-3.5 h-3.5" /> {sendingSupport ? 'Sending…' : 'Send'}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
 
         <a href={`/`} className="inline-flex items-center gap-1 text-xs text-brand-slate mt-6 hover:text-brand-navy">
           <ChevronLeft className="w-3.5 h-3.5" /> Back to Hostera

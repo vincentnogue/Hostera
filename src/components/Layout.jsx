@@ -10,7 +10,7 @@ import {
   Plug, Settings, Bell, Search, Menu, X, Building2, ChevronDown,
   BedDouble, Smartphone, Package, Star, UserCog, FileText, LayoutTemplate,
   Globe, Crown, Contact, Clock, Banknote, Tag, Blocks, Megaphone, History,
-  CalendarDays, ScrollText, Palette, ClipboardList, Truck, CreditCard, FolderOpen, Layers, Rocket, ArrowRight
+  CalendarDays, ScrollText, Palette, ClipboardList, Truck, CreditCard, FolderOpen, Layers, Rocket, ArrowRight, LifeBuoy
 } from 'lucide-react';
 
 const navGroups = [
@@ -74,6 +74,7 @@ const navGroups = [
     label: 'Administration',
     items: [
       { label: 'Team Access', icon: UserCog, path: '/team-access' },
+      { label: 'Support', icon: LifeBuoy, path: '/support' },
       { label: 'Activity Log', icon: History, path: '/activity-log' },
       { label: 'Audit Logs', icon: FileText, path: '/audit-logs' },
       { label: 'Doc Templates', icon: LayoutTemplate, path: '/document-templates' },
