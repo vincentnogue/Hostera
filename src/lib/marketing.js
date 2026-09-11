@@ -151,6 +151,15 @@ export const INTEGRATION_CATEGORIES = [
       { name: 'Email', status: 'Available' },
       { name: 'SMS', status: 'Connector ready' },
       { name: 'WhatsApp', status: 'On roadmap' },
+      { name: 'Telegram', status: 'Connector ready' },
+    ],
+  },
+  {
+    name: 'Automation',
+    items: [
+      { name: 'Zapier', status: 'Connector ready' },
+      { name: 'Make', status: 'On roadmap' },
+      { name: 'Webhooks', status: 'Available' },
     ],
   },
   {

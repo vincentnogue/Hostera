@@ -3,6 +3,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import AvailabilityCalendar from '@/components/AvailabilityCalendar';
+import { calculateStayTax } from '@/lib/tax';
 import {
   MapPin, Users, BedDouble, Calendar, Phone, Mail, Check,
   ShieldCheck, Loader2, ChevronLeft, Building2, LifeBuoy, Send, CheckCircle2
@@ -122,7 +123,8 @@ export default function PublicBooking() {
     }
     setSubmitting(true);
     try {
-      const total = (selectedRoomType.base_price || 0) * nights;
+      const subtotal = (selectedRoomType.base_price || 0) * nights;
+      const { total } = calculateStayTax({ subtotal, nights, property });
       const reservation = await db.entities.Reservation.create({
         property_id: propertyId,
         room_type_id: selectedRoomType.id,
@@ -344,23 +346,32 @@ export default function PublicBooking() {
 
           {formError && <p className="text-sm text-red-600">{formError}</p>}
 
-          {selectedRoomType && nights > 0 && (
-            <div className="bg-brand-navy rounded-2xl p-5 text-white flex items-center justify-between">
-              <div>
-                <p className="text-xs text-white/70">{nights} night{nights > 1 ? 's' : ''} · {selectedRoomType.name}</p>
-                <p className="text-lg font-bold">{fmt((selectedRoomType.base_price || 0) * nights)}</p>
-                {settings?.require_deposit && (
-                  <p className="text-xs text-white/70 mt-1 flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5" /> {settings.deposit_percent}% deposit required to confirm
-                  </p>
-                )}
+          {selectedRoomType && nights > 0 && (() => {
+            const subtotal = (selectedRoomType.base_price || 0) * nights;
+            const breakdown = calculateStayTax({ subtotal, nights, property });
+            return (
+              <div className="bg-brand-navy rounded-2xl p-5 text-white flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-white/70">{nights} night{nights > 1 ? 's' : ''} · {selectedRoomType.name}</p>
+                  <div className="text-[11px] text-white/60 mt-1 space-y-0.5">
+                    <p>Room total: {fmt(breakdown.subtotal)}</p>
+                    {breakdown.vatRate > 0 && <p>VAT/GST ({breakdown.vatRate}%): {fmt(breakdown.vat)}</p>}
+                    {breakdown.cityTax > 0 && <p>City tax: {fmt(breakdown.cityTax)}</p>}
+                  </div>
+                  <p className="text-lg font-bold mt-1">{fmt(breakdown.total)}</p>
+                  {settings?.require_deposit && (
+                    <p className="text-xs text-white/70 mt-1 flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5" /> {settings.deposit_percent}% deposit required to confirm
+                    </p>
+                  )}
+                </div>
+                <button type="submit" disabled={!canSubmit || submitting}
+                  className="px-5 py-2.5 rounded-full bg-white text-brand-navy text-sm font-semibold disabled:opacity-50">
+                  {submitting ? 'Booking…' : 'Book now'}
+                </button>
               </div>
-              <button type="submit" disabled={!canSubmit || submitting}
-                className="px-5 py-2.5 rounded-full bg-white text-brand-navy text-sm font-semibold disabled:opacity-50">
-                {submitting ? 'Booking…' : 'Book now'}
-              </button>
-            </div>
-          )}
+            );
+          })()}
         </form>
 
         {/* Guest support — no account needed, per spec section 37 */}

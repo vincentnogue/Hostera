@@ -76,7 +76,7 @@ export default function Landing() {
     <div className="bg-white">
       {/* ================= HERO (ClickMaint style) ================= */}
       <section className="bg-white relative overflow-hidden">
-        <HeroBackgroundVideo className="opacity-[0.38]" />
+        <HeroBackgroundVideo className="opacity-[0.8]" />
         <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-white/35 to-white/90 pointer-events-none" />
         <div className="max-w-7xl mx-auto px-6 pt-14 pb-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative">
           {/* Left column */}
@@ -593,7 +593,7 @@ export default function Landing() {
       {/* ================= FINAL CTA ================= */}
       <section className="py-24 bg-brand-navy relative overflow-hidden">
         <div className="absolute inset-0">
-          <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover opacity-20" alt="Resort pool" />
+          <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover opacity-80" alt="Resort pool" />
           <div className="absolute inset-0 bg-brand-navy/70"></div>
         </div>
         <div className="relative max-w-3xl mx-auto px-6 text-center">

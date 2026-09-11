@@ -18,8 +18,8 @@ export default function Security() {
       {/* HERO */}
       <section className="relative bg-brand-navy-900 py-24 overflow-hidden">
         <div className="absolute inset-0">
-          <img src="/images/hotels/hotel-08-cliffside-pool.jpg" className="w-full h-full object-cover opacity-20" alt="Cliffside infinity pool — Algarve" />
-          <div className="absolute inset-0 bg-brand-navy-900/75"></div>
+          <img src="/images/hotels/hotel-08-cliffside-pool.jpg" className="w-full h-full object-cover opacity-80" alt="Cliffside infinity pool — Algarve" />
+          <div className="absolute inset-0 bg-brand-navy-900/80"></div>
         </div>
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <Reveal>

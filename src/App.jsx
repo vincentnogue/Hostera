@@ -46,6 +46,8 @@ const IntegrationHub = lazy(() => import('@/pages/IntegrationHub'));
 const LoyaltyProgram = lazy(() => import('@/pages/LoyaltyProgram'));
 const StaffDirectory = lazy(() => import('@/pages/StaffDirectory'));
 const InventoryManagement = lazy(() => import('@/pages/InventoryManagement'));
+const Breakage = lazy(() => import('@/pages/Breakage'));
+const CashRegister = lazy(() => import('@/pages/CashRegister'));
 const RateManager = lazy(() => import('@/pages/RateManager'));
 const ActivityLog = lazy(() => import('@/pages/ActivityLog'));
 const BookingEngine = lazy(() => import('@/pages/BookingEngine'));
@@ -175,6 +177,8 @@ const AuthenticatedApp = () => {
             <Route path="/loyalty-program" element={<LoyaltyProgram />} />
             <Route path="/reputation-management" element={<ReputationManagement />} />
             <Route path="/inventory-management" element={<InventoryManagement />} />
+            <Route path="/breakage" element={<Breakage />} />
+            <Route path="/cash-register" element={<CashRegister />} />
             <Route path="/staff-directory" element={<StaffDirectory />} />
             <Route path="/shift-management" element={<ShiftManagement />} />
             <Route path="/expenses" element={<Expenses />} />

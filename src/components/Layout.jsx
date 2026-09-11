@@ -13,7 +13,7 @@ import {
   BedDouble, Smartphone, Package, Star, UserCog, FileText, LayoutTemplate,
   Globe, Crown, Contact, Clock, Banknote, Tag, Blocks, Megaphone, History,
   CalendarDays, ScrollText, Palette, ClipboardList, Truck, CreditCard, FolderOpen, Layers, Rocket, ArrowRight, LifeBuoy,
-  CheckCheck, Inbox
+  CheckCheck, Inbox, PackageX, Wallet
 } from 'lucide-react';
 
 const navGroups = [
@@ -46,6 +46,7 @@ const navGroups = [
       { label: 'Housekeeping', icon: Sparkles, path: '/housekeeping' },
       { label: 'Maintenance', icon: Wrench, path: '/maintenance' },
       { label: 'Inventory Mgmt', icon: Package, path: '/inventory-management' },
+      { label: 'Breakage & Damage', icon: PackageX, path: '/breakage' },
       { label: 'Staff Directory', icon: Contact, path: '/staff-directory' },
       { label: 'Shifts', icon: Clock, path: '/shift-management' },
       { label: 'Shift Logs', icon: ClipboardList, path: '/shift-logs' },
@@ -57,6 +58,7 @@ const navGroups = [
     label: 'Finance',
     items: [
       { label: 'Finance & Billing', icon: Receipt, path: '/finance' },
+      { label: 'Cash Register', icon: Wallet, path: '/cash-register' },
       { label: 'Expenses', icon: Banknote, path: '/expenses' },
       { label: 'Rate Manager', icon: Tag, path: '/rate-manager' },
       { label: 'Rate Plans', icon: Layers, path: '/rate-plans' },

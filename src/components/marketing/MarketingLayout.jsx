@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+const db = globalThis.__B44_DB__ || { entities: new Proxy({}, { get: () => ({ list: async () => [] }) }) };
+
+import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Building2, ChevronDown, Menu, X, ArrowRight, Sparkles, Globe, Linkedin, Twitter, Youtube } from 'lucide-react';
+import { Building2, ChevronDown, Menu, X, ArrowRight, Sparkles, Facebook, Instagram, Linkedin, Youtube, AlertTriangle } from 'lucide-react';
 import Reveal from '@/components/marketing/Reveal';
 import LanguageSelector from '@/components/marketing/LanguageSelector';
 import { MODULES, INDUSTRIES } from '@/lib/marketing';
@@ -26,7 +28,22 @@ const resourcesMenu = [
 export default function MarketingLayout() {
   const [openMenu, setOpenMenu] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hasActiveIncident, setHasActiveIncident] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    async function checkStatus() {
+      try {
+        const incidents = await db.entities.PlatformIncident.list('-started_at', 50);
+        const active = (incidents || []).filter(i => i.status !== 'resolved' && i.status !== 'postmortem');
+        setHasActiveIncident(active.length > 0);
+      } catch {
+        // If we can't reach the platform status, don't claim everything's fine.
+        setHasActiveIncident(false);
+      }
+    }
+    checkStatus();
+  }, []);
 
   const linkCls = (path) =>
     `px-4 py-2 rounded-full text-sm font-medium transition-colors ${
@@ -250,9 +267,20 @@ export default function MarketingLayout() {
                 </a>
               </p>
               <div className="flex items-center gap-2 mt-5">
-                {[Globe, Linkedin, Twitter, Youtube].map((Icon, i) => (
-                  <a key={i} href="https://liafrik.com" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
-                    <Icon className="w-3.5 h-3.5 text-white/60" />
+                {[
+                  { Icon: Facebook, href: 'https://www.facebook.com/share/1LMAGqsy3n/?mibextid=wwXIfr', label: 'Facebook' },
+                  { Icon: Instagram, href: 'https://www.instagram.com/liafrik_tech?igsi=eXBjdTc5NG42Zml4&utm_source=qr', label: 'Instagram' },
+                  { Icon: Linkedin, href: 'https://www.linkedin.com/company/liafrik/', label: 'LinkedIn' },
+                  { Icon: Youtube, href: 'https://youtube.com/@liyah-n?si=D-lXwovYubw3sdaf', label: 'YouTube' },
+                  { tiktok: true, href: 'https://www.tiktok.com/@liafrik4?_r=1&_t=ZN-9981b1Sq59K', label: 'TikTok — Liafrik' },
+                  { tiktok: true, href: 'https://www.tiktok.com/@liyahgroup?_r=1&_t=ZS-9981XGgaxrE', label: 'TikTok — Liyah Group' },
+                ].map(({ Icon, tiktok, href, label }) => (
+                  <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label} className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
+                    {tiktok ? (
+                      <img src="https://cdn.simpleicons.org/tiktok/white" alt="" className="w-3.5 h-3.5" />
+                    ) : (
+                      <Icon className="w-3.5 h-3.5 text-white/60" />
+                    )}
                   </a>
                 ))}
               </div>
@@ -263,7 +291,7 @@ export default function MarketingLayout() {
               <ul className="space-y-2.5 text-sm">
                 {[
                   ['Features', '/features'], ['Pricing', '/pricing'], ['Integrations', '/integrations'],
-                  ['Hostera AI', '/ai'], ['Changelog', '/developers'], ['System Status', '/status'],
+                  ['Hostera AI', '/ai'], ['Changelog', '/developers#changelog'], ['System Status', '/status'],
                 ].map(([l, to]) => (
                   <li key={l}><Link to={to} className="text-white/60 hover:text-white transition-colors">{l}</Link></li>
                 ))}
@@ -287,7 +315,8 @@ export default function MarketingLayout() {
               <p className="text-xs font-bold uppercase tracking-wider text-white/40 mb-4">Resources</p>
               <ul className="space-y-2.5 text-sm">
                 {[
-                  ['Documentation', '/developers'], ['API Reference', '/developers'], ['Developer Portal', '/developers'],
+                  ['Documentation', '/developers#overview'], ['API Reference', '/developers#api-reference'],
+                  ['Developer Portal', '/developers#developer-portal'],
                   ['FAQ & Help Center', '/faq'], ['Security', '/security'], ['Contact', '/contact'],
                 ].map(([l, to]) => (
                   <li key={l}><Link to={to} className="text-white/60 hover:text-white transition-colors">{l}</Link></li>
@@ -312,7 +341,12 @@ export default function MarketingLayout() {
             <p className="text-xs text-white/40">© {new Date().getFullYear()} Hostera. All rights reserved.</p>
             <div className="flex items-center gap-5 text-xs text-white/40">
               <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> All systems operational
+                <span className={`w-1.5 h-1.5 rounded-full ${hasActiveIncident ? 'bg-amber-500' : 'bg-green-500'}`}></span>
+                {hasActiveIncident ? (
+                  <span className="flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Active incident</span>
+                ) : (
+                  'All systems operational'
+                )}
               </span>
               <Link to="/status" className="hover:text-white transition-colors">Status</Link>
             </div>
