@@ -2,6 +2,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
+import { calculateStayTax } from '@/lib/tax';
 
 import { Plus, Search, X, CalendarCheck } from 'lucide-react';
 
@@ -25,6 +26,7 @@ export default function Reservations() {
   const { selectedProperty } = useProperty();
   const [reservations, setReservations] = useState([]);
   const [rooms, setRooms] = useState([]);
+  const [roomTypes, setRoomTypes] = useState([]);
   const [guests, setGuests] = useState([]);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,16 +41,18 @@ export default function Reservations() {
 
   const fetchData = async () => {
     try {
-      const [resData, roomData, guestData, propData] = await Promise.all([
+      const [resData, roomData, guestData, propData, roomTypeData] = await Promise.all([
         db.entities.Reservation.list(),
         db.entities.Room.list(),
         db.entities.Guest.list(),
         db.entities.Property.list(),
+        db.entities.RoomType.list(),
       ]);
       setReservations(resData || []);
       setRooms(roomData || []);
       setGuests(guestData || []);
       setProperties(propData || []);
+      setRoomTypes(roomTypeData || []);
     } catch (e) {
       console.error(e);
     } finally {
@@ -63,10 +67,13 @@ export default function Reservations() {
     setCreating(true);
     try {
       const room = rooms.find(r => r.id === form.room_id);
+      const roomType = roomTypes.find(rt => rt.id === room?.room_type_id);
       const property = selectedProperty || properties[0];
       const nights = Math.ceil(
         (new Date(form.check_out) - new Date(form.check_in)) / (1000 * 60 * 60 * 24)
       );
+      const subtotal = nights * (roomType?.base_price || 0);
+      const { total } = calculateStayTax({ subtotal, nights, property });
       await db.entities.Reservation.create({
         ...form,
         property_id: property?.id || '',
@@ -74,7 +81,7 @@ export default function Reservations() {
         reservation_number: `RES-${Date.now()}`,
         status: 'confirmed',
         currency: property?.currency || 'USD',
-        total_amount: nights * 150,
+        total_amount: total,
         paid_amount: 0,
       });
       if (room) {

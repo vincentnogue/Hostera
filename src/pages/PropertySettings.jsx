@@ -3,7 +3,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
 
-import { Save, Building2, Clock, Globe, DollarSign, Camera, Loader2, X } from 'lucide-react';
+import { Save, Building2, Clock, Globe, DollarSign, Camera, Loader2, X, Percent } from 'lucide-react';
 
 export default function PropertySettings() {
   const { selectedProperty, properties, refreshProperties } = useProperty();
@@ -17,6 +17,7 @@ export default function PropertySettings() {
     address: '', city: '', country: '', postal_code: '',
     checkin_time: '14:00', checkout_time: '11:00',
     currency: 'USD', timezone: 'UTC', photo_urls: [],
+    vat_rate: 0, vat_inclusive: true, city_tax_type: 'none', city_tax_amount: 0, tax_id: '',
   });
 
   useEffect(() => {
@@ -29,6 +30,9 @@ export default function PropertySettings() {
         city: p.city || '', country: p.country || '', postal_code: p.postal_code || '',
         checkin_time: p.checkin_time || '14:00', checkout_time: p.checkout_time || '11:00',
         currency: p.currency || 'USD', timezone: p.timezone || 'UTC',
+        vat_rate: p.vat_rate ?? 0, vat_inclusive: p.vat_inclusive ?? true,
+        city_tax_type: p.city_tax_type || 'none', city_tax_amount: p.city_tax_amount ?? 0,
+        tax_id: p.tax_id || '',
         photo_urls: p.photo_urls || [],
       });
     }
@@ -204,6 +208,52 @@ export default function PropertySettings() {
               {['UTC','Europe/London','Europe/Paris','Europe/Berlin','Asia/Dubai','Asia/Riyadh','America/New_York','America/Los_Angeles','Asia/Tokyo','Africa/Casablanca','Australia/Sydney'].map(tz => <option key={tz}>{tz}</option>)}
             </select>
           </div>
+        </div>
+      </div>
+
+      {/* Taxes & Fees */}
+      <div className="bg-white rounded-xl border border-brand-border p-6">
+        <div className="flex items-center gap-2 mb-5">
+          <Percent className="w-5 h-5 text-brand-navy" />
+          <h2 className="text-base font-semibold text-brand-ink">Taxes & Fees</h2>
+        </div>
+        <p className="text-xs text-brand-slate mb-4">
+          Applied automatically to reservations and the public booking page. Rates vary a lot by
+          country — set what applies to this property.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>VAT / GST rate (%)</label>
+            <input type="number" min={0} max={100} step="0.1" value={form.vat_rate}
+              onChange={e => setForm({ ...form, vat_rate: Number(e.target.value) })} className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Tax / VAT registration number</label>
+            <input value={form.tax_id} onChange={e => setForm({ ...form, tax_id: e.target.value })}
+              placeholder="Shown on invoices" className={inputCls} />
+          </div>
+          <div className="md:col-span-2">
+            <label className="flex items-center gap-2 text-sm text-brand-ink">
+              <input type="checkbox" checked={form.vat_inclusive}
+                onChange={e => setForm({ ...form, vat_inclusive: e.target.checked })} className="rounded" />
+              Room rates already include VAT/GST (common in the EU, UK, most of Africa)
+            </label>
+          </div>
+          <div>
+            <label className={labelCls}>City / tourism tax</label>
+            <select value={form.city_tax_type} onChange={e => setForm({ ...form, city_tax_type: e.target.value })} className={inputCls}>
+              <option value="none">None</option>
+              <option value="flat_per_night">Flat amount per room, per night</option>
+              <option value="percent_per_night">Percentage of the room rate, per night</option>
+            </select>
+          </div>
+          {form.city_tax_type !== 'none' && (
+            <div>
+              <label className={labelCls}>{form.city_tax_type === 'flat_per_night' ? `Amount per night (${form.currency})` : 'Percentage per night (%)'}</label>
+              <input type="number" min={0} step="0.01" value={form.city_tax_amount}
+                onChange={e => setForm({ ...form, city_tax_amount: Number(e.target.value) })} className={inputCls} />
+            </div>
+          )}
         </div>
       </div>
     </div>
