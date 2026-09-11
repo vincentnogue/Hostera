@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 
 import {
   CalendarCheck, MapPin, Users, Clock, Receipt, CreditCard,
-  Bell, Sparkles
+  Bell, Sparkles, LifeBuoy, Send, CheckCircle2
 } from 'lucide-react';
 
 export default function GuestPortal() {
@@ -17,6 +17,9 @@ export default function GuestPortal() {
     early_checkin: false, late_checkout: false,
     quiet_room: false, high_floor: false, extra_pillows: false,
   });
+  const [supportMsg, setSupportMsg] = useState('');
+  const [supportSent, setSupportSent] = useState(false);
+  const [sendingSupport, setSendingSupport] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -50,6 +53,30 @@ export default function GuestPortal() {
         });
       }
     } catch (e) { console.error(e); }
+  };
+
+  const submitSupportRequest = async (e) => {
+    e.preventDefault();
+    if (!supportMsg.trim()) return;
+    setSendingSupport(true);
+    try {
+      const guest = guests[0];
+      const res = upcoming[0];
+      await db.entities.SupportTicket.create({
+        subject: 'Guest Portal request',
+        description: supportMsg.trim(),
+        priority: 'medium',
+        status: 'open',
+        source: 'guest',
+        requester_name: guest?.full_name || guest?.name || '',
+        requester_email: guest?.email || '',
+        booking_reference: res?.confirmation_code || res?.id || '',
+        property_id: res?.property_id,
+      });
+      setSupportSent(true);
+      setSupportMsg('');
+    } catch (e) { console.error(e); }
+    finally { setSendingSupport(false); }
   };
 
   if (loading) {
@@ -199,6 +226,32 @@ export default function GuestPortal() {
               </div>
             ))}
           </div>
+        )}
+      </div>
+
+      {/* Need help? */}
+      <div className="bg-white rounded-xl border border-brand-border p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <LifeBuoy className="w-5 h-5 text-brand-navy" />
+          <h2 className="text-base font-semibold text-brand-ink">Need help?</h2>
+        </div>
+        {supportSent ? (
+          <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 rounded-lg p-3.5">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            Your request has been sent — the property will get back to you shortly.
+          </div>
+        ) : (
+          <form onSubmit={submitSupportRequest} className="flex flex-col sm:flex-row gap-2">
+            <input
+              value={supportMsg}
+              onChange={e => setSupportMsg(e.target.value)}
+              placeholder="Question about your stay, a request, an issue…"
+              className="flex-1 px-3.5 py-2.5 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy"
+            />
+            <button type="submit" disabled={sendingSupport} className="flex items-center justify-center gap-1.5 px-5 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60 shrink-0">
+              <Send className="w-3.5 h-3.5" /> {sendingSupport ? 'Sending…' : 'Send'}
+            </button>
+          </form>
         )}
       </div>
     </div>

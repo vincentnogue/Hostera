@@ -49,6 +49,16 @@ create policy "public can create reservations" on reservation
   for insert
   with check (true);
 
+-- Guests must be able to submit a support ticket without an account, from
+-- both the Guest Portal and the fully public booking page. Insert-only —
+-- they can never read, update or delete tickets (staff triage happens in
+-- the authenticated Support module, scoped normally by organization_id).
+drop policy if exists "public can create support tickets" on support_ticket;
+create policy "public can create support tickets" on support_ticket
+  for insert
+  to anon, authenticated
+  with check (true);
+
 -- NOTE: the columns referenced above (`direct_bookings_enabled` on
 -- property, `marketplace_visible` on room_type) live inside the flexible
 -- `data jsonb` column per schema.sql's design. If you have since promoted
