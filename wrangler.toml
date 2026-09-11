@@ -1,3 +1,22 @@
 name = "hostera"
 compatibility_date = "2026-09-07"
 pages_build_output_dir = "dist"
+
+# IMPORTANT — read before touching this file:
+# The presence of this wrangler.toml switches Cloudflare Pages to
+# "wrangler.toml-managed" environment variables for this project. Once
+# that happens, plain "Text" variables set in the dashboard's Variables
+# and secrets screen are silently ignored by the build (only "Secret"
+# type dashboard vars still apply) — confirmed against this project's own
+# build output, which kept producing a bundle with no Supabase config
+# even after the vars were correctly set in the dashboard's Production
+# tab. See: https://developers.cloudflare.com/pages/functions/wrangler-configuration/
+#
+# So: non-secret, build-time (VITE_*) variables belong HERE, not in the
+# dashboard. This is safe for VITE_SUPABASE_URL/VITE_SUPABASE_ANON_KEY
+# specifically because the Supabase "anon" key is designed to be public —
+# it's exactly what RLS policies exist to gate, not a secret. Never put a
+# service_role key or any other real secret in this block.
+[vars]
+VITE_SUPABASE_URL = "https://wtzpuunmurbydsydghii.supabase.co"
+VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0enB1dW5tdXJieWRzeWRnaGlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3OTQzMTksImV4cCI6MjEwNDM3MDMxOX0.U2vE4VKedAbIBHqvFqD-qSP9rnCTnhDHIubMKe7KMb8"
