@@ -105,6 +105,20 @@
   animation-play-state: paused;
 }
 
+/* Hero headline accent — a light glint sweeping across, like a key card
+   tapping a door reader. Replaces a static underline bar. */
+@keyframes keycard-glint {
+  0% { background-position: 200% 0; }
+  60% { background-position: -20% 0; }
+  100% { background-position: -20% 0; }
+}
+.keycard-glint {
+  background-image: linear-gradient(100deg, transparent 30%, #A6FF00 45%, #ffffff 50%, #A6FF00 55%, transparent 70%);
+  background-size: 250% 100%;
+  animation: keycard-glint 3.2s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
 /* HOSTERA design system — all buttons are pill-shaped */
 button,
 a[role="button"],

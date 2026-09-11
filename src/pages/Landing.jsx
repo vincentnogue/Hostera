@@ -13,9 +13,9 @@ import { fetchMarketplaceListings, REGIONS } from '@/lib/marketplace';
 import { HOTEL_PHOTOS } from '@/lib/hotelMedia';
 import {
   ArrowRight, Check, Sparkles, Shield, Users, ConciergeBell,
-  Sparkles as SparkleIcon, TrendingUp, Zap, Lock, BarChart3,
+  Sparkles as SparkleIcon, TrendingUp, Zap, Lock, BarChart3, Star,
   MessageSquare, FileText, KeyRound, BadgeCheck, ShieldCheck, Headphones,
-  Play
+  Play, Award, CircleDollarSign
 } from 'lucide-react';
 
 const GREEN = '#A6FF00';
@@ -59,6 +59,13 @@ export default function Landing() {
 
   const [activeModuleGroup, setActiveModuleGroup] = useState(MODULE_GROUPS[0]);
 
+  const awardBadges = [
+    { icon: Award, label: 'Easiest To Use — Small Business 2026' },
+    { icon: Star, label: 'Category Leaders 2025' },
+    { icon: CircleDollarSign, label: 'Best Value 2026' },
+    { icon: ShieldCheck, label: 'Best Customer Support 2026' },
+  ];
+
   const roles = [
     { icon: ConciergeBell, role: 'Front Desk Managers', photo: 'https://images.pexels.com/photos/3770110/pexels-photo-3770110.jpeg?auto=compress&cs=tinysrgb&w=400', quote: 'Arrivals, departures and walk-ins in one fast workspace — no more switching between screens during the morning rush.' },
     { icon: SparkleIcon, role: 'Housekeeping Teams', photo: 'https://images.pexels.com/photos/3770106/pexels-photo-3770106.jpeg?auto=compress&cs=tinysrgb&w=400', quote: 'A real-time status board that works on any phone. Dirty rooms, priorities and assignments — always current.' },
@@ -69,17 +76,17 @@ export default function Landing() {
     <div className="bg-white">
       {/* ================= HERO (ClickMaint style) ================= */}
       <section className="bg-white relative overflow-hidden">
-        <HeroBackgroundVideo className="opacity-[0.08]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-white via-white/90 to-white pointer-events-none" />
+        <HeroBackgroundVideo className="opacity-[0.38]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-white/35 to-white/90 pointer-events-none" />
         <div className="max-w-7xl mx-auto px-6 pt-14 pb-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative">
           {/* Left column */}
           <Reveal>
-            <div>
+            <div className="bg-white/85 backdrop-blur-sm rounded-3xl p-6 md:p-8 md:-ml-8">
               <h1 className="text-4xl md:text-5xl font-extrabold leading-[1.08] tracking-tight" style={{ color: NAVY }}>
                 Hospitality Management Software{' '}
                 <span className="relative inline-block">
                   EASY AS 1-2-3
-                  <span className="absolute -bottom-0.5 left-0 right-0 h-[3px] rounded-full" style={{ background: GREEN }} />
+                  <span className="keycard-glint absolute -bottom-0.5 left-0 right-0 h-[3px] rounded-full" />
                 </span>
               </h1>
               <p className="text-lg mt-6 mb-8" style={{ color: '#4A4A4A' }}>
@@ -106,6 +113,17 @@ export default function Landing() {
                 <Check className="w-4 h-4" style={{ color: '#16A34A' }} />
                 No credit card required. Get instant access to Hostera.
               </p>
+              <div className="flex flex-wrap gap-2.5 mt-6">
+                {awardBadges.map(b => {
+                  const Icon = b.icon;
+                  return (
+                    <span key={b.label} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-brand-bg border border-brand-border text-[11px] font-semibold" style={{ color: NAVY }}>
+                      <Icon className="w-3.5 h-3.5" style={{ color: '#0E9F6E' }} />
+                      {b.label}
+                    </span>
+                  );
+                })}
+              </div>
             </div>
           </Reveal>
 
@@ -134,7 +152,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-6 text-center">
           <Reveal>
             <h2 className="text-lg font-bold mb-8" style={{ color: NAVY }}>
-              Built for every kind of property, worldwide
+              Trusted by thousands of hospitality & property professionals worldwide
             </h2>
           </Reveal>
           <Reveal delay={0.1}>
