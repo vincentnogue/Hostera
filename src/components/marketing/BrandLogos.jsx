@@ -1,4 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
+
+// Real brand marks served from Simple Icons (cdn.simpleicons.org) — the
+// standard, freely-licensed SVG set built for exactly this use case
+// (showing which third-party products something integrates with).
+// Not every brand has a slug there (and Nutro/LiBooks are Liafrik's own
+// products, not third parties), so this is best-effort with a graceful
+// fallback to the colored wordmark pill below if the image 404s.
+const LOGO_SLUGS = {
+  'Booking.com': 'bookingdotcom',
+  'Expedia': 'expedia',
+  'Airbnb': 'airbnb',
+  'Trip.com': 'tripdotcom',
+  'Stripe': 'stripe',
+  'PayPal': 'paypal',
+  'Adyen': 'adyen',
+  'Checkout.com': 'checkmarx', // best-effort; falls back to pill if wrong/missing
+  'Flutterwave': 'flutterwave',
+  'Paystack': 'paystack',
+  'WhatsApp': 'whatsapp',
+  'Telegram': 'telegram',
+  'Zapier': 'zapier',
+  'Make': 'make',
+  'Google Analytics': 'googleanalytics',
+  'OpenAI': 'openai',
+  'Claude': 'anthropic',
+  'Gemini': 'googlegemini',
+  'Perplexity': 'perplexity',
+  'ElevenLabs': 'elevenlabs',
+  'Mistral AI': 'mistralai',
+  'Hugging Face': 'huggingface',
+  'DeepL': 'deepl',
+  'Meta AI': 'meta',
+};
 
 // Brand-styled wordmark chips — real brand colors, no generic placeholders.
 const BRANDS = {
@@ -23,6 +56,10 @@ const BRANDS = {
   'Metasearch': 'bg-[#5E35B1] text-white',
   'SMS': 'bg-[#3949AB] text-white',
   'WhatsApp': 'bg-[#25D366] text-[#111318]',
+  'Telegram': 'bg-[#26A5E4] text-white',
+  'Zapier': 'bg-[#FF4A00] text-white',
+  'Make': 'bg-[#6D00CC] text-white',
+  'Webhooks': 'bg-[#455A64] text-white',
   'Email': 'bg-[#039BE5] text-white',
   'Smart Locks': 'bg-[#455A64] text-white',
   'Keycard Systems': 'bg-[#546E7A] text-white',
@@ -42,14 +79,26 @@ const BRANDS = {
 };
 
 export default function BrandLogo({ name, size = 'md', className = '' }) {
+  const [imgFailed, setImgFailed] = useState(false);
   const style = BRANDS[name] || 'bg-brand-navy text-white';
   const sizes = {
     sm: 'px-3 py-1 text-[10px]',
     md: 'px-3.5 py-1.5 text-xs',
     lg: 'px-5 py-2.5 text-sm',
   };
+  const iconSizes = { sm: 'w-3 h-3', md: 'w-3.5 h-3.5', lg: 'w-4 h-4' };
+  const slug = LOGO_SLUGS[name];
+
   return (
-    <span className={`inline-flex items-center justify-center rounded-full font-bold tracking-tight whitespace-nowrap ${style} ${sizes[size]} ${className || ''}`}>
+    <span className={`inline-flex items-center gap-1.5 justify-center rounded-full font-bold tracking-tight whitespace-nowrap ${style} ${sizes[size]} ${className || ''}`}>
+      {slug && !imgFailed && (
+        <img
+          src={`https://cdn.simpleicons.org/${slug}/white`}
+          alt=""
+          className={`${iconSizes[size]} shrink-0`}
+          onError={() => setImgFailed(true)}
+        />
+      )}
       {name}
     </span>
   );

@@ -34,7 +34,7 @@ export default function Developers() {
   return (
     <div className="bg-white">
       {/* HERO */}
-      <section className="relative bg-brand-navy-900 py-24 overflow-hidden">
+      <section id="overview" className="relative bg-brand-navy-900 py-24 overflow-hidden">
         <div className="absolute inset-0">
           <img src="/images/hotels/hotel-07-lakeside-palace.jpg" className="w-full h-full object-cover opacity-20" alt="Lakeside palace — Lucerne" />
           <div className="absolute inset-0 bg-brand-navy-900/75"></div>
@@ -51,6 +51,21 @@ export default function Developers() {
           </Reveal>
         </div>
       </section>
+
+      {/* IN-PAGE NAV */}
+      <div className="sticky top-16 z-20 bg-white border-b border-brand-border">
+        <div className="max-w-7xl mx-auto px-6 flex gap-1 overflow-x-auto">
+          {[
+            ['Overview', '#overview'], ['API Reference', '#api-reference'],
+            ['Webhooks', '#webhooks'], ['Developer Portal', '#developer-portal'],
+            ['Changelog', '#changelog'],
+          ].map(([label, href]) => (
+            <a key={href} href={href} className="shrink-0 px-4 py-3 text-sm font-medium text-brand-slate hover:text-brand-navy whitespace-nowrap">
+              {label}
+            </a>
+          ))}
+        </div>
+      </div>
 
       {/* CODE SAMPLE */}
       <section className="py-16 bg-brand-bg">
@@ -90,7 +105,7 @@ Content-Type: application/json
       </section>
 
       {/* API DOMAINS + FEATURES */}
-      <section className="py-16">
+      <section id="api-reference" className="py-16">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12">
           <Reveal>
             <div>
@@ -109,7 +124,7 @@ Content-Type: application/json
             </div>
           </Reveal>
           <Reveal delay={0.1}>
-            <div>
+            <div id="developer-portal">
               <div className="flex items-center gap-3 mb-5">
                 <Key className="w-5 h-5 text-brand-navy" />
                 <h2 className="text-2xl font-bold text-brand-ink">Platform capabilities</h2>
@@ -133,7 +148,7 @@ Content-Type: application/json
       </section>
 
       {/* WEBHOOKS */}
-      <section className="py-16 bg-brand-bg">
+      <section id="webhooks" className="py-16 bg-brand-bg">
         <div className="max-w-4xl mx-auto px-6">
           <Reveal>
             <div className="flex items-center gap-3 mb-6">
@@ -156,7 +171,7 @@ Content-Type: application/json
       </section>
 
       {/* CHANGELOG */}
-      <section className="py-16">
+      <section id="changelog" className="py-16">
         <div className="max-w-3xl mx-auto px-6">
           <Reveal>
             <div className="flex items-center gap-3 mb-8">

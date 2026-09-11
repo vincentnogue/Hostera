@@ -3,18 +3,23 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
 
-import { Plug, Plus, X, Check, Link2, RefreshCw, Receipt, CreditCard, Building2, MessageSquare, BarChart3, Sparkles } from 'lucide-react';
+import { Plug, Plus, X, Check, Link2, RefreshCw, Receipt, CreditCard, Building2, MessageSquare, BarChart3, Sparkles, Workflow, KeyRound } from 'lucide-react';
 import BrandLogo from '@/components/marketing/BrandLogos';
 
-const categories = ['ai', 'accounting', 'payment', 'hospitality', 'communication', 'analytics'];
-const categoryIcons = { ai: Sparkles, accounting: Receipt, payment: CreditCard, hospitality: Building2, communication: MessageSquare, analytics: BarChart3 };
+const categories = ['ai', 'accounting', 'payment', 'hospitality', 'communication', 'analytics', 'automation'];
+const categoryIcons = { ai: Sparkles, accounting: Receipt, payment: CreditCard, hospitality: Building2, communication: MessageSquare, analytics: BarChart3, automation: Workflow };
 const integrationCatalog = [
   { tool_name: 'LiBooks', category: 'accounting', description: 'Liafrik accounting — invoices, payments & tax sync.' },
   { tool_name: 'Stripe', category: 'payment', description: 'Card payments and deposits for direct bookings.' },
   { tool_name: 'Adyen', category: 'payment', description: 'Multi-currency payment gateway.' },
   { tool_name: 'Nutro', category: 'hospitality', description: 'Liafrik F&B — restaurant orders posted to folios.' },
   { tool_name: 'Door Locks API', category: 'hospitality', description: 'Smart lock & keycard systems.' },
+  { tool_name: 'Email', category: 'communication', description: 'Guest email notifications, sent from your own professional address.' },
   { tool_name: 'SMS Gateway', category: 'communication', description: 'Guest SMS notifications and campaigns.' },
+  { tool_name: 'WhatsApp', category: 'communication', description: 'Guest messaging over WhatsApp Business.' },
+  { tool_name: 'Telegram', category: 'communication', description: 'Staff or guest notifications via a Telegram bot.' },
+  { tool_name: 'Zapier', category: 'automation', description: 'Trigger workflows in 6,000+ apps from Hostera events.' },
+  { tool_name: 'Webhooks', category: 'automation', description: 'Send Hostera events to your own endpoint in real time.' },
   { tool_name: 'Google Analytics', category: 'analytics', description: 'Booking engine traffic insights.' },
   { tool_name: 'OpenAI', category: 'ai', description: 'Guest-facing AI assistants, content & workflow automation.' },
   { tool_name: 'Claude', category: 'ai', description: 'Revenue analysis and staff copilot workflows.' },
@@ -24,6 +29,36 @@ const integrationCatalog = [
   { tool_name: 'Perplexity', category: 'ai', description: 'Market and demand research copilot.' },
 ];
 
+// What credentials each integration actually needs to connect — shown as a
+// real form instead of a fake "Connect" toggle. Falls back to a single
+// generic API key field for anything not listed here.
+const CREDENTIAL_FIELDS = {
+  Email: [
+    { key: 'sender_email', label: 'Your professional email', type: 'email', placeholder: 'reservations@yourhotel.com' },
+    { key: 'api_key', label: 'Provider API key', type: 'password', placeholder: 'e.g. a SendGrid or Postmark API key' },
+  ],
+  'SMS Gateway': [
+    { key: 'api_key', label: 'API key', type: 'password' },
+    { key: 'sender_id', label: 'Sender ID / phone number', type: 'text' },
+  ],
+  WhatsApp: [
+    { key: 'phone_number_id', label: 'WhatsApp Business phone number ID', type: 'text' },
+    { key: 'api_key', label: 'Access token', type: 'password' },
+  ],
+  Telegram: [
+    { key: 'bot_token', label: 'Bot token', type: 'password', placeholder: 'from @BotFather' },
+    { key: 'chat_id', label: 'Chat / channel ID', type: 'text' },
+  ],
+  Zapier: [
+    { key: 'webhook_url', label: 'Zapier webhook URL', type: 'url', placeholder: 'https://hooks.zapier.com/hooks/catch/...' },
+  ],
+  Webhooks: [
+    { key: 'webhook_url', label: 'Your endpoint URL', type: 'url' },
+    { key: 'secret', label: 'Signing secret (optional)', type: 'password' },
+  ],
+};
+const DEFAULT_CREDENTIAL_FIELDS = [{ key: 'api_key', label: 'API key', type: 'password' }];
+
 export default function IntegrationHub() {
   const { selectedProperty } = useProperty();
   const [settings, setSettings] = useState([]);
@@ -32,6 +67,9 @@ export default function IntegrationHub() {
   const [activeCat, setActiveCat] = useState('all');
   const [showAdd, setShowAdd] = useState(false);
   const [newTool, setNewTool] = useState({ tool_name: '', category: 'accounting', description: '' });
+  const [connectingTool, setConnectingTool] = useState(null);
+  const [credentialForm, setCredentialForm] = useState({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -48,13 +86,35 @@ export default function IntegrationHub() {
   const filtered = scopedSettings.filter(s => activeCat === 'all' || s.category === activeCat);
   const connectedCount = scopedSettings.filter(s => s.status === 'connected').length;
 
-  const toggle = async (setting) => {
-    const next = setting.status === 'connected' ? 'disconnected' : 'connected';
-    await db.entities.IntegrationSetting.update(setting.id, {
-      status: next,
-      last_sync: next === 'connected' ? new Date().toISOString() : setting.last_sync,
-    });
-    setSettings(prev => prev.map(s => s.id === setting.id ? { ...s, status: next, last_sync: next === 'connected' ? new Date().toISOString() : s.last_sync } : s));
+  const disconnect = async (setting) => {
+    await db.entities.IntegrationSetting.update(setting.id, { status: 'disconnected' });
+    setSettings(prev => prev.map(s => s.id === setting.id ? { ...s, status: 'disconnected' } : s));
+  };
+
+  const openConnect = (setting) => {
+    setConnectingTool(setting);
+    setCredentialForm(setting.credentials || {});
+  };
+
+  const submitConnect = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await db.entities.IntegrationSetting.update(connectingTool.id, {
+        status: 'connected',
+        credentials: credentialForm,
+        last_sync: new Date().toISOString(),
+      });
+      setSettings(prev => prev.map(s => s.id === connectingTool.id
+        ? { ...s, status: 'connected', credentials: credentialForm, last_sync: new Date().toISOString() }
+        : s));
+      setConnectingTool(null);
+      setCredentialForm({});
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const resync = async (setting) => {
@@ -152,7 +212,7 @@ export default function IntegrationHub() {
                     </button>
                   )}
                   <button
-                    onClick={() => toggle(s)}
+                    onClick={() => s.status === 'connected' ? disconnect(s) : openConnect(s)}
                     className={`flex items-center gap-1 px-3.5 py-1.5 text-xs font-semibold rounded-full ${s.status === 'connected' ? 'border border-red-200 text-red-600 hover:bg-red-50' : 'bg-brand-navy text-white hover:bg-brand-blue'}`}
                   >
                     {s.status === 'connected' ? <><X className="w-3.5 h-3.5" /> Disconnect</> : <><Check className="w-3.5 h-3.5" /> Connect</>}
@@ -190,6 +250,41 @@ export default function IntegrationHub() {
                 <button onClick={() => setShowAdd(false)} className="flex-1 py-2.5 border border-brand-border text-sm font-medium rounded-full text-brand-slate">Cancel</button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Connect (credentials) dialog */}
+      {connectingTool && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setConnectingTool(null)}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-1">
+              <BrandLogo name={connectingTool.tool_name} size="sm" />
+              <h3 className="text-lg font-bold text-brand-ink">Connect {connectingTool.tool_name}</h3>
+            </div>
+            <p className="text-xs text-brand-slate mb-4 flex items-center gap-1.5">
+              <KeyRound className="w-3.5 h-3.5" /> These stay scoped to {(selectedProperty || properties[0])?.name || 'this property'} only.
+            </p>
+            <form onSubmit={submitConnect} className="space-y-3">
+              {(CREDENTIAL_FIELDS[connectingTool.tool_name] || DEFAULT_CREDENTIAL_FIELDS).map(field => (
+                <div key={field.key}>
+                  <label className="text-xs font-medium text-brand-slate block mb-1">{field.label}</label>
+                  <input
+                    type={field.type}
+                    required
+                    placeholder={field.placeholder || ''}
+                    value={credentialForm[field.key] || ''}
+                    onChange={e => setCredentialForm(prev => ({ ...prev, [field.key]: e.target.value }))}
+                    className={inputCls}
+                  />
+                </div>
+              ))}
+              <div className="flex gap-2 pt-2">
+                <button type="submit" disabled={saving} className="flex-1 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60">
+                  {saving ? 'Connecting…' : 'Connect'}
+                </button>
+                <button type="button" onClick={() => setConnectingTool(null)} className="flex-1 py-2.5 border border-brand-border text-sm font-medium rounded-full text-brand-slate">Cancel</button>
+              </div>
+            </form>
           </div>
         </div>
       )}
