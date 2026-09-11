@@ -4,6 +4,14 @@
 
 @layer base {
   :root {
+    /* Themeable brand colors — overridden at runtime per-property (see
+       applyThemeColors in src/lib/theme.js) so each hotel/group can set
+       its own establishment colors without touching a single component;
+       every bg-brand-navy / text-brand-navy / border-brand-navy class in
+       the app reads from these two variables. */
+    --brand-navy: #123B63;
+    --brand-blue: #1F5A8A;
+
     --background: 210 20% 98%;
     --foreground: 210 26% 13%;
     --card: 0 0% 100%;

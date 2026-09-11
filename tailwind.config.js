@@ -12,8 +12,8 @@ module.exports = {
   		},
   		colors: {
   			brand: {
-  				navy: '#123B63',
-  				blue: '#1F5A8A',
+  				navy: 'var(--brand-navy)',
+  				blue: 'var(--brand-blue)',
   				ink: '#17212B',
   				slate: '#64748B',
   				'slate-light': '#94A3B8',
