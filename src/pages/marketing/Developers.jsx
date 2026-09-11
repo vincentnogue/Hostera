@@ -36,8 +36,8 @@ export default function Developers() {
       {/* HERO */}
       <section id="overview" className="relative bg-brand-navy-900 py-24 overflow-hidden">
         <div className="absolute inset-0">
-          <img src="/images/hotels/hotel-07-lakeside-palace.jpg" className="w-full h-full object-cover opacity-20" alt="Lakeside palace — Lucerne" />
-          <div className="absolute inset-0 bg-brand-navy-900/75"></div>
+          <img src="/images/hotels/hotel-07-lakeside-palace.jpg" className="w-full h-full object-cover opacity-80" alt="Lakeside palace — Lucerne" />
+          <div className="absolute inset-0 bg-brand-navy-900/80"></div>
         </div>
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <Reveal>

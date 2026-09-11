@@ -10,8 +10,8 @@ export default function Industries() {
       {/* HERO */}
       <section className="relative bg-brand-navy py-20 overflow-hidden">
         <div className="absolute inset-0">
-          <img src="/images/hotels/hotel-10-iconic-tower.jpg" className="w-full h-full object-cover opacity-20" alt="Iconic tower — Dubai" />
-          <div className="absolute inset-0 bg-brand-navy/70"></div>
+          <img src="/images/hotels/hotel-10-iconic-tower.jpg" className="w-full h-full object-cover opacity-80" alt="Iconic tower — Dubai" />
+          <div className="absolute inset-0 bg-brand-navy/80"></div>
         </div>
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <Reveal>

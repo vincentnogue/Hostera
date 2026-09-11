@@ -9,8 +9,8 @@ export default function About() {
       {/* HERO */}
       <section className="relative bg-brand-navy py-24 overflow-hidden">
         <div className="absolute inset-0">
-          <img src="/images/hotels/hotel-03-grand-entrance.jpg" className="w-full h-full object-cover opacity-25" alt="Grand entrance — flagship property" />
-          <div className="absolute inset-0 bg-brand-navy/70"></div>
+          <img src="/images/hotels/hotel-03-grand-entrance.jpg" className="w-full h-full object-cover opacity-80" alt="Grand entrance — flagship property" />
+          <div className="absolute inset-0 bg-brand-navy/80"></div>
         </div>
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <Reveal>
