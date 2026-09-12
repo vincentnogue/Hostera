@@ -5,9 +5,10 @@ import { Outlet, Link, useLocation, Navigate } from 'react-router-dom';
 
 import {
   LayoutDashboard, Building2, CreditCard, Ticket, LifeBuoy, Shield,
-  Activity, Flag, Megaphone, FileText, ArrowLeft, Building, Users, UserCog
+  Activity, Flag, Megaphone, FileText, ArrowLeft, Building, Users, UserCog, Palette
 } from 'lucide-react';
 import { PLATFORM_OWNERS } from '@/lib/platformAdmins';
+import { THEME_PRESETS, applyThemeColors } from '@/lib/theme';
 
 const navItems = [
   { label: 'Overview', icon: LayoutDashboard, path: '/platform' },
@@ -24,11 +25,61 @@ const navItems = [
   { label: 'Platform Admins', icon: UserCog, path: '/platform/admins' },
 ];
 
+const PLATFORM_THEME_KEY = 'hostera_platform_theme';
+
+// The platform admin's own view preference — not tenant data, so
+// localStorage is the right place (each admin picks their own, it never
+// affects what hotels see in their own dashboards).
+function PlatformThemeSwitcher() {
+  const [open, setOpen] = useState(false);
+  const ref = React.useRef(null);
+
+  useEffect(() => {
+    const onClickAway = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', onClickAway);
+    return () => document.removeEventListener('mousedown', onClickAway);
+  }, []);
+
+  const choose = (t) => {
+    applyThemeColors(t.primary, t.accent);
+    localStorage.setItem(PLATFORM_THEME_KEY, JSON.stringify(t));
+    setOpen(false);
+  };
+
+  return (
+    <div className="relative" ref={ref}>
+      <button onClick={() => setOpen(o => !o)} className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-colors" title="Control Center theme">
+        <Palette className="w-4 h-4" />
+      </button>
+      {open && (
+        <div className="absolute right-0 mt-2 w-56 bg-brand-navy-900 border border-white/10 rounded-xl shadow-xl p-3 z-50">
+          <p className="text-[10px] font-semibold text-white/40 uppercase tracking-wide mb-2 px-1">Control Center theme</p>
+          <div className="grid grid-cols-4 gap-2">
+            {THEME_PRESETS.map(t => (
+              <button key={t.name} onClick={() => choose(t)} title={t.name} className="flex -space-x-1.5 p-1.5 rounded-lg hover:bg-white/10">
+                <span className="w-5 h-5 rounded-full border-2 border-brand-navy-900" style={{ background: t.primary }} />
+                <span className="w-5 h-5 rounded-full border-2 border-brand-navy-900" style={{ background: t.accent }} />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function PlatformLayout() {
   const [user, setUser] = useState(null);
   const [checking, setChecking] = useState(true);
   const [adminGranted, setAdminGranted] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(PLATFORM_THEME_KEY) || 'null');
+      if (saved?.primary) applyThemeColors(saved.primary, saved.accent);
+    } catch { /* ignore malformed local storage */ }
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -118,6 +169,7 @@ export default function PlatformLayout() {
             <span className="hidden md:block text-xs text-white/40">
               {new Date().toLocaleDateString('en', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
             </span>
+            <PlatformThemeSwitcher />
             <div className="w-8 h-8 rounded-full bg-brand-blue text-white flex items-center justify-center text-xs font-bold border border-white/10">
               {user?.email?.[0]?.toUpperCase() || 'A'}
             </div>

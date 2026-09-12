@@ -2,8 +2,22 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
+import { COUNTRIES, CURRENCIES } from '@/lib/referenceData';
+import { THEME_PRESETS, applyThemeColors } from '@/lib/theme';
 
-import { Save, Building2, Clock, Globe, DollarSign, Camera, Loader2, X, Percent } from 'lucide-react';
+import { Save, Building2, Clock, Globe, DollarSign, Camera, Loader2, X, Palette, Check, Percent } from 'lucide-react';
+
+// Real IANA timezone database via the browser (hundreds of zones, always
+// current) — falls back to a representative worldwide set on older
+// browsers that don't support Intl.supportedValuesOf.
+const TIMEZONES = (() => {
+  try {
+    return Intl.supportedValuesOf('timeZone');
+  } catch {
+    return ['UTC', 'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Asia/Dubai', 'Asia/Riyadh',
+      'America/New_York', 'America/Los_Angeles', 'Asia/Tokyo', 'Africa/Casablanca', 'Australia/Sydney'];
+  }
+})();
 
 export default function PropertySettings() {
   const { selectedProperty, properties, refreshProperties } = useProperty();
@@ -17,6 +31,7 @@ export default function PropertySettings() {
     address: '', city: '', country: '', postal_code: '',
     checkin_time: '14:00', checkout_time: '11:00',
     currency: 'USD', timezone: 'UTC', photo_urls: [],
+    theme_primary: THEME_PRESETS[0].primary, theme_accent: THEME_PRESETS[0].accent,
     vat_rate: 0, vat_inclusive: true, city_tax_type: 'none', city_tax_amount: 0, tax_id: '',
   });
 
@@ -34,10 +49,17 @@ export default function PropertySettings() {
         city_tax_type: p.city_tax_type || 'none', city_tax_amount: p.city_tax_amount ?? 0,
         tax_id: p.tax_id || '',
         photo_urls: p.photo_urls || [],
+        theme_primary: p.theme_primary || THEME_PRESETS[0].primary,
+        theme_accent: p.theme_accent || THEME_PRESETS[0].accent,
       });
     }
     setLoading(false);
   }, [selectedProperty, properties]);
+
+  const applyTheme = (primary, accent) => {
+    setForm(prev => ({ ...prev, theme_primary: primary, theme_accent: accent }));
+    applyThemeColors(primary, accent); // live preview, saved on "Save Changes"
+  };
 
   const handleSave = async () => {
     if (!property) return;
@@ -166,7 +188,10 @@ export default function PropertySettings() {
           </div>
           <div>
             <label className={labelCls}>Country</label>
-            <input type="text" value={form.country} onChange={e => setForm({...form, country: e.target.value})} className={inputCls} />
+            <select value={form.country} onChange={e => setForm({...form, country: e.target.value})} className={inputCls}>
+              <option value="">Select a country…</option>
+              {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
           </div>
         </div>
       </div>
@@ -199,14 +224,61 @@ export default function PropertySettings() {
           <div>
             <label className={labelCls}><DollarSign className="w-3.5 h-3.5 inline mr-1" />Currency</label>
             <select value={form.currency} onChange={e => setForm({...form, currency: e.target.value})} className={inputCls}>
-              {['USD','EUR','GBP','AED','JPY','CHF','CAD','AUD','SAR','MAD','BRL','INR'].map(c => <option key={c}>{c}</option>)}
+              {CURRENCIES.map(([code, name]) => <option key={code} value={code}>{code} — {name}</option>)}
             </select>
           </div>
           <div>
             <label className={labelCls}>Timezone</label>
             <select value={form.timezone} onChange={e => setForm({...form, timezone: e.target.value})} className={inputCls}>
-              {['UTC','Europe/London','Europe/Paris','Europe/Berlin','Asia/Dubai','Asia/Riyadh','America/New_York','America/Los_Angeles','Asia/Tokyo','Africa/Casablanca','Australia/Sydney'].map(tz => <option key={tz}>{tz}</option>)}
+              {TIMEZONES.map(tz => <option key={tz}>{tz}</option>)}
             </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Branding & Theme */}
+      <div className="bg-white rounded-xl border border-brand-border p-6">
+        <div className="flex items-center gap-2 mb-5">
+          <Palette className="w-5 h-5 text-brand-navy" />
+          <h2 className="text-base font-semibold text-brand-ink">Branding & Theme</h2>
+        </div>
+        <p className="text-xs text-brand-slate mb-4">
+          Choose the colors your team sees across the entire dashboard for this property. Changes preview instantly — click Save Changes to keep them.
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+          {THEME_PRESETS.map(t => {
+            const active = form.theme_primary === t.primary && form.theme_accent === t.accent;
+            return (
+              <button
+                key={t.name}
+                type="button"
+                onClick={() => applyTheme(t.primary, t.accent)}
+                className={`relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-colors ${active ? 'border-brand-navy' : 'border-brand-border hover:border-brand-blue/50'}`}
+              >
+                {active && <Check className="w-3.5 h-3.5 text-white absolute top-1.5 right-1.5 bg-brand-navy rounded-full p-0.5" />}
+                <div className="flex -space-x-2">
+                  <span className="w-7 h-7 rounded-full border-2 border-white shadow-sm" style={{ background: t.primary }} />
+                  <span className="w-7 h-7 rounded-full border-2 border-white shadow-sm" style={{ background: t.accent }} />
+                </div>
+                <span className="text-[11px] font-medium text-brand-ink">{t.name}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Custom primary color</label>
+            <div className="flex items-center gap-2">
+              <input type="color" value={form.theme_primary} onChange={e => applyTheme(e.target.value, form.theme_accent)} className="w-10 h-10 rounded-lg border border-brand-border cursor-pointer" />
+              <input type="text" value={form.theme_primary} onChange={e => applyTheme(e.target.value, form.theme_accent)} className={inputCls} />
+            </div>
+          </div>
+          <div>
+            <label className={labelCls}>Custom accent color</label>
+            <div className="flex items-center gap-2">
+              <input type="color" value={form.theme_accent} onChange={e => applyTheme(form.theme_primary, e.target.value)} className="w-10 h-10 rounded-lg border border-brand-border cursor-pointer" />
+              <input type="text" value={form.theme_accent} onChange={e => applyTheme(form.theme_primary, e.target.value)} className={inputCls} />
+            </div>
           </div>
         </div>
       </div>

@@ -80,7 +80,7 @@ declare
     'document_template','expense','guest','guest_portal_config',
     'house_rule','housekeeping_task','integration_setting','inventory_item',
     'invoice','lost_item','loyalty_reward','loyalty_tier',
-    'maintenance_ticket','marketing_campaign','payment','property',
+    'maintenance_ticket','marketing_campaign','notification','payment','property',
     'rate_plan','rate_rule','reservation','review','room','room_type',
     'shift','shift_log','staff_member','support_ticket','vendor'
   ];

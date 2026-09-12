@@ -1,8 +1,10 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useProperty } from '@/lib/PropertyContext';
+import { useAuth } from '@/lib/AuthContext';
+import { applyThemeColors, THEME_PRESETS } from '@/lib/theme';
 
 import {
   LayoutDashboard, ConciergeBell, CalendarCheck, Grid3X3, Users,
@@ -10,7 +12,8 @@ import {
   Plug, Settings, Bell, Search, Menu, X, Building2, ChevronDown,
   BedDouble, Smartphone, Package, Star, UserCog, FileText, LayoutTemplate,
   Globe, Crown, Contact, Clock, Banknote, Tag, Blocks, Megaphone, History,
-  CalendarDays, ScrollText, Palette, ClipboardList, Truck, CreditCard, FolderOpen, Layers, Rocket, ArrowRight, LifeBuoy, PackageX, Wallet
+  CalendarDays, ScrollText, Palette, ClipboardList, Truck, CreditCard, FolderOpen, Layers, Rocket, ArrowRight, LifeBuoy,
+  CheckCheck, Inbox, PackageX, Wallet
 } from 'lucide-react';
 
 const navGroups = [
@@ -86,9 +89,92 @@ const navGroups = [
   },
 ];
 
+// Real, functional notification center — replaces what was previously a
+// static bell icon with a hardcoded permanent "unread" dot and no click
+// handler at all (a fake button the spec explicitly prohibits).
+function NotificationBell() {
+  const [items, setItems] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    db.entities.Notification.list('-created_date', 30)
+      .then(setItems)
+      .catch(() => setItems([]))
+      .finally(() => setLoaded(true));
+  }, []);
+
+  useEffect(() => {
+    const onClickAway = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', onClickAway);
+    return () => document.removeEventListener('mousedown', onClickAway);
+  }, []);
+
+  const unread = items.filter(n => !n.read);
+
+  const markRead = async (n) => {
+    if (n.read) return;
+    const updated = await db.entities.Notification.update(n.id, { read: true });
+    setItems(prev => prev.map(x => x.id === n.id ? updated : x));
+  };
+
+  const markAllRead = async () => {
+    const toMark = items.filter(n => !n.read);
+    await Promise.all(toMark.map(n => db.entities.Notification.update(n.id, { read: true })));
+    setItems(prev => prev.map(x => ({ ...x, read: true })));
+  };
+
+  return (
+    <div className="relative" ref={ref}>
+      <button onClick={() => setOpen(o => !o)} className="relative text-brand-slate hover:text-brand-navy transition-colors">
+        <Bell className="w-5 h-5" />
+        {unread.length > 0 && (
+          <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#DC2626] rounded-full"></span>
+        )}
+      </button>
+      {open && (
+        <div className="absolute right-0 mt-3 w-80 bg-white rounded-xl border border-brand-border shadow-xl z-50 overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-brand-border">
+            <p className="text-sm font-semibold text-brand-ink">Notifications</p>
+            {unread.length > 0 && (
+              <button onClick={markAllRead} className="flex items-center gap-1 text-[11px] font-medium text-brand-navy hover:underline">
+                <CheckCheck className="w-3.5 h-3.5" /> Mark all read
+              </button>
+            )}
+          </div>
+          <div className="max-h-80 overflow-y-auto">
+            {!loaded ? (
+              <p className="text-xs text-brand-slate text-center py-8">Loading…</p>
+            ) : items.length === 0 ? (
+              <div className="text-center py-8 px-4">
+                <Inbox className="w-6 h-6 text-[#C4CDD5] mx-auto mb-2" />
+                <p className="text-xs text-brand-slate">No notifications yet.</p>
+              </div>
+            ) : (
+              items.map(n => (
+                <button key={n.id} onClick={() => markRead(n)} className={`w-full text-left px-4 py-3 border-b border-[#F1F5F9] last:border-0 hover:bg-brand-bg transition-colors ${n.read ? '' : 'bg-blue-50/40'}`}>
+                  <div className="flex items-start gap-2">
+                    {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-brand-navy mt-1.5 shrink-0" />}
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-medium text-brand-ink truncate">{n.title || 'Notification'}</p>
+                      {n.message && <p className="text-[12px] text-brand-slate mt-0.5 line-clamp-2">{n.message}</p>}
+                    </div>
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { properties, loading, selectedPropertyId, selectProperty } = useProperty();
+  const { properties, loading, selectedPropertyId, selectProperty, selectedProperty } = useProperty();
+  const { user } = useAuth();
   const propsLoaded = !loading;
   const location = useLocation();
   const [theme, setTheme] = useState(() => {
@@ -99,6 +185,17 @@ export default function Layout() {
     setTheme(next);
     try { localStorage.setItem('hostera_theme', next); } catch { /* private browsing */ }
   };
+  const initials = (user?.full_name || user?.email || 'U')
+    .split(/[\s@.]+/).filter(Boolean).slice(0, 2).map(p => p[0]?.toUpperCase()).join('') || 'U';
+
+  useEffect(() => {
+    const p = selectedProperty || properties[0];
+    if (p?.theme_primary || p?.theme_accent) {
+      applyThemeColors(p.theme_primary, p.theme_accent);
+    } else {
+      applyThemeColors(THEME_PRESETS[0].primary, THEME_PRESETS[0].accent);
+    }
+  }, [selectedProperty, properties]);
 
   return (
     <div className={`min-h-screen ${theme === 'warm' ? 'bg-brand-bg-warm' : 'bg-brand-bg'}`}>
@@ -210,12 +307,9 @@ export default function Layout() {
               <Palette className="w-3.5 h-3.5" />
               {theme === 'warm' ? 'Warm' : 'Cool'}
             </button>
-            <button className="relative text-brand-slate hover:text-brand-navy transition-colors">
-              <Bell className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#DC2626] rounded-full"></span>
-            </button>
+            <NotificationBell />
             <div className="w-9 h-9 rounded-full bg-brand-navy text-white flex items-center justify-center text-sm font-medium">
-              AD
+              {initials}
             </div>
           </div>
         </header>
