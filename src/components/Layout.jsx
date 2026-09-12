@@ -13,7 +13,7 @@ import {
   BedDouble, Smartphone, Package, Star, UserCog, FileText, LayoutTemplate,
   Globe, Crown, Contact, Clock, Banknote, Tag, Blocks, Megaphone, History,
   CalendarDays, ScrollText, Palette, ClipboardList, Truck, CreditCard, FolderOpen, Layers, Rocket, ArrowRight, LifeBuoy,
-  CheckCheck, Inbox, PackageX, Wallet
+  CheckCheck, Inbox, PackageX, Wallet, Bot
 } from 'lucide-react';
 
 const navGroups = [
@@ -73,6 +73,7 @@ const navGroups = [
       { label: 'Integration Hub', icon: Blocks, path: '/integration-hub' },
       { label: 'Marketing Tools', icon: Megaphone, path: '/marketing-tools' },
       { label: 'Analytics', icon: BarChart3, path: '/analytics' },
+      { label: 'Hostera AI', icon: Bot, path: '/ai' },
     ],
   },
   {

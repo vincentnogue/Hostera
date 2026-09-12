@@ -67,6 +67,7 @@ const HouseRules = lazy(() => import('@/pages/HouseRules'));
 const LostAndFound = lazy(() => import('@/pages/LostAndFound'));
 const VendorDirectory = lazy(() => import('@/pages/VendorDirectory'));
 const Support = lazy(() => import('@/pages/Support'));
+const HosteraAI = lazy(() => import('@/pages/HosteraAI'));
 const Onboarding = lazy(() => import('@/pages/Onboarding'));
 const PlatformOverview = lazy(() => import('@/pages/platform/PlatformOverview'));
 const PlatformOrganizations = lazy(() => import('@/pages/platform/PlatformOrganizations'));
@@ -197,6 +198,7 @@ const AuthenticatedApp = () => {
             <Route path="/lost-and-found" element={<LostAndFound />} />
             <Route path="/vendor-directory" element={<VendorDirectory />} />
             <Route path="/support" element={<Support />} />
+            <Route path="/ai" element={<HosteraAI />} />
             <Route path="/expense-manager" element={<Expenses />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/property-settings" element={<PropertySettings />} />

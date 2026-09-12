@@ -77,8 +77,13 @@ const integrationCatalog = [
 // generic API key field for anything not listed here.
 const CREDENTIAL_FIELDS = {
   Email: [
+    { key: 'sender_name', label: 'Sender name', type: 'text', placeholder: 'e.g. Hostera Grand Dubai' },
     { key: 'sender_email', label: 'Your professional email', type: 'email', placeholder: 'reservations@yourhotel.com' },
-    { key: 'api_key', label: 'Provider API key', type: 'password', placeholder: 'e.g. a SendGrid or Postmark API key' },
+    { key: 'smtp_host', label: 'SMTP host (leave blank to use an API key instead)', type: 'text', placeholder: 'smtp.yourdomain.com' },
+    { key: 'smtp_port', label: 'SMTP port', type: 'text', placeholder: '587' },
+    { key: 'smtp_username', label: 'SMTP username', type: 'text' },
+    { key: 'smtp_password', label: 'SMTP password', type: 'password' },
+    { key: 'api_key', label: 'Or: provider API key', type: 'password', placeholder: 'e.g. a SendGrid or Postmark API key' },
   ],
   'SMS Gateway': [
     { key: 'api_key', label: 'API key', type: 'password' },
