@@ -3,6 +3,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect } from 'react';
 
 import { Search, Users, Mail, Phone, MapPin } from 'lucide-react';
+import CommunicationActions from '@/components/CommunicationActions';
 
 const vipColors = {
   none: 'bg-gray-100 text-gray-600',
@@ -138,6 +139,16 @@ export default function Guests() {
                     <p className="text-[10px] text-brand-slate">Points</p>
                   </div>
                 </div>
+
+                {(guest.email || guest.phone) && (
+                  <div className="mt-4 pt-4 border-t border-brand-border">
+                    <CommunicationActions
+                      email={guest.email}
+                      phone={guest.phone}
+                      guestName={`${guest.first_name || ''} ${guest.last_name || ''}`.trim()}
+                    />
+                  </div>
+                )}
               </div>
             );
           })}
