@@ -26,6 +26,7 @@ export default function PropertySettings() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [photoError, setPhotoError] = useState('');
   const [form, setForm] = useState({
     name: '', legal_name: '', phone: '', email: '', website: '',
     address: '', city: '', country: '', postal_code: '',
@@ -76,15 +77,31 @@ export default function PropertySettings() {
     }
   };
 
+  const describeUploadError = (err) => {
+    const msg = (err?.message || String(err)).toLowerCase();
+    if (msg.includes('bucket not found') || msg.includes('not found')) {
+      return "Upload failed: the 'uploads' storage bucket doesn't exist yet in Supabase. Create a public bucket named \"uploads\" in Supabase Dashboard → Storage.";
+    }
+    if (msg.includes('row-level security') || msg.includes('permission') || msg.includes('policy') || msg.includes('unauthorized')) {
+      return "Upload failed: the 'uploads' bucket exists but isn't public / lacks an upload policy. Check Supabase Dashboard → Storage → uploads → Policies.";
+    }
+    return `Upload failed: ${err?.message || 'unknown error'}. Try a smaller image or a different file.`;
+  };
+
   const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadingPhoto(true);
+    setPhotoError('');
     try {
       const { file_url } = await db.integrations.Core.UploadFile({ file, bucket: 'uploads' });
-      if (file_url) setForm(prev => ({ ...prev, photo_urls: [...(prev.photo_urls || []), file_url] }));
+      if (file_url) {
+        setForm(prev => ({ ...prev, photo_urls: [...(prev.photo_urls || []), file_url] }));
+      } else {
+        setPhotoError('Upload returned no file URL — the storage bucket may not be configured yet.');
+      }
     } catch (err) {
-      console.error(err);
+      setPhotoError(describeUploadError(err));
     } finally {
       setUploadingPhoto(false);
       e.target.value = '';
@@ -122,6 +139,13 @@ export default function PropertySettings() {
           {saving ? 'Saving...' : saved ? 'Saved!' : 'Save Changes'}
         </button>
       </div>
+
+      {photoError && (
+        <div className="flex items-start justify-between gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+          <span>{photoError}</span>
+          <button onClick={() => setPhotoError('')} className="shrink-0 text-red-400 hover:text-red-600"><X className="w-4 h-4" /></button>
+        </div>
+      )}
 
       {/* Cover Photos */}
       <div className="bg-white rounded-xl border border-brand-border p-6">
