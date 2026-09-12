@@ -1,8 +1,10 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
+import { getPropertyToday } from '@/lib/timezone';
 
-import { LogIn, LogOut, Users, BedDouble, DollarSign, Plus, Search } from 'lucide-react';
+import { LogIn, LogOut, Users, BedDouble, DollarSign, Plus, Search, X, Loader2 } from 'lucide-react';
 
 const resStatusColors = {
   confirmed: 'bg-blue-100 text-blue-700',
@@ -13,11 +15,20 @@ const resStatusColors = {
 };
 
 export default function FrontDesk() {
+  const { selectedProperty, scopeIds, loading: propsLoading } = useProperty();
   const [reservations, setReservations] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [guests, setGuests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [showWalkIn, setShowWalkIn] = useState(false);
+  const [payingRes, setPayingRes] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [walkInForm, setWalkInForm] = useState({ guest_name: '', guest_email: '', room_id: '', nights: 1, adults: 1 });
+  const [paymentForm, setPaymentForm] = useState({ amount: 0, method: 'cash' });
+
+  const currency = selectedProperty?.currency || 'USD';
+  const fmt = (n) => new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n || 0);
 
   const fetchData = async () => {
     try {
@@ -26,8 +37,12 @@ export default function FrontDesk() {
         db.entities.Room.list(),
         db.entities.Guest.list(),
       ]);
-      setReservations(resData || []);
-      setRooms(roomData || []);
+      // Reservation/Room carry property_id — scope to the current
+      // selection (kept permissive for records with no property_id yet,
+      // same reasoning as Dashboard.jsx).
+      const inScope = (r) => !r.property_id || (scopeIds || []).includes(r.property_id);
+      setReservations((resData || []).filter(inScope));
+      setRooms((roomData || []).filter(inScope));
       setGuests(guestData || []);
     } catch (e) {
       console.error(e);
@@ -36,7 +51,7 @@ export default function FrontDesk() {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { if (!propsLoading) fetchData(); }, [propsLoading, scopeIds]);
 
   const handleCheckIn = async (resId, roomId) => {
     try {
@@ -54,6 +69,75 @@ export default function FrontDesk() {
     } catch (e) { console.error(e); }
   };
 
+  const submitWalkIn = async (e) => {
+    e.preventDefault();
+    if (!walkInForm.guest_name || !walkInForm.room_id) return;
+    setSaving(true);
+    try {
+      const room = rooms.find(r => r.id === walkInForm.room_id);
+      const today = getPropertyToday(selectedProperty);
+      const checkOut = new Date(new Date(today).getTime() + (Number(walkInForm.nights) || 1) * 86400000)
+        .toISOString().slice(0, 10);
+      const [firstName, ...rest] = walkInForm.guest_name.trim().split(' ');
+      const guest = await db.entities.Guest.create({
+        first_name: firstName || walkInForm.guest_name,
+        last_name: rest.join(' '),
+        email: walkInForm.guest_email,
+      });
+      await db.entities.Reservation.create({
+        property_id: room?.property_id || selectedProperty?.id || '',
+        guest_id: guest.id,
+        room_id: walkInForm.room_id,
+        room_type_id: room?.room_type_id || '',
+        reservation_number: `RES-${Date.now()}`,
+        check_in: today,
+        check_out: checkOut,
+        adults: Number(walkInForm.adults) || 1,
+        children: 0,
+        status: 'checked_in',
+        source: 'walk_in',
+        currency,
+        total_amount: 0,
+        paid_amount: 0,
+      });
+      await db.entities.Room.update(walkInForm.room_id, { status: 'occupied' });
+      setWalkInForm({ guest_name: '', guest_email: '', room_id: '', nights: 1, adults: 1 });
+      setShowWalkIn(false);
+      fetchData();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const submitPayment = async (e) => {
+    e.preventDefault();
+    if (!payingRes) return;
+    setSaving(true);
+    try {
+      const amount = Number(paymentForm.amount) || 0;
+      await db.entities.Payment.create({
+        reservation_id: payingRes.id,
+        property_id: payingRes.property_id,
+        amount,
+        method: paymentForm.method,
+        currency,
+        paid_at: new Date().toISOString(),
+      });
+      await db.entities.Reservation.update(payingRes.id, {
+        paid_amount: (payingRes.paid_amount || 0) + amount,
+      });
+      setPaymentForm({ amount: 0, method: 'cash' });
+      setPayingRes(null);
+      fetchData();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -62,7 +146,7 @@ export default function FrontDesk() {
     );
   }
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = getPropertyToday(selectedProperty);
   const activeRes = reservations.filter(r => r.status !== 'cancelled' && r.status !== 'no_show');
   const arrivals = activeRes.filter(r => r.check_in === today);
   const departures = activeRes.filter(r => r.check_out === today);
@@ -94,7 +178,7 @@ export default function FrontDesk() {
           <h1 className="text-2xl font-bold text-brand-ink">Front Desk</h1>
           <p className="text-sm text-brand-slate mt-1">Manage today&apos;s arrivals, departures and in-house guests</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-brand-navy text-white rounded-lg text-sm font-medium hover:bg-brand-blue transition-colors">
+        <button onClick={() => setShowWalkIn(true)} className="flex items-center gap-2 px-4 py-2 bg-brand-navy text-white rounded-lg text-sm font-medium hover:bg-brand-blue transition-colors">
           <Plus className="w-4 h-4" />
           Walk-in
         </button>
@@ -182,7 +266,7 @@ export default function FrontDesk() {
                     <div>
                       <p className="text-sm font-medium text-brand-ink">{getGuestName(res.guest_id)}</p>
                       <p className="text-xs text-brand-slate mt-0.5">
-                        Room {room?.number || 'N/A'} · Balance: ${((res.total_amount || 0) - (res.paid_amount || 0))}
+                        Room {room?.number || 'N/A'} · Balance: {fmt((res.total_amount || 0) - (res.paid_amount || 0))}
                       </p>
                     </div>
                     {res.status === 'checked_in' ? (
@@ -230,7 +314,7 @@ export default function FrontDesk() {
                       <td className="py-3 font-medium text-brand-ink">{getGuestName(res.guest_id)}</td>
                       <td className="py-3 text-brand-slate">{room?.number || 'N/A'}</td>
                       <td className="py-3 text-brand-slate">{res.check_out}</td>
-                      <td className="py-3 text-brand-slate">${((res.total_amount || 0) - (res.paid_amount || 0))}</td>
+                      <td className="py-3 text-brand-slate">{fmt((res.total_amount || 0) - (res.paid_amount || 0))}</td>
                       <td className="py-3">
                         <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${resStatusColors[res.status] || 'bg-gray-100'}`}>
                           {res.status.replace(/_/g, ' ')}
@@ -257,13 +341,85 @@ export default function FrontDesk() {
               <div key={res.id} className="flex items-center justify-between p-3 rounded-lg bg-orange-50">
                 <div>
                   <p className="text-sm font-medium text-brand-ink">{getGuestName(res.guest_id)}</p>
-                  <p className="text-xs text-brand-slate mt-0.5">Outstanding: ${((res.total_amount || 0) - (res.paid_amount || 0))}</p>
+                  <p className="text-xs text-brand-slate mt-0.5">Outstanding: {fmt((res.total_amount || 0) - (res.paid_amount || 0))}</p>
                 </div>
-                <button className="px-3 py-1.5 bg-brand-navy text-white text-xs font-medium rounded-lg hover:bg-brand-blue transition-colors">
+                <button
+                  onClick={() => { setPayingRes(res); setPaymentForm({ amount: (res.total_amount || 0) - (res.paid_amount || 0), method: 'cash' }); }}
+                  className="px-3 py-1.5 bg-brand-navy text-white text-xs font-medium rounded-lg hover:bg-brand-blue transition-colors"
+                >
                   Take Payment
                 </button>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Walk-in dialog */}
+      {showWalkIn && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowWalkIn(false)}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-brand-ink">Walk-in Guest</h3>
+              <button onClick={() => setShowWalkIn(false)}><X className="w-4 h-4 text-brand-slate" /></button>
+            </div>
+            <form onSubmit={submitWalkIn} className="space-y-3">
+              <input required placeholder="Guest full name" value={walkInForm.guest_name}
+                onChange={e => setWalkInForm({ ...walkInForm, guest_name: e.target.value })}
+                className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
+              <input type="email" placeholder="Email (optional)" value={walkInForm.guest_email}
+                onChange={e => setWalkInForm({ ...walkInForm, guest_email: e.target.value })}
+                className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
+              <select required value={walkInForm.room_id} onChange={e => setWalkInForm({ ...walkInForm, room_id: e.target.value })}
+                className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy">
+                <option value="">Select an available room</option>
+                {rooms.filter(r => r.status === 'available').map(r => (
+                  <option key={r.id} value={r.id}>Room {r.number}</option>
+                ))}
+              </select>
+              <div className="grid grid-cols-2 gap-3">
+                <input type="number" min={1} placeholder="Nights" value={walkInForm.nights}
+                  onChange={e => setWalkInForm({ ...walkInForm, nights: e.target.value })}
+                  className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
+                <input type="number" min={1} placeholder="Adults" value={walkInForm.adults}
+                  onChange={e => setWalkInForm({ ...walkInForm, adults: e.target.value })}
+                  className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
+              </div>
+              {rooms.filter(r => r.status === 'available').length === 0 && (
+                <p className="text-xs text-amber-600">No rooms currently show as available.</p>
+              )}
+              <button type="submit" disabled={saving} className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60 flex items-center justify-center gap-2">
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />} Check In Walk-in
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Take Payment dialog */}
+      {payingRes && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setPayingRes(null)}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-lg font-bold text-brand-ink">Take Payment</h3>
+              <button onClick={() => setPayingRes(null)}><X className="w-4 h-4 text-brand-slate" /></button>
+            </div>
+            <p className="text-xs text-brand-slate mb-4">{getGuestName(payingRes.guest_id)} · Outstanding {fmt((payingRes.total_amount || 0) - (payingRes.paid_amount || 0))}</p>
+            <form onSubmit={submitPayment} className="space-y-3">
+              <input required type="number" min={0} step="0.01" placeholder="Amount" value={paymentForm.amount}
+                onChange={e => setPaymentForm({ ...paymentForm, amount: e.target.value })}
+                className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
+              <select value={paymentForm.method} onChange={e => setPaymentForm({ ...paymentForm, method: e.target.value })}
+                className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy">
+                <option value="cash">Cash</option>
+                <option value="card">Card</option>
+                <option value="bank_transfer">Bank transfer</option>
+                <option value="other">Other</option>
+              </select>
+              <button type="submit" disabled={saving} className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60 flex items-center justify-center gap-2">
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />} Record Payment
+              </button>
+            </form>
           </div>
         </div>
       )}
