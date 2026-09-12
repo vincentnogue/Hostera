@@ -3,7 +3,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
 
-import { Plug, Plus, X, Check, Link2, RefreshCw, Receipt, CreditCard, Building2, MessageSquare, BarChart3, Sparkles, Workflow, KeyRound, Globe2, UtensilsCrossed, Landmark } from 'lucide-react';
+import { Plug, Plus, X, Check, Link2, RefreshCw, Receipt, CreditCard, Building2, MessageSquare, BarChart3, Sparkles, Workflow, KeyRound, Globe2, UtensilsCrossed, Landmark, Send } from 'lucide-react';
 import BrandLogo from '@/components/marketing/BrandLogos';
 
 const categories = ['ai', 'accounting', 'payment', 'distribution', 'pos', 'tax', 'hospitality', 'communication', 'analytics', 'automation'];
@@ -178,6 +178,8 @@ export default function IntegrationHub() {
   const [showAdd, setShowAdd] = useState(false);
   const [newTool, setNewTool] = useState({ tool_name: '', category: 'accounting', description: '' });
   const [connectingTool, setConnectingTool] = useState(null);
+  const [testingId, setTestingId] = useState(null);
+  const [testResult, setTestResult] = useState(null); // { id, ok, message }
   const [credentialForm, setCredentialForm] = useState({});
   const [saving, setSaving] = useState(false);
 
@@ -199,6 +201,46 @@ export default function IntegrationHub() {
   const disconnect = async (setting) => {
     await db.entities.IntegrationSetting.update(setting.id, { status: 'disconnected' });
     setSettings(prev => prev.map(s => s.id === setting.id ? { ...s, status: 'disconnected' } : s));
+  };
+
+  const testableTools = new Set(['Telegram', 'Zapier']);
+
+  const testConnection = async (setting) => {
+    setTestingId(setting.id);
+    setTestResult(null);
+    try {
+      let resp;
+      if (setting.tool_name === 'Telegram') {
+        resp = await fetch('/api/send-telegram', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            bot_token: setting.credentials?.bot_token,
+            chat_id: setting.credentials?.chat_id,
+            text: `✅ Test message from Hostera — ${(selectedProperty || properties[0])?.name || 'your property'}'s Telegram connection is working.`,
+          }),
+        });
+      } else if (setting.tool_name === 'Zapier') {
+        resp = await fetch('/api/trigger-zapier', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            webhook_url: setting.credentials?.webhook_url,
+            payload: { event: 'test', property: (selectedProperty || properties[0])?.name, sent_at: new Date().toISOString() },
+          }),
+        });
+      }
+      const data = await resp.json();
+      if (!resp.ok || data.error) {
+        setTestResult({ id: setting.id, ok: false, message: data.message || 'Test failed.' });
+      } else {
+        setTestResult({ id: setting.id, ok: true, message: 'Test sent successfully.' });
+      }
+    } catch (err) {
+      setTestResult({ id: setting.id, ok: false, message: String(err) });
+    } finally {
+      setTestingId(null);
+    }
   };
 
   const openConnect = (setting) => {
@@ -316,6 +358,11 @@ export default function IntegrationHub() {
                   {s.last_sync ? `Synced ${new Date(s.last_sync).toLocaleString()}` : 'Never synced'}
                 </span>
                 <div className="flex gap-1.5">
+                  {s.status === 'connected' && testableTools.has(s.tool_name) && (
+                    <button onClick={() => testConnection(s)} disabled={testingId === s.id} className="p-2 border border-brand-border text-brand-slate rounded-full hover:border-brand-navy hover:text-brand-navy disabled:opacity-50" title="Send a real test">
+                      <Send className={`w-3.5 h-3.5 ${testingId === s.id ? 'animate-pulse' : ''}`} />
+                    </button>
+                  )}
                   {s.status === 'connected' && (
                     <button onClick={() => resync(s)} className="p-2 border border-brand-border text-brand-slate rounded-full hover:border-brand-navy hover:text-brand-navy" title="Resync">
                       <RefreshCw className="w-3.5 h-3.5" />
@@ -329,6 +376,11 @@ export default function IntegrationHub() {
                   </button>
                 </div>
               </div>
+              {testResult?.id === s.id && (
+                <p className={`text-[11px] mt-2 ${testResult.ok ? 'text-green-600' : 'text-red-600'}`}>
+                  {testResult.ok ? '✓' : '✕'} {testResult.message}
+                </p>
+              )}
             </div>
           ))}
         </div>
