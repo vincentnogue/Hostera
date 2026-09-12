@@ -1,7 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useProperty } from '@/lib/PropertyContext';
 import { useAuth } from '@/lib/AuthContext';
 import { applyThemeColors, THEME_PRESETS } from '@/lib/theme';
@@ -13,7 +13,7 @@ import {
   BedDouble, Smartphone, Package, Star, UserCog, FileText, LayoutTemplate,
   Globe, Crown, Contact, Clock, Banknote, Tag, Blocks, Megaphone, History,
   CalendarDays, ScrollText, Palette, ClipboardList, Truck, CreditCard, FolderOpen, Layers, Rocket, ArrowRight, LifeBuoy,
-  CheckCheck, Inbox, PackageX, Wallet, PackagePlus
+  CheckCheck, Inbox, PackageX, Wallet, PackagePlus, Bot
 } from 'lucide-react';
 
 const navGroups = [
@@ -74,6 +74,7 @@ const navGroups = [
       { label: 'Integration Hub', icon: Blocks, path: '/integration-hub' },
       { label: 'Marketing Tools', icon: Megaphone, path: '/marketing-tools' },
       { label: 'Analytics', icon: BarChart3, path: '/analytics' },
+      { label: 'Hostera AI', icon: Bot, path: '/ai' },
     ],
   },
   {
@@ -197,6 +198,23 @@ export default function Layout() {
       applyThemeColors(THEME_PRESETS[0].primary, THEME_PRESETS[0].accent);
     }
   }, [selectedProperty, properties]);
+
+  // KYC gate: a business account can't reach the real dashboard until a
+  // platform admin verifies its documents (see Onboarding.jsx's
+  // Verification step + PlatformVerifications.jsx). /onboarding itself
+  // renders inside this same Layout, so it's explicitly excluded here to
+  // avoid a redirect loop when resubmitting after a rejection.
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (loading || location.pathname === '/onboarding') return;
+    if (properties.length === 0) return; // still mid-onboarding, nothing to gate yet
+    db.entities.Organization.list().catch(() => []).then(orgs => {
+      const status = orgs?.[0]?.kyc_status;
+      if (status === 'pending' || status === 'rejected') {
+        navigate('/pending-verification', { replace: true });
+      }
+    });
+  }, [loading, properties, location.pathname]);
 
   return (
     <div className={`min-h-screen ${theme === 'warm' ? 'bg-brand-bg-warm' : 'bg-brand-bg'}`}>

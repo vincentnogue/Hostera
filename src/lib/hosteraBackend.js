@@ -320,15 +320,30 @@ const app = {
 // ---------------------------------------------------------------------------
 const integrations = {
   Core: {
-    async UploadFile({ file, bucket = 'uploads', path } = {}) {
+    async UploadFile({ file, bucket = 'uploads', path, isPrivate = false } = {}) {
       if (!file) return { file_url: '' };
       const filePath = path || `${Date.now()}-${file.name}`;
       const { error } = await supabase.storage.from(bucket).upload(filePath, file, {
         upsert: true,
       });
       if (error) throw error;
+      if (isPrivate) {
+        // Private buckets (e.g. kyc-documents) have no public URL — issue a
+        // long-lived signed URL instead. Re-fetch a fresh one on later
+        // views via getSignedFileUrl() rather than assuming this one still
+        // works indefinitely.
+        const { data, error: signError } = await supabase.storage.from(bucket).createSignedUrl(filePath, 60 * 60 * 24 * 365);
+        if (signError) throw signError;
+        return { file_url: data?.signedUrl || '', path: filePath };
+      }
       const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-      return { file_url: data?.publicUrl || '' };
+      return { file_url: data?.publicUrl || '', path: filePath };
+    },
+    async getSignedFileUrl({ bucket, path, expiresIn = 3600 } = {}) {
+      if (!bucket || !path) return { file_url: '' };
+      const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, expiresIn);
+      if (error) throw error;
+      return { file_url: data?.signedUrl || '' };
     },
   },
 };

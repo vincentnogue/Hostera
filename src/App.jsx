@@ -67,9 +67,12 @@ const HouseRules = lazy(() => import('@/pages/HouseRules'));
 const LostAndFound = lazy(() => import('@/pages/LostAndFound'));
 const VendorDirectory = lazy(() => import('@/pages/VendorDirectory'));
 const Support = lazy(() => import('@/pages/Support'));
+const HosteraAI = lazy(() => import('@/pages/HosteraAI'));
 const Onboarding = lazy(() => import('@/pages/Onboarding'));
+const PendingVerification = lazy(() => import('@/pages/PendingVerification'));
 const PlatformOverview = lazy(() => import('@/pages/platform/PlatformOverview'));
 const PlatformOrganizations = lazy(() => import('@/pages/platform/PlatformOrganizations'));
+const PlatformVerifications = lazy(() => import('@/pages/platform/PlatformVerifications'));
 const PlatformSubscriptions = lazy(() => import('@/pages/platform/PlatformSubscriptions'));
 const CommercialCodes = lazy(() => import('@/pages/platform/CommercialCodes'));
 const PlatformSupport = lazy(() => import('@/pages/platform/PlatformSupport'));
@@ -154,6 +157,7 @@ const AuthenticatedApp = () => {
         <Route path="/marketplace" element={<Marketplace />} />
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/guest" element={<GuestDashboard />} />
+          <Route path="/pending-verification" element={<PendingVerification />} />
           <Route element={<PropertyProvider><Layout /></PropertyProvider>}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/front-desk" element={<FrontDesk />} />
@@ -197,6 +201,7 @@ const AuthenticatedApp = () => {
             <Route path="/lost-and-found" element={<LostAndFound />} />
             <Route path="/vendor-directory" element={<VendorDirectory />} />
             <Route path="/support" element={<Support />} />
+            <Route path="/ai" element={<HosteraAI />} />
             <Route path="/expense-manager" element={<Expenses />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/property-settings" element={<PropertySettings />} />
@@ -204,6 +209,7 @@ const AuthenticatedApp = () => {
           <Route element={<PlatformLayout />}>
             <Route path="/platform" element={<PlatformOverview />} />
             <Route path="/platform/organizations" element={<PlatformOrganizations />} />
+            <Route path="/platform/verifications" element={<PlatformVerifications />} />
             <Route path="/platform/subscriptions" element={<PlatformSubscriptions />} />
             <Route path="/platform/commercial-codes" element={<CommercialCodes />} />
             <Route path="/platform/support" element={<PlatformSupport />} />
