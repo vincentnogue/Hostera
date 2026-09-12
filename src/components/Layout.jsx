@@ -177,6 +177,14 @@ export default function Layout() {
   const { user } = useAuth();
   const propsLoaded = !loading;
   const location = useLocation();
+  const [theme, setTheme] = useState(() => {
+    try { return localStorage.getItem('hostera_theme') || 'cool'; } catch { return 'cool'; }
+  });
+  const toggleTheme = () => {
+    const next = theme === 'cool' ? 'warm' : 'cool';
+    setTheme(next);
+    try { localStorage.setItem('hostera_theme', next); } catch { /* private browsing */ }
+  };
   const initials = (user?.full_name || user?.email || 'U')
     .split(/[\s@.]+/).filter(Boolean).slice(0, 2).map(p => p[0]?.toUpperCase()).join('') || 'U';
 
@@ -190,7 +198,7 @@ export default function Layout() {
   }, [selectedProperty, properties]);
 
   return (
-    <div className="min-h-screen bg-brand-bg">
+    <div className={`min-h-screen ${theme === 'warm' ? 'bg-brand-bg-warm' : 'bg-brand-bg'}`}>
       {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 z-50 h-full w-64 bg-brand-navy text-white transform transition-transform duration-300 ${
@@ -291,6 +299,14 @@ export default function Layout() {
                 className="bg-transparent text-sm outline-none w-48 text-brand-ink placeholder:text-brand-slate-light"
               />
             </div>
+            <button
+              onClick={toggleTheme}
+              title={theme === 'warm' ? 'Switch to cool theme' : 'Switch to warm (off-white) theme'}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-brand-border text-xs font-medium text-brand-slate hover:border-brand-navy hover:text-brand-navy transition-colors"
+            >
+              <Palette className="w-3.5 h-3.5" />
+              {theme === 'warm' ? 'Warm' : 'Cool'}
+            </button>
             <NotificationBell />
             <div className="w-9 h-9 rounded-full bg-brand-navy text-white flex items-center justify-center text-sm font-medium">
               {initials}

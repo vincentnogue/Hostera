@@ -1,9 +1,10 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useProperty } from '@/lib/PropertyContext';
+import { getPropertyToday } from '@/lib/timezone';
 
-import { LogIn, LogOut, Users, BedDouble, DollarSign, Plus, Search, X } from 'lucide-react';
+import { LogIn, LogOut, Users, BedDouble, DollarSign, Plus, Search, X, Loader2 } from 'lucide-react';
 
 const resStatusColors = {
   confirmed: 'bg-blue-100 text-blue-700',
@@ -14,33 +15,35 @@ const resStatusColors = {
 };
 
 export default function FrontDesk() {
+  const { selectedProperty, scopeIds, loading: propsLoading } = useProperty();
   const [reservations, setReservations] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [guests, setGuests] = useState([]);
-  const [roomTypes, setRoomTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showWalkIn, setShowWalkIn] = useState(false);
+  const [payingRes, setPayingRes] = useState(null);
   const [saving, setSaving] = useState(false);
-  const todayStr = new Date().toISOString().split('T')[0];
-  const tomorrowStr = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-  const [walkIn, setWalkIn] = useState({
-    guest_name: '', email: '', phone: '', room_type_id: '', room_id: '',
-    adults: 1, check_out: tomorrowStr,
-  });
+  const [walkInForm, setWalkInForm] = useState({ guest_name: '', guest_email: '', room_id: '', nights: 1, adults: 1 });
+  const [paymentForm, setPaymentForm] = useState({ amount: 0, method: 'cash' });
+
+  const currency = selectedProperty?.currency || 'USD';
+  const fmt = (n) => new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n || 0);
 
   const fetchData = async () => {
     try {
-      const [resData, roomData, guestData, rtData] = await Promise.all([
+      const [resData, roomData, guestData] = await Promise.all([
         db.entities.Reservation.list(),
         db.entities.Room.list(),
         db.entities.Guest.list(),
-        db.entities.RoomType.list(),
       ]);
-      setReservations(resData || []);
-      setRooms(roomData || []);
+      // Reservation/Room carry property_id — scope to the current
+      // selection (kept permissive for records with no property_id yet,
+      // same reasoning as Dashboard.jsx).
+      const inScope = (r) => !r.property_id || (scopeIds || []).includes(r.property_id);
+      setReservations((resData || []).filter(inScope));
+      setRooms((roomData || []).filter(inScope));
       setGuests(guestData || []);
-      setRoomTypes(rtData || []);
     } catch (e) {
       console.error(e);
     } finally {
@@ -48,7 +51,7 @@ export default function FrontDesk() {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { if (!propsLoading) fetchData(); }, [propsLoading, scopeIds]);
 
   const handleCheckIn = async (resId, roomId) => {
     try {
@@ -66,49 +69,73 @@ export default function FrontDesk() {
     } catch (e) { console.error(e); }
   };
 
-  const walkInAvailableRooms = rooms.filter(r =>
-    (r.status === 'available' || r.status === 'clean') &&
-    (!walkIn.room_type_id || r.room_type_id === walkIn.room_type_id)
-  );
-
   const submitWalkIn = async (e) => {
     e.preventDefault();
-    if (!walkIn.guest_name.trim() || !walkIn.room_id) return;
+    if (!walkInForm.guest_name || !walkInForm.room_id) return;
     setSaving(true);
     try {
-      const roomType = roomTypes.find(rt => rt.id === walkIn.room_type_id);
-      const [first_name, ...rest] = walkIn.guest_name.trim().split(' ');
-      let guest = guests.find(g => walkIn.email && g.email === walkIn.email);
-      if (!guest) {
-        guest = await db.entities.Guest.create({
-          first_name, last_name: rest.join(' '), email: walkIn.email, phone: walkIn.phone,
-        });
-      }
-      const reservation = await db.entities.Reservation.create({
+      const room = rooms.find(r => r.id === walkInForm.room_id);
+      const today = getPropertyToday(selectedProperty);
+      const checkOut = new Date(new Date(today).getTime() + (Number(walkInForm.nights) || 1) * 86400000)
+        .toISOString().slice(0, 10);
+      const [firstName, ...rest] = walkInForm.guest_name.trim().split(' ');
+      const guest = await db.entities.Guest.create({
+        first_name: firstName || walkInForm.guest_name,
+        last_name: rest.join(' '),
+        email: walkInForm.guest_email,
+      });
+      await db.entities.Reservation.create({
+        property_id: room?.property_id || selectedProperty?.id || '',
         guest_id: guest.id,
-        guest_name: walkIn.guest_name.trim(),
-        guest_email: walkIn.email,
-        guest_phone: walkIn.phone,
-        room_id: walkIn.room_id,
-        room_type_id: walkIn.room_type_id,
-        check_in: todayStr,
-        check_out: walkIn.check_out,
-        adults: walkIn.adults,
-        reservation_number: `WI-${Date.now()}`,
-        source: 'walk_in',
+        room_id: walkInForm.room_id,
+        room_type_id: room?.room_type_id || '',
+        reservation_number: `RES-${Date.now()}`,
+        check_in: today,
+        check_out: checkOut,
+        adults: Number(walkInForm.adults) || 1,
+        children: 0,
         status: 'checked_in',
-        currency: roomType?.currency || 'USD',
-        total_amount: roomType?.base_price || 0,
+        source: 'walk_in',
+        currency,
+        total_amount: 0,
         paid_amount: 0,
       });
-      await db.entities.Room.update(walkIn.room_id, { status: 'occupied' });
-      setReservations(prev => [reservation, ...prev]);
-      setGuests(prev => guest.id && !prev.find(g => g.id === guest.id) ? [guest, ...prev] : prev);
-      setRooms(prev => prev.map(r => r.id === walkIn.room_id ? { ...r, status: 'occupied' } : r));
+      await db.entities.Room.update(walkInForm.room_id, { status: 'occupied' });
+      setWalkInForm({ guest_name: '', guest_email: '', room_id: '', nights: 1, adults: 1 });
       setShowWalkIn(false);
-      setWalkIn({ guest_name: '', email: '', phone: '', room_type_id: '', room_id: '', adults: 1, check_out: tomorrowStr });
-    } catch (err) { console.error(err); }
-    finally { setSaving(false); }
+      fetchData();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const submitPayment = async (e) => {
+    e.preventDefault();
+    if (!payingRes) return;
+    setSaving(true);
+    try {
+      const amount = Number(paymentForm.amount) || 0;
+      await db.entities.Payment.create({
+        reservation_id: payingRes.id,
+        property_id: payingRes.property_id,
+        amount,
+        method: paymentForm.method,
+        currency,
+        paid_at: new Date().toISOString(),
+      });
+      await db.entities.Reservation.update(payingRes.id, {
+        paid_amount: (payingRes.paid_amount || 0) + amount,
+      });
+      setPaymentForm({ amount: 0, method: 'cash' });
+      setPayingRes(null);
+      fetchData();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) {
@@ -119,7 +146,7 @@ export default function FrontDesk() {
     );
   }
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = getPropertyToday(selectedProperty);
   const activeRes = reservations.filter(r => r.status !== 'cancelled' && r.status !== 'no_show');
   const arrivals = activeRes.filter(r => r.check_in === today);
   const departures = activeRes.filter(r => r.check_out === today);
@@ -208,10 +235,10 @@ export default function FrontDesk() {
                       </p>
                     </div>
                     {res.status === 'confirmed' ? (
-                <button
-                  onClick={() => handleCheckIn(res.id, res.room_id)}
-                  className="px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors"
-                >
+                      <button
+                        onClick={() => handleCheckIn(res.id, res.room_id)}
+                        className="px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors"
+                      >
                         Check In
                       </button>
                     ) : (
@@ -239,7 +266,7 @@ export default function FrontDesk() {
                     <div>
                       <p className="text-sm font-medium text-brand-ink">{getGuestName(res.guest_id)}</p>
                       <p className="text-xs text-brand-slate mt-0.5">
-                        Room {room?.number || 'N/A'} · Balance: ${((res.total_amount || 0) - (res.paid_amount || 0))}
+                        Room {room?.number || 'N/A'} · Balance: {fmt((res.total_amount || 0) - (res.paid_amount || 0))}
                       </p>
                     </div>
                     {res.status === 'checked_in' ? (
@@ -287,7 +314,7 @@ export default function FrontDesk() {
                       <td className="py-3 font-medium text-brand-ink">{getGuestName(res.guest_id)}</td>
                       <td className="py-3 text-brand-slate">{room?.number || 'N/A'}</td>
                       <td className="py-3 text-brand-slate">{res.check_out}</td>
-                      <td className="py-3 text-brand-slate">${((res.total_amount || 0) - (res.paid_amount || 0))}</td>
+                      <td className="py-3 text-brand-slate">{fmt((res.total_amount || 0) - (res.paid_amount || 0))}</td>
                       <td className="py-3">
                         <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${resStatusColors[res.status] || 'bg-gray-100'}`}>
                           {res.status.replace(/_/g, ' ')}
@@ -314,62 +341,83 @@ export default function FrontDesk() {
               <div key={res.id} className="flex items-center justify-between p-3 rounded-lg bg-orange-50">
                 <div>
                   <p className="text-sm font-medium text-brand-ink">{getGuestName(res.guest_id)}</p>
-                  <p className="text-xs text-brand-slate mt-0.5">Outstanding: ${((res.total_amount || 0) - (res.paid_amount || 0))}</p>
+                  <p className="text-xs text-brand-slate mt-0.5">Outstanding: {fmt((res.total_amount || 0) - (res.paid_amount || 0))}</p>
                 </div>
-                <Link to="/cash-register" className="px-3 py-1.5 bg-brand-navy text-white text-xs font-medium rounded-lg hover:bg-brand-blue transition-colors">
+                <button
+                  onClick={() => { setPayingRes(res); setPaymentForm({ amount: (res.total_amount || 0) - (res.paid_amount || 0), method: 'cash' }); }}
+                  className="px-3 py-1.5 bg-brand-navy text-white text-xs font-medium rounded-lg hover:bg-brand-blue transition-colors"
+                >
                   Take Payment
-                </Link>
+                </button>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Walk-in modal */}
+      {/* Walk-in dialog */}
       {showWalkIn && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowWalkIn(false)}>
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-brand-ink">New Walk-in</h3>
+              <h3 className="text-lg font-bold text-brand-ink">Walk-in Guest</h3>
               <button onClick={() => setShowWalkIn(false)}><X className="w-4 h-4 text-brand-slate" /></button>
             </div>
             <form onSubmit={submitWalkIn} className="space-y-3">
-              <input required placeholder="Guest full name" value={walkIn.guest_name} onChange={e => setWalkIn({ ...walkIn, guest_name: e.target.value })}
+              <input required placeholder="Guest full name" value={walkInForm.guest_name}
+                onChange={e => setWalkInForm({ ...walkInForm, guest_name: e.target.value })}
                 className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
-              <div className="grid grid-cols-2 gap-3">
-                <input type="email" placeholder="Email (optional)" value={walkIn.email} onChange={e => setWalkIn({ ...walkIn, email: e.target.value })}
-                  className="px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
-                <input placeholder="Phone (optional)" value={walkIn.phone} onChange={e => setWalkIn({ ...walkIn, phone: e.target.value })}
-                  className="px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
-              </div>
-              <select required value={walkIn.room_type_id} onChange={e => setWalkIn({ ...walkIn, room_type_id: e.target.value, room_id: '' })}
+              <input type="email" placeholder="Email (optional)" value={walkInForm.guest_email}
+                onChange={e => setWalkInForm({ ...walkInForm, guest_email: e.target.value })}
+                className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
+              <select required value={walkInForm.room_id} onChange={e => setWalkInForm({ ...walkInForm, room_id: e.target.value })}
                 className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy">
-                <option value="">Select a room type…</option>
-                {roomTypes.map(rt => <option key={rt.id} value={rt.id}>{rt.name} — {rt.currency || 'USD'} {rt.base_price}/night</option>)}
+                <option value="">Select an available room</option>
+                {rooms.filter(r => r.status === 'available').map(r => (
+                  <option key={r.id} value={r.id}>Room {r.number}</option>
+                ))}
               </select>
-              {walkIn.room_type_id && (
-                <select required value={walkIn.room_id} onChange={e => setWalkIn({ ...walkIn, room_id: e.target.value })}
-                  className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy">
-                  <option value="">
-                    {walkInAvailableRooms.length === 0 ? 'No available rooms of this type' : 'Select a room…'}
-                  </option>
-                  {walkInAvailableRooms.map(r => <option key={r.id} value={r.id}>Room {r.number || r.name}</option>)}
-                </select>
-              )}
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-medium text-brand-slate block mb-1">Adults</label>
-                  <input type="number" min={1} value={walkIn.adults} onChange={e => setWalkIn({ ...walkIn, adults: Number(e.target.value) })}
-                    className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-brand-slate block mb-1">Check-out</label>
-                  <input type="date" min={tomorrowStr} value={walkIn.check_out} onChange={e => setWalkIn({ ...walkIn, check_out: e.target.value })}
-                    className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
-                </div>
+                <input type="number" min={1} placeholder="Nights" value={walkInForm.nights}
+                  onChange={e => setWalkInForm({ ...walkInForm, nights: e.target.value })}
+                  className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
+                <input type="number" min={1} placeholder="Adults" value={walkInForm.adults}
+                  onChange={e => setWalkInForm({ ...walkInForm, adults: e.target.value })}
+                  className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
               </div>
-              <button type="submit" disabled={saving || !walkIn.room_id} className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60">
-                {saving ? 'Checking in…' : 'Check In Now'}
+              {rooms.filter(r => r.status === 'available').length === 0 && (
+                <p className="text-xs text-amber-600">No rooms currently show as available.</p>
+              )}
+              <button type="submit" disabled={saving} className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60 flex items-center justify-center gap-2">
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />} Check In Walk-in
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Take Payment dialog */}
+      {payingRes && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setPayingRes(null)}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-lg font-bold text-brand-ink">Take Payment</h3>
+              <button onClick={() => setPayingRes(null)}><X className="w-4 h-4 text-brand-slate" /></button>
+            </div>
+            <p className="text-xs text-brand-slate mb-4">{getGuestName(payingRes.guest_id)} · Outstanding {fmt((payingRes.total_amount || 0) - (payingRes.paid_amount || 0))}</p>
+            <form onSubmit={submitPayment} className="space-y-3">
+              <input required type="number" min={0} step="0.01" placeholder="Amount" value={paymentForm.amount}
+                onChange={e => setPaymentForm({ ...paymentForm, amount: e.target.value })}
+                className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
+              <select value={paymentForm.method} onChange={e => setPaymentForm({ ...paymentForm, method: e.target.value })}
+                className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy">
+                <option value="cash">Cash</option>
+                <option value="card">Card</option>
+                <option value="bank_transfer">Bank transfer</option>
+                <option value="other">Other</option>
+              </select>
+              <button type="submit" disabled={saving} className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60 flex items-center justify-center gap-2">
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />} Record Payment
               </button>
             </form>
           </div>

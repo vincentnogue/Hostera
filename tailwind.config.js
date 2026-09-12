@@ -19,6 +19,7 @@ module.exports = {
   				'slate-light': '#94A3B8',
   				border: '#E2E8F0',
   				bg: '#F6F8FB',
+				'bg-warm': '#FAF8F4',
   				'navy-900': '#0A1E30',
   				'navy-950': '#0C2438',
   				overlay: '#0E243F',

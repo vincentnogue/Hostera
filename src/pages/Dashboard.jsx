@@ -3,6 +3,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useProperty } from '@/lib/PropertyContext';
+import { getPropertyToday } from '@/lib/timezone';
 
 import {
   TrendingUp, DollarSign, LogIn, LogOut, BedDouble,
@@ -78,7 +79,7 @@ export default function Dashboard() {
   const currency = selectedProperty?.currency || 'USD';
   const fmt = (n) => new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n || 0);
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = getPropertyToday(selectedProperty);
   const activeRes = reservations.filter(r => r.status !== 'cancelled' && r.status !== 'no_show');
   const arrivals = activeRes.filter(r => r.check_in === today);
   const departures = activeRes.filter(r => r.check_out === today);
@@ -146,7 +147,7 @@ export default function Dashboard() {
       <div>
         <h1 className="text-2xl font-bold text-brand-ink">Dashboard</h1>
         <p className="text-sm text-brand-slate mt-1">
-          {new Date().toLocaleDateString('en', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          {new Date(`${today}T12:00:00`).toLocaleDateString('en', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           {' · '}
           {selectedProperty ? selectedProperty.name : 'All properties'}
         </p>
