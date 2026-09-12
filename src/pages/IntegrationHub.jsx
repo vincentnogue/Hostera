@@ -3,13 +3,57 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
 
-import { Plug, Plus, X, Check, Link2, RefreshCw, Receipt, CreditCard, Building2, MessageSquare, BarChart3, Sparkles, Workflow, KeyRound } from 'lucide-react';
+import { Plug, Plus, X, Check, Link2, RefreshCw, Receipt, CreditCard, Building2, MessageSquare, BarChart3, Sparkles, Workflow, KeyRound, Globe2, UtensilsCrossed, Landmark } from 'lucide-react';
 import BrandLogo from '@/components/marketing/BrandLogos';
 
-const categories = ['ai', 'accounting', 'payment', 'hospitality', 'communication', 'analytics', 'automation'];
-const categoryIcons = { ai: Sparkles, accounting: Receipt, payment: CreditCard, hospitality: Building2, communication: MessageSquare, analytics: BarChart3, automation: Workflow };
+const categories = ['ai', 'accounting', 'payment', 'distribution', 'pos', 'tax', 'hospitality', 'communication', 'analytics', 'automation'];
+const categoryIcons = { ai: Sparkles, accounting: Receipt, payment: CreditCard, distribution: Globe2, pos: UtensilsCrossed, tax: Landmark, hospitality: Building2, communication: MessageSquare, analytics: BarChart3, automation: Workflow };
 const integrationCatalog = [
   { tool_name: 'LiBooks', category: 'accounting', description: 'Liafrik accounting — invoices, payments & tax sync.' },
+  { tool_name: 'QuickBooks', category: 'accounting', region: 'Americas', description: 'Small/mid-size accounting, US-centric.' },
+  { tool_name: 'Xero', category: 'accounting', region: 'Global', description: 'Cloud accounting popular in UK/AU/NZ.' },
+  { tool_name: 'Sage', category: 'accounting', region: 'Europe', description: 'Accounting & payroll, strong in Europe & Africa.' },
+  { tool_name: 'Zoho Books', category: 'accounting', region: 'Asia-Pacific', description: 'Accounting suite popular across Asia & the Middle East.' },
+  { tool_name: 'FreshBooks', category: 'accounting', region: 'Americas', description: 'Invoicing & accounting for small properties.' },
+
+  // Distribution / OTA / channel manager — worldwide demand sources. A
+  // property connects whichever OTAs its guests actually book through.
+  { tool_name: 'Booking.com', category: 'distribution', region: 'Global', description: 'World\u2019s largest OTA — rates, availability & reservations sync.' },
+  { tool_name: 'Expedia', category: 'distribution', region: 'Global', description: 'Expedia Group brands — Expedia, Hotels.com, Vrbo.' },
+  { tool_name: 'Airbnb', category: 'distribution', region: 'Global', description: 'Short-term rental & boutique property listings.' },
+  { tool_name: 'Agoda', category: 'distribution', region: 'Asia-Pacific', description: 'Leading OTA across Asia-Pacific.' },
+  { tool_name: 'Google Hotel Ads', category: 'distribution', region: 'Global', description: 'Metasearch — Google Search & Maps booking links.' },
+  { tool_name: 'Trip.com', category: 'distribution', region: 'Asia-Pacific', description: 'Leading OTA for Chinese & broader Asian travelers.' },
+  { tool_name: 'MakeMyTrip', category: 'distribution', region: 'Asia-Pacific', description: 'Leading OTA in India.' },
+  { tool_name: 'Ostrovok', category: 'distribution', region: 'Europe', description: 'Leading OTA across Russia & the CIS.' },
+  { tool_name: 'Hostelworld', category: 'distribution', region: 'Global', description: 'Hostel & budget property bookings worldwide.' },
+  { tool_name: 'TripAdvisor', category: 'distribution', region: 'Global', description: 'Metasearch & reviews-driven bookings.' },
+  { tool_name: 'Trivago', category: 'distribution', region: 'Europe', description: 'Hotel price-comparison metasearch.' },
+  { tool_name: 'HRS', category: 'distribution', region: 'Europe', description: 'Corporate travel distribution, strong in Germany/EU.' },
+  { tool_name: 'Jumia Travel', category: 'distribution', region: 'Africa', description: 'OTA distribution across Africa.' },
+  { tool_name: 'Despegar', category: 'distribution', region: 'Americas', description: 'Leading OTA across Latin America.' },
+
+  // POS & F&B — restaurant, bar and minibar sales posted straight to the
+  // guest folio.
+  { tool_name: 'Toast', category: 'pos', region: 'Americas', description: 'Restaurant POS, US-focused.' },
+  { tool_name: 'Square POS', category: 'pos', region: 'Global', description: 'POS for F&B outlets, cafés & small properties.' },
+  { tool_name: 'Lightspeed', category: 'pos', region: 'Global', description: 'Restaurant & retail POS.' },
+  { tool_name: 'Oracle MICROS Simphony', category: 'pos', region: 'Global', description: 'Enterprise F&B POS for larger hotels & resorts.' },
+  { tool_name: 'Loyverse', category: 'pos', region: 'Global', description: 'Simple POS popular with independent properties.' },
+
+  // Tax & e-invoicing — mandatory in a growing number of countries;
+  // requirements vary enormously, so a property picks its own local
+  // compliance provider.
+  { tool_name: 'ZATCA e-Invoicing', category: 'tax', region: 'Middle East', description: 'Mandatory e-invoicing compliance in Saudi Arabia.' },
+  { tool_name: 'SAT / CFDI', category: 'tax', region: 'Americas', description: 'Mandatory e-invoicing (CFDI) compliance in Mexico.' },
+  { tool_name: 'SDI e-Fattura', category: 'tax', region: 'Europe', description: 'Mandatory e-invoicing compliance in Italy.' },
+  { tool_name: 'Nota Fiscal (NF-e)', category: 'tax', region: 'Americas', description: 'Mandatory e-invoicing compliance in Brazil.' },
+  { tool_name: 'eTIMS', category: 'tax', region: 'Africa', description: 'Mandatory e-invoicing compliance in Kenya.' },
+  { tool_name: 'Egypt e-Invoice', category: 'tax', region: 'Africa', description: 'Mandatory e-invoicing compliance in Egypt.' },
+  { tool_name: 'GST e-Invoicing', category: 'tax', region: 'Asia-Pacific', description: 'Mandatory GST e-invoicing compliance in India.' },
+  { tool_name: 'Avalara', category: 'tax', region: 'Global', description: 'Multi-country VAT/GST/sales tax automation.' },
+
+  { tool_name: 'Nutro', category: 'hospitality', description: 'Liafrik F&B — restaurant orders posted to folios.' },
 
   // Payments — worldwide PSP catalog. A hotel picks whichever provider(s)
   // actually pay out in their country/currency; guest checkout on the
@@ -57,13 +101,31 @@ const integrationCatalog = [
 
   { tool_name: 'Nutro', category: 'hospitality', description: 'Liafrik F&B — restaurant orders posted to folios.' },
   { tool_name: 'Door Locks API', category: 'hospitality', description: 'Smart lock & keycard systems.' },
+  { tool_name: 'ASSA ABLOY VingCard', category: 'hospitality', description: 'RFID keycard locks used across major hotel chains worldwide.' },
+  { tool_name: 'Dormakaba Saflok', category: 'hospitality', description: 'Electronic locking systems, global hospitality deployments.' },
+  { tool_name: 'Salto Systems', category: 'hospitality', description: 'Wireless smart locks & mobile keys.' },
+  { tool_name: 'OpenKey', category: 'hospitality', description: 'Mobile key platform, works across major lock brands.' },
+  { tool_name: 'ID Scanner (MRZ/OCR)', category: 'hospitality', description: 'Passport & ID scanning for fast, compliant check-in.' },
+  { tool_name: 'Self Check-in Kiosk', category: 'hospitality', description: 'Lobby kiosk for unattended check-in/check-out.' },
+  { tool_name: 'Google Nest / Smart Thermostat', category: 'hospitality', description: 'In-room climate control automation.' },
   { tool_name: 'Email', category: 'communication', description: 'Guest email notifications, sent from your own professional address.' },
   { tool_name: 'SMS Gateway', category: 'communication', description: 'Guest SMS notifications and campaigns.' },
   { tool_name: 'WhatsApp', category: 'communication', description: 'Guest messaging over WhatsApp Business.' },
   { tool_name: 'Telegram', category: 'communication', description: 'Staff or guest notifications via a Telegram bot.' },
+  { tool_name: 'WeChat', category: 'communication', region: 'Asia-Pacific', description: 'Guest messaging for Chinese travelers.' },
+  { tool_name: 'LINE', category: 'communication', region: 'Asia-Pacific', description: 'Guest messaging popular in Japan, Thailand & Taiwan.' },
+  { tool_name: 'Viber', category: 'communication', region: 'Europe', description: 'Guest messaging popular across Eastern Europe.' },
+  { tool_name: 'Mailchimp', category: 'communication', description: 'Guest email marketing & campaigns.' },
+  { tool_name: 'HubSpot', category: 'communication', description: 'CRM & marketing automation.' },
+  { tool_name: 'Twilio', category: 'communication', description: 'Programmable SMS/voice/WhatsApp — global carrier reach.' },
   { tool_name: 'Zapier', category: 'automation', description: 'Trigger workflows in 6,000+ apps from Hostera events.' },
+  { tool_name: 'Make (Integromat)', category: 'automation', description: 'Visual workflow automation across thousands of apps.' },
   { tool_name: 'Webhooks', category: 'automation', description: 'Send Hostera events to your own endpoint in real time.' },
+  { tool_name: 'n8n', category: 'automation', description: 'Self-hosted or cloud workflow automation.' },
   { tool_name: 'Google Analytics', category: 'analytics', description: 'Booking engine traffic insights.' },
+  { tool_name: 'Meta Pixel', category: 'analytics', description: 'Facebook/Instagram ad conversion tracking.' },
+  { tool_name: 'Hotjar', category: 'analytics', description: 'Booking engine heatmaps & session recordings.' },
+  { tool_name: 'Mixpanel', category: 'analytics', description: 'Product & guest behavior analytics.' },
   { tool_name: 'OpenAI', category: 'ai', description: 'Guest-facing AI assistants, content & workflow automation.' },
   { tool_name: 'Claude', category: 'ai', description: 'Revenue analysis and staff copilot workflows.' },
   { tool_name: 'Gemini', category: 'ai', description: 'Multilingual guest communication and insights.' },
@@ -286,10 +348,10 @@ export default function IntegrationHub() {
               </div>
               <div>
                 <label className="text-xs font-medium text-brand-slate block mb-1">Quick pick</label>
-                {newTool.category === 'payment' ? (
+                {['payment', 'distribution'].includes(newTool.category) ? (
                   <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
                     {['Global', 'Americas', 'Europe', 'Africa', 'Middle East', 'Asia-Pacific'].map(region => {
-                      const items = integrationCatalog.filter(c => c.category === 'payment' && c.region === region);
+                      const items = integrationCatalog.filter(c => c.category === newTool.category && c.region === region);
                       if (items.length === 0) return null;
                       return (
                         <div key={region}>
