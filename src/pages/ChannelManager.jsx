@@ -1,8 +1,9 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
-import { Plug, RefreshCw, Globe, CheckCircle2, XCircle, AlertTriangle, Loader2 } from 'lucide-react';
+import { Plug, RefreshCw, Globe, CheckCircle2, XCircle, AlertTriangle, Loader2, X, KeyRound } from 'lucide-react';
 
 const statusConfig = {
   connected: { icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50', label: 'Connected' },
@@ -12,14 +13,22 @@ const statusConfig = {
 };
 
 export default function ChannelManager() {
+  const { selectedProperty, scopeIds, loading: propsLoading } = useProperty();
   const [channels, setChannels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [syncingId, setSyncingId] = useState(null);
+  const [connectingChannel, setConnectingChannel] = useState(null);
+  const [credentialForm, setCredentialForm] = useState({ account_id: '', api_key: '' });
+  const [saving, setSaving] = useState(false);
+
+  const currency = selectedProperty?.currency || 'USD';
+  const fmt = (n) => new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n || 0);
 
   const fetchData = async () => {
     try {
       const data = await db.entities.ChannelConnection.list();
-      setChannels(data || []);
+      const inScope = (r) => !r.property_id || (scopeIds || []).includes(r.property_id);
+      setChannels((data || []).filter(inScope));
     } catch (e) {
       console.error(e);
     } finally {
@@ -27,7 +36,7 @@ export default function ChannelManager() {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { if (!propsLoading) fetchData(); }, [propsLoading, scopeIds]);
 
   const handleSync = async (channelId) => {
     setSyncingId(channelId);
@@ -47,12 +56,35 @@ export default function ChannelManager() {
     }
   };
 
-  const handleConnect = async (channelId, currentStatus) => {
-    const newStatus = currentStatus === 'connected' ? 'disconnected' : 'connected';
+  const disconnect = async (channelId) => {
     try {
-      await db.entities.ChannelConnection.update(channelId, { status: newStatus });
+      await db.entities.ChannelConnection.update(channelId, { status: 'disconnected' });
       fetchData();
     } catch (e) { console.error(e); }
+  };
+
+  const openConnect = (channel) => {
+    setConnectingChannel(channel);
+    setCredentialForm({ account_id: channel.account_id || '', api_key: '' });
+  };
+
+  const submitConnect = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await db.entities.ChannelConnection.update(connectingChannel.id, {
+        status: 'connected',
+        account_id: credentialForm.account_id,
+        api_key: credentialForm.api_key,
+        last_sync: new Date().toISOString(),
+      });
+      setConnectingChannel(null);
+      fetchData();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) {
@@ -79,7 +111,7 @@ export default function ChannelManager() {
           { label: 'Connected Channels', value: connectedCount, color: 'text-green-600', bg: 'bg-green-50' },
           { label: 'Total Channels', value: channels.length, color: 'text-brand-navy', bg: 'bg-blue-50' },
           { label: 'Bookings (Month)', value: totalBookings, color: 'text-purple-600', bg: 'bg-purple-50' },
-          { label: 'Channel Revenue', value: `$${totalRevenue.toLocaleString()}`, color: 'text-green-600', bg: 'bg-green-50' },
+          { label: 'Channel Revenue', value: fmt(totalRevenue), color: 'text-green-600', bg: 'bg-green-50' },
         ].map(s => (
           <div key={s.label} className="bg-white rounded-xl border border-brand-border p-4">
             <div className={`w-10 h-10 rounded-lg ${s.bg} flex items-center justify-center mb-2`}>
@@ -124,7 +156,7 @@ export default function ChannelManager() {
                   <p className="text-[10px] text-brand-slate">Bookings</p>
                 </div>
                 <div className="text-center p-2 bg-brand-bg rounded-lg">
-                  <p className="text-sm font-bold text-brand-ink">${(channel.revenue_this_month || 0).toLocaleString()}</p>
+                  <p className="text-sm font-bold text-brand-ink">{fmt(channel.revenue_this_month)}</p>
                   <p className="text-[10px] text-brand-slate">Revenue</p>
                 </div>
               </div>
@@ -135,7 +167,7 @@ export default function ChannelManager() {
                 </span>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => handleConnect(channel.id, channel.status)}
+                    onClick={() => channel.status === 'connected' ? disconnect(channel.id) : openConnect(channel)}
                     className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                       channel.status === 'connected'
                         ? 'border border-brand-border text-brand-slate hover:bg-brand-bg'
@@ -160,6 +192,31 @@ export default function ChannelManager() {
           );
         })}
       </div>
+
+      {connectingChannel && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setConnectingChannel(null)}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-lg font-bold text-brand-ink">Connect {connectingChannel.channel_name}</h3>
+              <button onClick={() => setConnectingChannel(null)}><X className="w-4 h-4 text-brand-slate" /></button>
+            </div>
+            <p className="text-xs text-brand-slate mb-4 flex items-center gap-1.5">
+              <KeyRound className="w-3.5 h-3.5" /> Your property&apos;s account ID and API key on {connectingChannel.channel_name}.
+            </p>
+            <form onSubmit={submitConnect} className="space-y-3">
+              <input required placeholder={`${connectingChannel.channel_name} property/account ID`} value={credentialForm.account_id}
+                onChange={e => setCredentialForm({ ...credentialForm, account_id: e.target.value })}
+                className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
+              <input required type="password" placeholder="API key" value={credentialForm.api_key}
+                onChange={e => setCredentialForm({ ...credentialForm, api_key: e.target.value })}
+                className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
+              <button type="submit" disabled={saving} className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60">
+                {saving ? 'Connecting…' : 'Connect'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

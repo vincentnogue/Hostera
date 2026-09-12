@@ -1,6 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
 import { Package, AlertTriangle, Plus, Minus, Sparkles, Coffee, Wrench, FileText } from 'lucide-react';
 
@@ -13,20 +14,20 @@ const categoryConfig = {
 };
 
 export default function Inventory() {
+  const { selectedProperty, scopeIds, loading: propsLoading } = useProperty();
   const [items, setItems] = useState([]);
-  const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('housekeeping');
   const [updatingId, setUpdatingId] = useState(null);
 
+  const currency = selectedProperty?.currency || 'USD';
+  const fmt = (n) => new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n || 0);
+
   const fetchData = async () => {
     try {
-      const [itemData, propData] = await Promise.all([
-        db.entities.InventoryItem.list(),
-        db.entities.Property.list(),
-      ]);
-      setItems(itemData || []);
-      setProperties(propData || []);
+      const itemData = await db.entities.InventoryItem.list();
+      const inScope = (r) => !r.property_id || (scopeIds || []).includes(r.property_id);
+      setItems((itemData || []).filter(inScope));
     } catch (e) {
       console.error(e);
     } finally {
@@ -34,7 +35,7 @@ export default function Inventory() {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { if (!propsLoading) fetchData(); }, [propsLoading, scopeIds]);
 
   const updateQuantity = async (item, delta) => {
     setUpdatingId(item.id);
@@ -66,15 +67,15 @@ export default function Inventory() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-brand-ink">Inventory Management</h1>
-        <p className="text-sm text-brand-slate mt-1">Track supplies, minibar stock and maintenance parts</p>
+        <h1 className="text-2xl font-bold text-brand-ink">Quick Stock Check</h1>
+        <p className="text-sm text-brand-slate mt-1">Fast +/- stock adjustments by category — for full supplier and reorder management, see Inventory Mgmt.</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: 'Total Items', value: totalItems, icon: Package, color: 'text-brand-navy', bg: 'bg-blue-50' },
           { label: 'Low Stock Alerts', value: lowStockItems.length, icon: AlertTriangle, color: 'text-orange-600', bg: 'bg-orange-50' },
-          { label: 'Inventory Value', value: `$${totalValue.toFixed(0)}`, icon: Package, color: 'text-green-600', bg: 'bg-green-50' },
+          { label: 'Inventory Value', value: fmt(totalValue), icon: Package, color: 'text-green-600', bg: 'bg-green-50' },
           { label: 'Categories', value: tabs.length, icon: Package, color: 'text-purple-600', bg: 'bg-purple-50' },
         ].map(s => {
           const Icon = s.icon;

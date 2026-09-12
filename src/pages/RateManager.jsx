@@ -32,6 +32,8 @@ export default function RateManager() {
 
   const currentProperty = selectedProperty || properties[0];
   const propertyId = currentProperty?.id;
+  const currency = currentProperty?.currency || 'USD';
+  const fmt = (n) => new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n || 0);
   const inputCls = "w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
 
   const savePlan = async (e) => {
@@ -70,7 +72,7 @@ export default function RateManager() {
         {[
           { label: 'Active Rate Plans', value: plans.filter(p => p.status === 'active').length },
           { label: 'Active Rules', value: rules.filter(r => r.status === 'active').length },
-          { label: 'Avg Base Price', value: plans.length ? `$${Math.round(plans.reduce((s, p) => s + (p.price || 0), 0) / plans.length)}` : '—' },
+          { label: 'Avg Base Price', value: plans.length ? fmt(Math.round(plans.reduce((s, p) => s + (p.price || 0), 0) / plans.length)) : '—' },
           { label: 'Discount Rules', value: rules.filter(r => r.rule_type === 'discount').length },
         ].map(k => (
           <div key={k.label} className="bg-white rounded-xl border border-brand-border p-4">

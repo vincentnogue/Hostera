@@ -29,6 +29,8 @@ export default function InventoryManagement() {
   }, []);
 
   const propertyId = (selectedProperty || properties[0])?.id;
+  const currency = selectedProperty?.currency || 'USD';
+  const fmt = (n) => new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n || 0);
   const inputCls = "w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
   const filtered = items.filter(i => cat === 'all' || i.category === cat);
   const lowStock = items.filter(i => (i.quantity || 0) <= (i.min_stock || 0));
@@ -72,7 +74,7 @@ export default function InventoryManagement() {
         {[
           { label: 'Tracked Items', value: items.length, icon: Boxes, tint: 'text-brand-navy' },
           { label: 'Low Stock Alerts', value: lowStock.length, icon: AlertTriangle, tint: 'text-red-500' },
-          { label: 'Stock Value', value: `$${totalValue.toLocaleString()}`, icon: DollarSign, tint: 'text-green-600' },
+          { label: 'Stock Value', value: fmt(totalValue), icon: DollarSign, tint: 'text-green-600' },
           { label: 'Suppliers', value: new Set(items.map(i => i.supplier).filter(Boolean)).size, icon: Truck, tint: 'text-brand-blue' },
         ].map(k => {
           const Icon = k.icon;

@@ -16,6 +16,8 @@ const seasonColors = {
 
 export default function RevenueManagement() {
   const { selectedProperty } = useProperty();
+  const currency = selectedProperty?.currency || 'USD';
+  const fmt = (n) => new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n || 0);
   const [ratePlans, setRatePlans] = useState([]);
   const [roomTypes, setRoomTypes] = useState([]);
   const [properties, setProperties] = useState([]);
@@ -113,7 +115,7 @@ export default function RevenueManagement() {
         {[
           { label: 'Active Plans', value: activePlans },
           { label: 'Total Plans', value: ratePlans.length },
-          { label: 'Average Rate', value: `$${avgPrice}` },
+          { label: 'Average Rate', value: fmt(avgPrice) },
           { label: 'Room Types', value: roomTypes.length },
         ].map(s => (
           <div key={s.label} className="bg-white rounded-xl border border-brand-border p-4">

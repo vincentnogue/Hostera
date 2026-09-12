@@ -1,6 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
 
 import { DollarSign, Receipt, CreditCard, AlertCircle } from 'lucide-react';
 
@@ -22,6 +23,7 @@ const paymentStatusColors = {
 };
 
 export default function Finance() {
+  const { selectedProperty, scopeIds, loading: propsLoading } = useProperty();
   const [invoices, setInvoices] = useState([]);
   const [payments, setPayments] = useState([]);
   const [guests, setGuests] = useState([]);
@@ -29,6 +31,7 @@ export default function Finance() {
   const [tab, setTab] = useState('invoices');
 
   useEffect(() => {
+    if (propsLoading) return;
     async function fetchData() {
       try {
         const [invData, payData, guestData] = await Promise.all([
@@ -36,8 +39,9 @@ export default function Finance() {
           db.entities.Payment.list(),
           db.entities.Guest.list(),
         ]);
-        setInvoices(invData || []);
-        setPayments(payData || []);
+        const inScope = (r) => !r.property_id || (scopeIds || []).includes(r.property_id);
+        setInvoices((invData || []).filter(inScope));
+        setPayments((payData || []).filter(inScope));
         setGuests(guestData || []);
       } catch (e) {
         console.error(e);
@@ -46,7 +50,10 @@ export default function Finance() {
       }
     }
     fetchData();
-  }, []);
+  }, [propsLoading, scopeIds]);
+
+  const currency = selectedProperty?.currency || 'USD';
+  const fmt = (n) => new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n || 0);
 
   if (loading) {
     return (
@@ -67,8 +74,8 @@ export default function Finance() {
   const completedPayments = payments.filter(p => p.status === 'completed').length;
 
   const kpis = [
-    { label: 'Total Revenue', value: `$${totalRevenue.toLocaleString()}`, icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
-    { label: 'Outstanding', value: `$${outstanding.toLocaleString()}`, icon: AlertCircle, color: 'text-orange-600', bg: 'bg-orange-50' },
+    { label: 'Total Revenue', value: fmt(totalRevenue), icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
+    { label: 'Outstanding', value: fmt(outstanding), icon: AlertCircle, color: 'text-orange-600', bg: 'bg-orange-50' },
     { label: 'Invoices', value: invoices.length, icon: Receipt, color: 'text-brand-navy', bg: 'bg-blue-50' },
     { label: 'Payments', value: completedPayments, icon: CreditCard, color: 'text-purple-600', bg: 'bg-purple-50' },
   ];
@@ -135,7 +142,7 @@ export default function Finance() {
                       <td className="px-4 py-3 font-mono text-xs text-brand-slate">{inv.invoice_number}</td>
                       <td className="px-4 py-3 font-medium text-brand-ink">{getGuestName(inv.guest_id)}</td>
                       <td className="px-4 py-3 text-brand-slate">{inv.issue_date || '-'}</td>
-                      <td className="px-4 py-3 font-medium text-brand-ink">${inv.total || 0}</td>
+                      <td className="px-4 py-3 font-medium text-brand-ink">{fmt(inv.total)}</td>
                       <td className="px-4 py-3">
                         <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${invoiceStatusColors[inv.status] || 'bg-gray-100'}`}>
                           {inv.status}
@@ -169,7 +176,7 @@ export default function Finance() {
                     <tr key={pay.id} className="border-b border-brand-border last:border-0 hover:bg-brand-bg">
                       <td className="px-4 py-3 font-mono text-xs text-brand-slate">{pay.reference || '-'}</td>
                       <td className="px-4 py-3 font-medium text-brand-ink">{getGuestName(pay.guest_id)}</td>
-                      <td className="px-4 py-3 font-medium text-brand-ink">${pay.amount || 0}</td>
+                      <td className="px-4 py-3 font-medium text-brand-ink">{fmt(pay.amount)}</td>
                       <td className="px-4 py-3 text-brand-slate capitalize">{pay.method?.replace('_', ' ') || '-'}</td>
                       <td className="px-4 py-3">
                         <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${paymentStatusColors[pay.status] || 'bg-gray-100'}`}>

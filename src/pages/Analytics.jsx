@@ -1,6 +1,8 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
+import { getPropertyToday } from '@/lib/timezone';
 
 import { TrendingUp, DollarSign, BedDouble, BarChart3 } from 'lucide-react';
 import {
@@ -11,19 +13,25 @@ import {
 const COLORS = ['#123B63', '#1F5A8A', '#2563EB', '#16A34A', '#F59E0B', '#DC2626'];
 
 export default function Analytics() {
+  const { selectedProperty, scopeIds, loading: propsLoading } = useProperty();
   const [reservations, setReservations] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const currency = selectedProperty?.currency || 'USD';
+  const fmt = (n) => new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n || 0);
+
   useEffect(() => {
+    if (propsLoading) return;
     async function fetchData() {
       try {
         const [resData, roomData] = await Promise.all([
           db.entities.Reservation.list(),
           db.entities.Room.list(),
         ]);
-        setReservations(resData || []);
-        setRooms(roomData || []);
+        const inScope = (r) => !r.property_id || (scopeIds || []).includes(r.property_id);
+        setReservations((resData || []).filter(inScope));
+        setRooms((roomData || []).filter(inScope));
       } catch (e) {
         console.error(e);
       } finally {
@@ -31,7 +39,7 @@ export default function Analytics() {
       }
     }
     fetchData();
-  }, []);
+  }, [propsLoading, scopeIds]);
 
   if (loading) {
     return (
@@ -48,9 +56,10 @@ export default function Analytics() {
   const adr = activeRes.length > 0 ? Math.round(totalRevenue / activeRes.length) : 0;
   const revpar = rooms.length > 0 ? Math.round(totalRevenue / rooms.length) : 0;
 
-  // 14-day trend
+  // 14-day trend, anchored to the property's own timezone rather than the browser's
+  const todayInPropertyTz = new Date(`${getPropertyToday(selectedProperty)}T12:00:00`);
   const trendData = Array.from({ length: 14 }, (_, i) => {
-    const date = new Date();
+    const date = new Date(todayInPropertyTz);
     date.setDate(date.getDate() - 13 + i);
     const ds = date.toISOString().split('T')[0];
     const dayRes = activeRes.filter(r => r.check_in <= ds && r.check_out > ds);
@@ -73,10 +82,10 @@ export default function Analytics() {
   ).map(([name, value]) => ({ name: name.replace('_', ' '), value }));
 
   const kpis = [
-    { label: 'ADR', value: `$${adr}`, icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
-    { label: 'RevPAR', value: `$${revpar}`, icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-50' },
+    { label: 'ADR', value: fmt(adr), icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
+    { label: 'RevPAR', value: fmt(revpar), icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-50' },
     { label: 'Occupancy', value: `${occupancyRate}%`, icon: BedDouble, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { label: 'Total Revenue', value: `$${totalRevenue.toLocaleString()}`, icon: BarChart3, color: 'text-brand-navy', bg: 'bg-blue-50' },
+    { label: 'Total Revenue', value: fmt(totalRevenue), icon: BarChart3, color: 'text-brand-navy', bg: 'bg-blue-50' },
   ];
 
   return (

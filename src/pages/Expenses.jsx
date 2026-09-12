@@ -30,6 +30,8 @@ export default function Expenses() {
 
   const currentProperty = selectedProperty || properties[0];
   const propertyId = currentProperty?.id;
+  const currency = currentProperty?.currency || 'USD';
+  const fmt = (n) => new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n || 0);
   const vendors = [...new Set(expenses.map(e => e.vendor).filter(Boolean))];
   const filtered = expenses.filter(e => (cat === 'all' || e.category === cat) && (vendor === 'all' || e.vendor === vendor));
 
@@ -70,7 +72,7 @@ export default function Expenses() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'This Month', value: `$${monthTotal.toLocaleString()}`, icon: Banknote, tint: 'text-brand-navy' },
+          { label: 'This Month', value: fmt(monthTotal), icon: Banknote, tint: 'text-brand-navy' },
           { label: 'Pending Approval', value: pending.length, icon: CalendarDays, tint: 'text-amber-500' },
           { label: 'Top Category', value: topCat ? topCat[0].replace('_', ' ') : '—', icon: TrendingDown, tint: 'text-brand-blue' },
           { label: 'Vendors', value: vendors.length, icon: Building, tint: 'text-green-600' },
@@ -130,7 +132,7 @@ export default function Expenses() {
                   <td className="px-5 py-3.5 font-medium text-brand-ink">{e.description}</td>
                   <td className="px-5 py-3.5"><span className="text-[11px] px-2.5 py-1 rounded-full bg-brand-bg text-brand-slate border border-brand-border capitalize">{e.category?.replace('_', ' ')}</span></td>
                   <td className="px-5 py-3.5 text-brand-slate">{e.vendor || '—'}</td>
-                  <td className="px-5 py-3.5 font-semibold text-brand-ink">${(e.amount || 0).toLocaleString()}</td>
+                  <td className="px-5 py-3.5 font-semibold text-brand-ink">{fmt(e.amount)}</td>
                   <td className="px-5 py-3.5">
                     <span className={`text-[10px] px-2.5 py-1 rounded-full font-semibold capitalize ${statusPills[e.status]}`}>{e.status}</span>
                   </td>
