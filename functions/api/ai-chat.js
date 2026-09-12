@@ -1,13 +1,17 @@
 // Cloudflare Pages Function — POST /api/ai-chat
 //
-// This is the ONLY place the Anthropic API key ever exists. It lives in
-// Cloudflare's server-side environment variable (Settings > Environment
-// variables > ANTHROPIC_API_KEY, or wrangler.toml [vars] for a non-secret
-// value — but this one genuinely IS a secret, unlike the Supabase anon
-// key, so it belongs in the dashboard as a "Secret" type, or as a
-// Wrangler secret via `wrangler pages secret put ANTHROPIC_API_KEY`).
-// It never reaches the browser bundle — unlike VITE_-prefixed variables,
-// anything read here via `env.X` (no VITE_ prefix) stays server-side.
+// This is the ONLY place any AI provider key ever exists. Keys live in
+// Cloudflare's server-side environment (Settings > Environment variables,
+// added as "Secret" type — Secrets are respected even on projects where
+// wrangler.toml governs plain "Text" vars, unlike the Supabase anon key
+// situation earlier). They never reach the browser bundle — unlike
+// VITE_-prefixed variables, anything read here via `env.X` (no VITE_
+// prefix) stays server-side.
+//
+// Gemini (env.GEMINI_API_KEY) is the default provider so every property
+// on the platform shares one configured assistant. Anthropic
+// (env.ANTHROPIC_API_KEY) still works as a fallback/alternative if ever
+// set instead.
 //
 // The frontend (src/pages/HosteraAI.jsx) assembles the business-data
 // context itself, using the normal db.entities.* calls that are already
@@ -16,9 +20,11 @@
 // function never queries Supabase directly; it only forwards what the
 // authenticated frontend already legitimately has access to.
 export async function onRequestPost({ request, env }) {
-  if (!env.ANTHROPIC_API_KEY) {
+  const provider = env.GEMINI_API_KEY ? 'gemini' : env.ANTHROPIC_API_KEY ? 'anthropic' : null;
+
+  if (!provider) {
     return new Response(
-      JSON.stringify({ error: 'not_connected', message: 'Hostera AI is not connected yet. A platform administrator needs to set ANTHROPIC_API_KEY.' }),
+      JSON.stringify({ error: 'not_connected', message: 'Hostera AI is not connected yet. A platform administrator needs to set GEMINI_API_KEY (or ANTHROPIC_API_KEY).' }),
       { status: 503, headers: { 'Content-Type': 'application/json' } }
     );
   }
@@ -48,6 +54,37 @@ export async function onRequestPost({ request, env }) {
   ].join(' ');
 
   try {
+    if (provider === 'gemini') {
+      const model = env.GEMINI_MODEL || 'gemini-2.5-flash';
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': env.GEMINI_API_KEY,
+        },
+        body: JSON.stringify({
+          systemInstruction: { role: 'system', parts: [{ text: systemPrompt }] },
+          contents: messages.map(m => ({
+            role: m.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: m.content }],
+          })),
+        }),
+      });
+
+      if (!resp.ok) {
+        const errText = await resp.text();
+        return new Response(JSON.stringify({ error: 'upstream_error', message: errText }), { status: resp.status, headers: { 'Content-Type': 'application/json' } });
+      }
+
+      const data = await resp.json();
+      const text = (data.candidates || [])
+        .flatMap(c => (c.content?.parts || []).map(p => p.text))
+        .filter(Boolean)
+        .join('\n');
+      return new Response(JSON.stringify({ text }), { headers: { 'Content-Type': 'application/json' } });
+    }
+
+    // Anthropic fallback
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -75,3 +112,4 @@ export async function onRequestPost({ request, env }) {
     return new Response(JSON.stringify({ error: 'network_error', message: String(err) }), { status: 502, headers: { 'Content-Type': 'application/json' } });
   }
 }
+

@@ -24,6 +24,7 @@ export default function RoomTypes() {
   });
   const [uploadingFor, setUploadingFor] = useState(null);
   const [formUploading, setFormUploading] = useState(false);
+  const [photoError, setPhotoError] = useState('');
 
   const fetchData = async () => {
     try {
@@ -83,11 +84,16 @@ export default function RoomTypes() {
     const file = e.target.files?.[0];
     if (!file) return;
     setFormUploading(true);
+    setPhotoError('');
     try {
       const { file_url } = await db.integrations.Core.UploadFile({ file, bucket: 'uploads' });
-      if (file_url) setForm(prev => ({ ...prev, photo_urls: [...(prev.photo_urls || []), file_url] }));
+      if (file_url) {
+        setForm(prev => ({ ...prev, photo_urls: [...(prev.photo_urls || []), file_url] }));
+      } else {
+        setPhotoError('Upload returned no file URL — the storage bucket may not be configured yet.');
+      }
     } catch (err) {
-      console.error(err);
+      setPhotoError(describeUploadError(err));
     } finally {
       setFormUploading(false);
       e.target.value = '';
@@ -98,18 +104,32 @@ export default function RoomTypes() {
     setForm(prev => ({ ...prev, photo_urls: (prev.photo_urls || []).filter(u => u !== url) }));
   };
 
+  const describeUploadError = (err) => {
+    const msg = (err?.message || String(err)).toLowerCase();
+    if (msg.includes('bucket not found') || msg.includes('not found')) {
+      return "Upload failed: the 'uploads' storage bucket doesn't exist yet in Supabase. Create a public bucket named \"uploads\" in Supabase Dashboard → Storage.";
+    }
+    if (msg.includes('row-level security') || msg.includes('permission') || msg.includes('policy') || msg.includes('unauthorized')) {
+      return "Upload failed: the 'uploads' bucket exists but isn't public / lacks an upload policy. Check Supabase Dashboard → Storage → uploads → Policies.";
+    }
+    return `Upload failed: ${err?.message || 'unknown error'}. Try a smaller image or a different file.`;
+  };
+
   const handleRoomTypePhotoUpload = async (rt, e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadingFor(rt.id);
+    setPhotoError('');
     try {
       const { file_url } = await db.integrations.Core.UploadFile({ file, bucket: 'uploads' });
       if (file_url) {
         await db.entities.RoomType.update(rt.id, { photo_urls: [...(rt.photo_urls || []), file_url] });
         fetchData();
+      } else {
+        setPhotoError('Upload returned no file URL — the storage bucket may not be configured yet.');
       }
     } catch (err) {
-      console.error(err);
+      setPhotoError(describeUploadError(err));
     } finally {
       setUploadingFor(null);
       e.target.value = '';
@@ -148,6 +168,13 @@ export default function RoomTypes() {
           New Room Type
         </button>
       </div>
+
+      {photoError && (
+        <div className="flex items-start justify-between gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+          <span>{photoError}</span>
+          <button onClick={() => setPhotoError('')} className="shrink-0 text-red-400 hover:text-red-600"><X className="w-4 h-4" /></button>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {roomTypes.length === 0 ? (
