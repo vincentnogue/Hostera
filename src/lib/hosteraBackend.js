@@ -205,6 +205,20 @@ const buildEntityClient = (entityName) => {
       if (error) throw error;
       return { success: true };
     },
+
+    // Creates several rows in one call — each goes through the same
+    // jsonb-wrapping as create() (organization_id auto-attached, etc.).
+    async bulkCreate(payloads) {
+      return Promise.all((payloads || []).map(payload => this.create(payload)));
+    },
+
+    // Finds rows matching `criteria` (same shape as filter()) and applies
+    // `{ $set: patch }` to each — Mongo-style call signature kept for
+    // call-site compatibility with the rest of the app.
+    async updateMany(criteria, { $set: patch } = {}) {
+      const matches = await this.filter(criteria || {});
+      return Promise.all(matches.map(row => this.update(row.id, patch || {})));
+    },
   };
 };
 
