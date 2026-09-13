@@ -1,6 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useToast } from '@/components/ui/use-toast';
 
 import {
   CalendarCheck, MapPin, Users, Clock, Receipt, CreditCard,
@@ -8,6 +9,7 @@ import {
 } from 'lucide-react';
 
 export default function GuestPortal() {
+  const { toast } = useToast();
   const [reservations, setReservations] = useState([]);
   const [guests, setGuests] = useState([]);
   const [rooms, setRooms] = useState([]);
@@ -52,7 +54,11 @@ export default function GuestPortal() {
           preferences: Object.entries(newPrefs).filter(([_, v]) => v).map(([k]) => k.replace(/_/g, ' ')).join(', ')
         });
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      setPreferences(preferences);
+      toast({ title: 'Could not save preference', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
   };
 
   const submitSupportRequest = async (e) => {
@@ -75,7 +81,10 @@ export default function GuestPortal() {
       });
       setSupportSent(true);
       setSupportMsg('');
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not send your message', description: 'Please try again or contact the front desk directly.', variant: 'destructive' });
+    }
     finally { setSendingSupport(false); }
   };
 

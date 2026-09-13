@@ -1,6 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useToast } from '@/components/ui/use-toast';
 
 import { Flag, Plus, X } from 'lucide-react';
 
@@ -11,6 +12,7 @@ const statusColors = {
 };
 
 export default function PlatformFeatureFlags() {
+  const { toast } = useToast();
   const [flags, setFlags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -40,7 +42,10 @@ export default function PlatformFeatureFlags() {
         timestamp: new Date().toISOString(),
       });
       fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not update feature flag', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
   };
 
   const handleCreate = async () => {
@@ -56,7 +61,10 @@ export default function PlatformFeatureFlags() {
       setShowCreate(false);
       setForm({ key: '', name: '', description: '', status: 'disabled', rollout_percent: 100, scope: 'global' });
       fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not create feature flag', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
     finally { setCreating(false); }
   };
 

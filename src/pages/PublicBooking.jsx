@@ -8,8 +8,10 @@ import {
   MapPin, Users, BedDouble, Calendar, Phone, Mail, Check,
   ShieldCheck, Loader2, ChevronLeft, Building2, LifeBuoy, Send, CheckCircle2
 } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function PublicBooking() {
+  const { toast } = useToast();
   const { propertyId } = useParams();
   const [searchParams] = useSearchParams();
   const [property, setProperty] = useState(null);
@@ -95,7 +97,10 @@ export default function PublicBooking() {
       });
       setSupportSent(true);
       setSupportMsg('');
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Could not send your message', description: 'Please try again or contact the property directly.', variant: 'destructive' });
+    }
     finally { setSendingSupport(false); }
   };
 

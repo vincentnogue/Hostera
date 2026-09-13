@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
 
 import { Plus, X, TrendingUp, CalendarRange, Lock } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 const seasonColors = {
   standard: 'bg-gray-100 text-gray-700',
@@ -16,6 +17,7 @@ const seasonColors = {
 
 export default function RevenueManagement() {
   const { selectedProperty } = useProperty();
+  const { toast } = useToast();
   const currency = selectedProperty?.currency || 'USD';
   const fmt = (n) => new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n || 0);
   const [ratePlans, setRatePlans] = useState([]);
@@ -68,6 +70,7 @@ export default function RevenueManagement() {
       fetchData();
     } catch (e) {
       console.error(e);
+      toast({ title: 'Could not create rate plan', description: e.message || 'Please try again.', variant: 'destructive' });
     } finally {
       setCreating(false);
     }
@@ -77,7 +80,10 @@ export default function RevenueManagement() {
     try {
       await db.entities.RatePlan.update(plan.id, { status: plan.status === 'active' ? 'inactive' : 'active' });
       fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not update rate plan', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
   };
 
   if (loading) {

@@ -6,6 +6,7 @@ import { COUNTRIES, CURRENCIES } from '@/lib/referenceData';
 import { THEME_PRESETS, applyThemeColors } from '@/lib/theme';
 
 import { Save, Building2, Clock, Globe, DollarSign, Camera, Loader2, X, Palette, Check, Percent } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 // Real IANA timezone database via the browser (hundreds of zones, always
 // current) — falls back to a representative worldwide set on older
@@ -22,6 +23,7 @@ const TIMEZONES = (() => {
 export default function PropertySettings() {
   const { selectedProperty, properties, refreshProperties } = useProperty();
   const [property, setProperty] = useState(null);
+  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -72,6 +74,7 @@ export default function PropertySettings() {
       setTimeout(() => setSaved(false), 3000);
     } catch (e) {
       console.error(e);
+      toast({ title: 'Could not save settings', description: e.message || 'Please try again.', variant: 'destructive' });
     } finally {
       setSaving(false);
     }

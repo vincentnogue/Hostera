@@ -1,6 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useToast } from '@/components/ui/use-toast';
 
 import { Star, MessageSquare, Send, ThumbsUp } from 'lucide-react';
 
@@ -10,6 +11,7 @@ const sourceLabels = {
 };
 
 export default function Reputation() {
+  const { toast } = useToast();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [respondingId, setRespondingId] = useState(null);
@@ -38,7 +40,10 @@ export default function Reputation() {
       setRespondingId(null);
       setResponseText('');
       fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not send response', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
   };
 
   if (loading) {

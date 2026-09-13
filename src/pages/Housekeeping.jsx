@@ -1,6 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useToast } from '@/components/ui/use-toast';
 
 import { Sparkles, BedDouble, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 
@@ -18,6 +19,7 @@ const roomStatusConfig = {
 const taskStatusFlow = ['pending', 'assigned', 'in_progress', 'completed', 'inspected'];
 
 export default function Housekeeping() {
+  const { toast } = useToast();
   const [rooms, setRooms] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,7 +46,10 @@ export default function Housekeeping() {
     try {
       await db.entities.Room.update(roomId, { status: newStatus });
       fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not update room status', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
   };
 
   const handleTaskStatusChange = async (taskId, newStatus) => {
@@ -53,7 +58,10 @@ export default function Housekeeping() {
       if (newStatus === 'completed') updates.completed_at = new Date().toISOString();
       await db.entities.HousekeepingTask.update(taskId, updates);
       fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not update task', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
   };
 
   if (loading) {
