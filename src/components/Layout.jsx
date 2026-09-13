@@ -201,43 +201,65 @@ export default function Layout() {
 
   const navigate = useNavigate();
 
-  // Individual (guest) accounts never see the business dashboard, even by
-  // direct URL — they get their own booking dashboard at /guest instead.
-  useEffect(() => {
-    if (loading) return;
-    if (user?.account_type === 'individual') {
-      navigate('/guest', { replace: true });
-    }
-  }, [loading, user]);
+  // Single, strict access gate — replaces three separate checks that each
+  // trusted useAuth()'s `user` object, which can be stale right after a
+  // fresh page load (e.g. right after clicking an email verification
+  // link): AuthContext computes auth state once on mount and never
+  // listens for Supabase's onAuthStateChange, so `user` here isn't
+  // guaranteed to reflect a session that just became valid a moment ago.
+  // This check calls db.auth.me() directly instead of trusting that
+  // object, and defaults to BLOCKED (a bare spinner, not the real page)
+  // until every condition is explicitly confirmed — never the other way
+  // around.
+  const [accessState, setAccessState] = useState('checking'); // 'checking' | 'allowed' | 'blocked'
 
-  // KYC gate: a business account can't reach the real dashboard until a
-  // platform admin verifies its documents (see Onboarding.jsx's
-  // Verification step + PlatformVerifications.jsx). /onboarding itself
-  // renders inside this same Layout, so it's explicitly excluded here to
-  // avoid a redirect loop when resubmitting after a rejection.
   useEffect(() => {
-    if (loading || location.pathname === '/onboarding') return;
-    if (properties.length === 0) return; // still mid-onboarding, nothing to gate yet
-    db.entities.Organization.list().catch(() => []).then(orgs => {
-      const status = orgs?.[0]?.kyc_status;
-      if (status === 'pending' || status === 'rejected') {
-        navigate('/pending-verification', { replace: true });
+    if (loading || location.pathname === '/onboarding') {
+      if (location.pathname === '/onboarding') setAccessState('allowed');
+      return;
+    }
+    let cancelled = false;
+    setAccessState('checking');
+
+    (async () => {
+      let freshUser;
+      try {
+        freshUser = await db.auth.me();
+      } catch {
+        // Not actually authenticated — let ProtectedRoute's own check
+        // handle sending them to /login; don't render anything here.
+        if (!cancelled) setAccessState('blocked');
+        return;
       }
-    });
-  }, [loading, properties, location.pathname]);
 
-  // Onboarding gate: a business account with no property yet must not see
-  // any real page (Dashboard, Reservations, etc.) at all — not even empty —
-  // until setup is done. This used to only show a banner above the still-
-  // rendered page underneath; now it's a hard redirect, same as the two
-  // gates above.
-  useEffect(() => {
-    if (loading || !propsLoaded || location.pathname === '/onboarding') return;
-    if (user?.account_type === 'individual') return; // handled by the gate above
-    if (properties.length === 0) {
-      navigate('/onboarding', { replace: true });
-    }
-  }, [loading, propsLoaded, properties, location.pathname, user]);
+      if (freshUser?.account_type === 'individual') {
+        if (!cancelled) navigate('/guest', { replace: true });
+        return;
+      }
+
+      if (properties.length === 0) {
+        if (!cancelled) navigate('/onboarding', { replace: true });
+        return;
+      }
+
+      try {
+        const orgs = await db.entities.Organization.list();
+        const status = orgs?.[0]?.kyc_status;
+        if (status !== 'verified') {
+          if (!cancelled) navigate('/pending-verification', { replace: true });
+          return;
+        }
+      } catch {
+        // Can't confirm approval status — fail closed, not open.
+        if (!cancelled) navigate('/pending-verification', { replace: true });
+        return;
+      }
+
+      if (!cancelled) setAccessState('allowed');
+    })();
+
+    return () => { cancelled = true; };
+  }, [loading, properties, location.pathname]);
 
   return (
     <div className={`min-h-screen ${theme === 'warm' ? 'bg-brand-bg-warm' : 'bg-brand-bg'}`}>
@@ -357,12 +379,12 @@ export default function Layout() {
         </header>
 
         <main className="p-4 lg:p-8">
-          {propsLoaded && properties.length === 0 && location.pathname !== '/onboarding' && user?.account_type !== 'individual' ? (
+          {accessState === 'allowed' ? (
+            <Outlet />
+          ) : (
             <div className="flex items-center justify-center h-96">
               <div className="w-8 h-8 border-4 border-brand-border border-t-brand-navy rounded-full animate-spin"></div>
             </div>
-          ) : (
-            <Outlet />
           )}
         </main>
       </div>
