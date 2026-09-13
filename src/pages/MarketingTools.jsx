@@ -32,7 +32,7 @@ export default function MarketingTools() {
   const propertyId = (selectedProperty || properties[0])?.id;
   const filtered = campaigns.filter(c => type === 'all' || c.type === type);
   const sent = campaigns.filter(c => c.status === 'sent');
-  const avgOpen = sent.length ? Math.round(sent.reduce((s, c) => s + (c.open_rate || 0), 0) / sent.length) : 0;
+  const sentCount = sent.length;
   const inputCls = "w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
 
   const audienceCount = (aud) => {
@@ -51,8 +51,9 @@ export default function MarketingTools() {
   };
 
   const sendCampaign = async (c) => {
-    await db.entities.MarketingCampaign.update(c.id, { status: 'sent', start_date: new Date().toISOString().slice(0, 10), open_rate: Math.round(35 + Math.random() * 25) });
-    setCampaigns(prev => prev.map(x => x.id === c.id ? { ...x, status: 'sent', open_rate: 45 } : x));
+    const sentDate = new Date().toISOString().slice(0, 10);
+    await db.entities.MarketingCampaign.update(c.id, { status: 'sent', start_date: sentDate });
+    setCampaigns(prev => prev.map(x => x.id === c.id ? { ...x, status: 'sent', start_date: sentDate } : x));
   };
 
   return (
@@ -71,7 +72,7 @@ export default function MarketingTools() {
         {[
           { label: 'Campaigns', value: campaigns.length, icon: Megaphone },
           { label: 'Sent', value: sent.length, icon: Send },
-          { label: 'Avg Open Rate', value: `${avgOpen}%`, icon: Eye },
+          { label: 'Sent Campaigns', value: sentCount, icon: Eye },
           { label: 'Bookings Generated', value: campaigns.reduce((s, c) => s + (c.bookings_generated || 0), 0), icon: TrendingUp },
         ].map(k => {
           const Icon = k.icon;
@@ -127,8 +128,8 @@ export default function MarketingTools() {
                     <button onClick={() => sendCampaign(c)} className="flex items-center gap-1 px-3 py-1.5 bg-brand-navy text-white text-[11px] font-semibold rounded-full hover:bg-brand-blue">
                       <Send className="w-3 h-3" /> Send Now
                     </button>
-                  ) : c.open_rate ? (
-                    <span className="text-[11px] font-semibold text-brand-navy">{c.open_rate}% open rate</span>
+                  ) : c.status === 'sent' ? (
+                    <span className="text-[11px] text-brand-slate">Sent {c.start_date ? new Date(c.start_date).toLocaleDateString() : ''}</span>
                   ) : null}
                 </div>
               </div>
