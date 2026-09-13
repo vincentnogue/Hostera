@@ -208,8 +208,35 @@ const buildEntityClient = (entityName) => {
   };
 };
 
+// `User` doesn't map to a generic table — team members live across two
+// real tables (memberships for the org link + role, profiles for name/
+// email/avatar), and profiles has no organization_id column at all. This
+// mirrors what TeamAccess.jsx and Subscription.jsx actually need: every
+// profile belonging to someone who shares an organization with the
+// current user.
+const userEntityClient = {
+  async list() {
+    const user = await getCurrentUser();
+    if (!user?.organization_id) return [];
+    const { data: memberRows, error: memberError } = await supabase
+      .from('memberships')
+      .select('user_id, role')
+      .eq('organization_id', user.organization_id);
+    if (memberError) throw memberError;
+    const userIds = (memberRows || []).map(m => m.user_id);
+    if (userIds.length === 0) return [];
+    const { data: profileRows, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, email, full_name, avatar_url, role, created_at')
+      .in('id', userIds);
+    if (profileError) throw profileError;
+    const roleByUserId = Object.fromEntries((memberRows || []).map(m => [m.user_id, m.role]));
+    return (profileRows || []).map(p => ({ ...p, role: roleByUserId[p.id] || p.role }));
+  },
+};
+
 const entities = new Proxy({}, {
-  get: (_target, entityName) => buildEntityClient(entityName),
+  get: (_target, entityName) => (entityName === 'User' ? userEntityClient : buildEntityClient(entityName)),
 });
 
 // ---------------------------------------------------------------------------
@@ -348,7 +375,25 @@ const integrations = {
   },
 };
 
-export const db = { auth, app, entities, integrations };
+// Real team-member invitations, backed by the invite-user Supabase Edge
+// Function (deployed separately — it holds the service-role key needed
+// for auth.admin.inviteUserByEmail, which must never reach the client).
+// TeamAccess.jsx previously called db.users.inviteUser(...), a method
+// that didn't exist anywhere — every invite attempt threw immediately.
+const users = {
+  async inviteUser(email, role) {
+    const { data: { session } } = await supabase.auth.getSession();
+    const { data, error } = await supabase.functions.invoke('invite-user', {
+      body: { email, role },
+      headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
+    });
+    if (error) throw error;
+    if (data?.error) throw new Error(data.message || data.error);
+    return data;
+  },
+};
+
+export const db = { auth, app, entities, integrations, users };
 
 // Every page in this app reads `globalThis.__B44_DB__` (base44's own
 // generated pattern) falling back to an empty stub if it isn't set. Setting

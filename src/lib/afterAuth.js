@@ -6,8 +6,12 @@ import { PLATFORM_OWNERS } from '@/lib/platformAdmins';
 /**
  * Resolves where a user should land after a successful email login or OTP verify.
  * - Platform super admins go straight to the Platform Control Center.
- * - Individual accounts (guests) go to their booking dashboard.
+ * - Individual accounts (guests) go to their own booking dashboard — they
+ *   never see the business/property dashboard.
  * - Business accounts with no property yet go to the guided onboarding.
+ * - Business accounts that finished onboarding but aren't verified yet
+ *   (kyc_status pending/rejected) go to the verification waiting screen —
+ *   reaching the real business dashboard requires super-admin approval.
  */
 export async function resolvePostAuthDestination(returnTo) {
   let me = null;
@@ -29,6 +33,10 @@ export async function resolvePostAuthDestination(returnTo) {
   try {
     const props = await db.entities.Property.list();
     if (!props || props.length === 0) return '/onboarding';
+
+    const orgs = await db.entities.Organization.list();
+    const kycStatus = orgs?.[0]?.kyc_status;
+    if (kycStatus === 'pending' || kycStatus === 'rejected') return '/pending-verification';
   } catch (e) {
     // Fall through to the normal destination
   }

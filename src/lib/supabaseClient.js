@@ -64,12 +64,37 @@ const unconfiguredStub = {
   },
 };
 
+// "Remember me" — a real distinction, not just a checkbox for show.
+// hostera_remember_me is a plain preference flag (always in localStorage
+// so it survives to be read at all); the actual session goes to
+// localStorage when true (persists across browser restarts) or
+// sessionStorage when false (cleared the moment the tab/browser closes).
+// Login.jsx sets the flag before calling signIn; it defaults to
+// "remembered" for anyone who never saw/used the checkbox.
+export const REMEMBER_ME_KEY = 'hostera_remember_me';
+
+const rememberMeStorage = {
+  getItem: (key) => {
+    const remember = localStorage.getItem(REMEMBER_ME_KEY) !== 'false';
+    return (remember ? localStorage : sessionStorage).getItem(key);
+  },
+  setItem: (key, value) => {
+    const remember = localStorage.getItem(REMEMBER_ME_KEY) !== 'false';
+    (remember ? localStorage : sessionStorage).setItem(key, value);
+  },
+  removeItem: (key) => {
+    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
+  },
+};
+
 export const supabase = isConfigured
   ? createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
+        storage: rememberMeStorage,
       },
     })
   : unconfiguredStub;

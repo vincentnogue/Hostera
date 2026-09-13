@@ -199,12 +199,22 @@ export default function Layout() {
     }
   }, [selectedProperty, properties]);
 
+  const navigate = useNavigate();
+
+  // Individual (guest) accounts never see the business dashboard, even by
+  // direct URL — they get their own booking dashboard at /guest instead.
+  useEffect(() => {
+    if (loading) return;
+    if (user?.account_type === 'individual') {
+      navigate('/guest', { replace: true });
+    }
+  }, [loading, user]);
+
   // KYC gate: a business account can't reach the real dashboard until a
   // platform admin verifies its documents (see Onboarding.jsx's
   // Verification step + PlatformVerifications.jsx). /onboarding itself
   // renders inside this same Layout, so it's explicitly excluded here to
   // avoid a redirect loop when resubmitting after a rejection.
-  const navigate = useNavigate();
   useEffect(() => {
     if (loading || location.pathname === '/onboarding') return;
     if (properties.length === 0) return; // still mid-onboarding, nothing to gate yet
