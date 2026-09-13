@@ -2,7 +2,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect, useMemo } from 'react';
 
-import { ChevronLeft, ChevronRight, Grid3X3 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Grid3X3, X, LogIn, LogOut, User, Calendar, ArrowRightLeft } from 'lucide-react';
 
 const statusBlockColors = {
   confirmed: 'bg-blue-500',
@@ -19,6 +19,9 @@ export default function RoomRack() {
   const [guests, setGuests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [weekOffset, setWeekOffset] = useState(0);
+  const [activeRes, setActiveRes] = useState(null);
+  const [moving, setMoving] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -78,6 +81,48 @@ export default function RoomRack() {
     if (fa !== fb) return fa - fb;
     return (a.number || '').localeCompare(b.number || '');
   });
+
+  const vacantRoomsNow = rooms.filter(r =>
+    r.id !== activeRes?.room_id && (r.status === 'available' || r.status === 'clean')
+  );
+
+  const checkIn = async () => {
+    setSaving(true);
+    try {
+      await db.entities.Reservation.update(activeRes.id, { status: 'checked_in' });
+      await db.entities.Room.update(activeRes.room_id, { status: 'occupied' });
+      await fetchData();
+      setActiveRes(null);
+    } catch (e) { console.error(e); }
+    finally { setSaving(false); }
+  };
+
+  const checkOut = async () => {
+    setSaving(true);
+    try {
+      await db.entities.Reservation.update(activeRes.id, { status: 'checked_out' });
+      await db.entities.Room.update(activeRes.room_id, { status: 'dirty' });
+      await fetchData();
+      setActiveRes(null);
+    } catch (e) { console.error(e); }
+    finally { setSaving(false); }
+  };
+
+  const moveRoom = async (newRoomId) => {
+    setSaving(true);
+    try {
+      const oldRoomId = activeRes.room_id;
+      await db.entities.Reservation.update(activeRes.id, { room_id: newRoomId });
+      await db.entities.Room.update(newRoomId, { status: activeRes.status === 'checked_in' ? 'occupied' : 'available' });
+      if (activeRes.status === 'checked_in') {
+        await db.entities.Room.update(oldRoomId, { status: 'dirty' });
+      }
+      await fetchData();
+      setActiveRes(null);
+      setMoving(false);
+    } catch (e) { console.error(e); }
+    finally { setSaving(false); }
+  };
 
   return (
     <div className="space-y-6">
@@ -155,6 +200,7 @@ export default function RoomRack() {
                         >
                           {res && (
                             <div
+                              onClick={() => setActiveRes(res)}
                               className={`${statusBlockColors[res.status] || 'bg-gray-400'} text-white text-xs px-2 py-2 rounded-md truncate cursor-pointer hover:opacity-90 transition-opacity`}
                               title={`${getGuestName(res.guest_id)} — ${res.check_in} to ${res.check_out}`}
                             >
@@ -184,6 +230,61 @@ export default function RoomRack() {
           ))}
         </div>
       </div>
+
+      {/* Reservation detail + quick actions */}
+      {activeRes && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => { setActiveRes(null); setMoving(false); }}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-brand-ink flex items-center gap-2">
+                <User className="w-4 h-4 text-brand-navy" /> {getGuestName(activeRes.guest_id)}
+              </h3>
+              <button onClick={() => { setActiveRes(null); setMoving(false); }}><X className="w-4 h-4 text-brand-slate" /></button>
+            </div>
+            <div className="space-y-2 mb-5">
+              <p className="text-sm text-brand-slate flex items-center gap-2">
+                <Calendar className="w-3.5 h-3.5" /> {activeRes.check_in} → {activeRes.check_out}
+              </p>
+              <span className={`inline-block text-[10px] px-2.5 py-1 rounded-full font-semibold text-white ${statusBlockColors[activeRes.status] || 'bg-gray-400'} capitalize`}>
+                {activeRes.status.replace(/_/g, ' ')}
+              </span>
+            </div>
+
+            {!moving ? (
+              <div className="space-y-2">
+                {activeRes.status !== 'checked_in' && activeRes.status !== 'checked_out' && (
+                  <button onClick={checkIn} disabled={saving} className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-full hover:bg-green-700 disabled:opacity-60">
+                    <LogIn className="w-4 h-4" /> Check In
+                  </button>
+                )}
+                {activeRes.status === 'checked_in' && (
+                  <button onClick={checkOut} disabled={saving} className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60">
+                    <LogOut className="w-4 h-4" /> Check Out
+                  </button>
+                )}
+                {activeRes.status !== 'checked_out' && activeRes.status !== 'cancelled' && (
+                  <button onClick={() => setMoving(true)} disabled={saving} className="w-full flex items-center justify-center gap-1.5 py-2.5 border border-brand-border text-brand-ink text-sm font-semibold rounded-full hover:border-brand-navy disabled:opacity-60">
+                    <ArrowRightLeft className="w-4 h-4" /> Move Room
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-56 overflow-y-auto">
+                <p className="text-xs font-medium text-brand-slate mb-1">Move to an available room:</p>
+                {vacantRoomsNow.length === 0 ? (
+                  <p className="text-xs text-brand-slate">No other vacant rooms right now.</p>
+                ) : vacantRoomsNow.map(r => (
+                  <button key={r.id} onClick={() => moveRoom(r.id)} disabled={saving} className="w-full flex items-center justify-between px-3.5 py-2 border border-brand-border rounded-xl text-sm hover:border-brand-navy disabled:opacity-60">
+                    <span>Room {r.number} <span className="text-brand-slate">· Fl {r.floor}</span></span>
+                    <ArrowRightLeft className="w-3.5 h-3.5 text-brand-slate" />
+                  </button>
+                ))}
+                <button onClick={() => setMoving(false)} className="w-full py-2 text-xs text-brand-slate hover:text-brand-navy">Cancel</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -32,7 +32,22 @@ export default function Register() {
     }
     setLoading(true);
     try {
-      await db.auth.register({ email, password });
+      const result = await db.auth.register({ email, password });
+      if (result?.session) {
+        // Email confirmation is disabled for this project, so signUp()
+        // already returned an active session — no OTP step exists to go
+        // through. Route through the exact same post-auth logic as the
+        // OTP path below (onboarding/verification gating), instead of
+        // showing an OTP screen the user could never complete, or worse,
+        // leaving them authenticated with no destination check at all.
+        try {
+          await db.auth.updateMe({ account_type: localStorage.getItem("hostera_account_type") || "business" });
+        } catch (e) {
+          // Persisting the account type is best-effort only
+        }
+        window.location.href = await resolvePostAuthDestination(safeReturnTo());
+        return;
+      }
       setShowOtp(true);
     } catch (err) {
       setError(err.message || "Registration failed");
