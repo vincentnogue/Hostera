@@ -11,12 +11,14 @@ import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import { safeReturnTo } from "@/lib/authReturnTo";
 import { resolvePostAuthDestination } from "@/lib/afterAuth";
+import { REMEMBER_ME_KEY } from "@/lib/supabaseClient";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(() => localStorage.getItem(REMEMBER_ME_KEY) !== "false");
   // Post-login destination (e.g. the MCP OAuth consent page sends users here
   // with returnTo so the grant flow can resume). Same-origin paths only.
   const returnTo = safeReturnTo();
@@ -26,6 +28,11 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
+      // Must be set before login — the storage adapter reads this flag at
+      // the moment the session is written, choosing localStorage
+      // (persists across browser restarts) vs sessionStorage (cleared
+      // when the tab/browser closes).
+      localStorage.setItem(REMEMBER_ME_KEY, String(rememberMe));
       await db.auth.loginViaEmailPassword(email, password);
       window.location.href = await resolvePostAuthDestination(returnTo);
     } catch (err) {
@@ -119,6 +126,15 @@ export default function Login() {
             />
           </div>
         </div>
+        <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+            className="rounded border-border"
+          />
+          Remember me on this device
+        </label>
         <Button type="submit" className="w-full h-12 font-medium" disabled={loading}>
           {loading ? (
             <>
