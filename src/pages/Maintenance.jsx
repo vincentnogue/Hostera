@@ -2,6 +2,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
+import { useToast } from '@/components/ui/use-toast';
 
 import { Plus, X, Wrench, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
 
@@ -26,6 +27,7 @@ const categoryLabels = {
 
 export default function Maintenance() {
   const { selectedProperty } = useProperty();
+  const { toast } = useToast();
   const [tickets, setTickets] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [properties, setProperties] = useState([]);
@@ -72,6 +74,7 @@ export default function Maintenance() {
       fetchData();
     } catch (e) {
       console.error(e);
+      toast({ title: 'Could not create ticket', description: e.message || 'Please try again.', variant: 'destructive' });
     } finally {
       setCreating(false);
     }
@@ -86,7 +89,10 @@ export default function Maintenance() {
         await db.entities.Room.update(roomId, { status: 'available' });
       }
       fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not update ticket', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
   };
 
   if (loading) {

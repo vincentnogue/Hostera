@@ -2,6 +2,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
+import { useToast } from '@/components/ui/use-toast';
 
 import {
   Plus, X, PackageX, AlertTriangle, MapPin, User, DollarSign,
@@ -21,6 +22,7 @@ const statusPills = {
 };
 
 export default function Breakage() {
+  const { toast } = useToast();
   const { selectedProperty } = useProperty();
   const [reports, setReports] = useState([]);
   const [inventory, setInventory] = useState([]);
@@ -65,6 +67,7 @@ export default function Breakage() {
       if (file_url) setForm(prev => ({ ...prev, photo_url: file_url }));
     } catch (err) {
       console.error(err);
+      toast({ title: 'Photo upload failed', description: err.message || 'Please try again.', variant: 'destructive' });
     } finally {
       setUploading(false);
       e.target.value = '';

@@ -2,6 +2,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
+import { useToast } from '@/components/ui/use-toast';
 
 import { FileText, LayoutTemplate, Eye, Plus, X, Globe } from 'lucide-react';
 
@@ -16,6 +17,7 @@ const typeConfig = {
 
 export default function DocumentTemplates() {
   const { selectedProperty } = useProperty();
+  const { toast } = useToast();
   const [templates, setTemplates] = useState([]);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -57,6 +59,7 @@ export default function DocumentTemplates() {
       fetchData();
     } catch (e) {
       console.error(e);
+      toast({ title: 'Could not create template', description: e.message || 'Please try again.', variant: 'destructive' });
     } finally {
       setCreating(false);
     }
@@ -69,7 +72,10 @@ export default function DocumentTemplates() {
         last_modified: new Date().toISOString(),
       });
       fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not save template', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
   };
 
   if (loading) {

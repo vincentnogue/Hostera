@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
 
 import { Plug, Plus, X, Check, Link2, RefreshCw, Receipt, CreditCard, Building2, MessageSquare, BarChart3, Sparkles, Workflow, KeyRound, Globe2, UtensilsCrossed, Landmark, Send } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 import BrandLogo from '@/components/marketing/BrandLogos';
 
 const categories = ['ai', 'accounting', 'payment', 'distribution', 'pos', 'tax', 'hospitality', 'communication', 'analytics', 'automation'];
@@ -172,6 +173,7 @@ const DEFAULT_CREDENTIAL_FIELDS = [{ key: 'api_key', label: 'API key', type: 'pa
 export default function IntegrationHub() {
   const { selectedProperty } = useProperty();
   const [settings, setSettings] = useState([]);
+  const { toast } = useToast();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCat, setActiveCat] = useState('all');
@@ -262,8 +264,10 @@ export default function IntegrationHub() {
         : s));
       setConnectingTool(null);
       setCredentialForm({});
+      toast({ title: 'Connected', description: `${connectingTool.tool_name} is now connected.` });
     } catch (err) {
       console.error(err);
+      toast({ title: 'Could not connect', description: err.message || 'Please check your credentials and try again.', variant: 'destructive' });
     } finally {
       setSaving(false);
     }

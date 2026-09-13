@@ -5,6 +5,7 @@ import { useProperty } from '@/lib/PropertyContext';
 import { getPropertyToday } from '@/lib/timezone';
 
 import { LogIn, LogOut, Users, BedDouble, DollarSign, Plus, Search, X, Loader2 } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 const resStatusColors = {
   confirmed: 'bg-blue-100 text-blue-700',
@@ -16,6 +17,7 @@ const resStatusColors = {
 
 export default function FrontDesk() {
   const { selectedProperty, scopeIds, loading: propsLoading } = useProperty();
+  const { toast } = useToast();
   const [reservations, setReservations] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [guests, setGuests] = useState([]);
@@ -58,7 +60,10 @@ export default function FrontDesk() {
       await db.entities.Reservation.update(resId, { status: 'checked_in' });
       if (roomId) await db.entities.Room.update(roomId, { status: 'occupied' });
       fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not check in', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
   };
 
   const handleCheckOut = async (resId, roomId) => {
@@ -66,7 +71,10 @@ export default function FrontDesk() {
       await db.entities.Reservation.update(resId, { status: 'checked_out' });
       if (roomId) await db.entities.Room.update(roomId, { status: 'dirty' });
       fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not check out', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
   };
 
   const submitWalkIn = async (e) => {
@@ -104,8 +112,10 @@ export default function FrontDesk() {
       setWalkInForm({ guest_name: '', guest_email: '', room_id: '', nights: 1, adults: 1 });
       setShowWalkIn(false);
       fetchData();
+      toast({ title: 'Guest checked in', description: `${walkInForm.guest_name} is now checked in.` });
     } catch (e) {
       console.error(e);
+      toast({ title: 'Could not check in walk-in', description: e.message || 'Please try again.', variant: 'destructive' });
     } finally {
       setSaving(false);
     }
@@ -131,8 +141,10 @@ export default function FrontDesk() {
       setPaymentForm({ amount: 0, method: 'cash' });
       setPayingRes(null);
       fetchData();
+      toast({ title: 'Payment recorded' });
     } catch (e) {
       console.error(e);
+      toast({ title: 'Could not record payment', description: e.message || 'Please try again.', variant: 'destructive' });
     } finally {
       setSaving(false);
     }

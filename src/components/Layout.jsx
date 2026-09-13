@@ -12,7 +12,7 @@ import {
   Plug, Settings, Bell, Search, Menu, X, Building2, ChevronDown,
   BedDouble, Smartphone, Package, Star, UserCog, FileText, LayoutTemplate,
   Globe, Crown, Contact, Clock, Banknote, Tag, Blocks, Megaphone, History,
-  CalendarDays, ScrollText, Palette, ClipboardList, Truck, CreditCard, FolderOpen, Layers, Rocket, ArrowRight, LifeBuoy,
+  CalendarDays, ScrollText, Palette, ClipboardList, Truck, CreditCard, FolderOpen, Layers, LifeBuoy,
   CheckCheck, Inbox, PackageX, Wallet, PackagePlus, Bot
 } from 'lucide-react';
 
@@ -226,6 +226,19 @@ export default function Layout() {
     });
   }, [loading, properties, location.pathname]);
 
+  // Onboarding gate: a business account with no property yet must not see
+  // any real page (Dashboard, Reservations, etc.) at all — not even empty —
+  // until setup is done. This used to only show a banner above the still-
+  // rendered page underneath; now it's a hard redirect, same as the two
+  // gates above.
+  useEffect(() => {
+    if (loading || !propsLoaded || location.pathname === '/onboarding') return;
+    if (user?.account_type === 'individual') return; // handled by the gate above
+    if (properties.length === 0) {
+      navigate('/onboarding', { replace: true });
+    }
+  }, [loading, propsLoaded, properties, location.pathname, user]);
+
   return (
     <div className={`min-h-screen ${theme === 'warm' ? 'bg-brand-bg-warm' : 'bg-brand-bg'}`}>
       {/* Sidebar */}
@@ -344,23 +357,13 @@ export default function Layout() {
         </header>
 
         <main className="p-4 lg:p-8">
-          {propsLoaded && properties.length === 0 && location.pathname !== '/onboarding' && (
-            <div className="mb-6 bg-brand-navy rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-              <div className="flex items-start gap-4">
-                <div className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                  <Rocket className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-white font-semibold">Complete your business setup</p>
-                  <p className="text-sm text-white/60 mt-0.5">Create your organization, property and room types in a guided 4-step onboarding.</p>
-                </div>
-              </div>
-              <Link to="/onboarding" className="inline-flex items-center gap-2 rounded-full bg-white text-brand-navy px-6 py-2.5 text-sm font-bold hover:scale-105 transition-transform shrink-0">
-                Start Setup <ArrowRight className="w-4 h-4" />
-              </Link>
+          {propsLoaded && properties.length === 0 && location.pathname !== '/onboarding' && user?.account_type !== 'individual' ? (
+            <div className="flex items-center justify-center h-96">
+              <div className="w-8 h-8 border-4 border-brand-border border-t-brand-navy rounded-full animate-spin"></div>
             </div>
+          ) : (
+            <Outlet />
           )}
-          <Outlet />
         </main>
       </div>
     </div>

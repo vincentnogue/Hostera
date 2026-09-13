@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
 
 import { Plus, X, BedDouble, Users, DollarSign, Maximize2, Globe2, Camera, Loader2 } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 const bedTypeLabels = {
   single: 'Single', double: 'Double', twin: 'Twin',
@@ -13,6 +14,7 @@ const bedTypeLabels = {
 export default function RoomTypes() {
   const { selectedProperty } = useProperty();
   const [roomTypes, setRoomTypes] = useState([]);
+  const { toast } = useToast();
   const [rooms, setRoomTypesRooms] = useState([]);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -61,6 +63,7 @@ export default function RoomTypes() {
       fetchData();
     } catch (e) {
       console.error(e);
+      toast({ title: 'Could not create room type', description: e.message || 'Please try again.', variant: 'destructive' });
     } finally {
       setCreating(false);
     }
@@ -70,14 +73,20 @@ export default function RoomTypes() {
     try {
       await db.entities.RoomType.update(rtId, { base_price: parseFloat(newPrice) || 0 });
       fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not update price', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
   };
 
   const handleMarketplaceToggle = async (rt) => {
     try {
       await db.entities.RoomType.update(rt.id, { marketplace_visible: rt.marketplace_visible === false });
       fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not update visibility', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
   };
 
   const handleFormPhotoUpload = async (e) => {

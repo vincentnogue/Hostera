@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
 
 import { Plug, RefreshCw, Globe, CheckCircle2, XCircle, AlertTriangle, Loader2, X, KeyRound } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 const statusConfig = {
   connected: { icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50', label: 'Connected' },
@@ -15,6 +16,7 @@ const statusConfig = {
 export default function ChannelManager() {
   const { selectedProperty, scopeIds, loading: propsLoading } = useProperty();
   const [channels, setChannels] = useState([]);
+  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [syncingId, setSyncingId] = useState(null);
   const [connectingChannel, setConnectingChannel] = useState(null);
@@ -80,8 +82,10 @@ export default function ChannelManager() {
       });
       setConnectingChannel(null);
       fetchData();
+      toast({ title: 'Connected', description: `${connectingChannel.channel_name} is now connected.` });
     } catch (e) {
       console.error(e);
+      toast({ title: 'Could not connect', description: e.message || 'Please try again.', variant: 'destructive' });
     } finally {
       setSaving(false);
     }
