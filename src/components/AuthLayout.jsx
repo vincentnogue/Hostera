@@ -90,6 +90,11 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
                 );
               })}
             </div>
+            <p className="text-center text-xs text-muted-foreground -mt-3 mb-6">
+              {accountType === "business"
+                ? "You're registering a business — next you'll set up your property and submit it for verification before going live."
+                : "You're creating a guest account — search, book and manage your own stays."}
+            </p>
             {children}
           </div>
           {footer && <p className="text-center text-sm text-muted-foreground mt-6">{footer}</p>}
