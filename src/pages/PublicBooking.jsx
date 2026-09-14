@@ -4,26 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import AvailabilityCalendar, { computeUnavailableDates } from '@/components/AvailabilityCalendar';
 import { calculateStayTax } from '@/lib/tax';
-import { supabase } from '@/lib/supabaseClient';
+import { fetchPublicAvailability } from '@/lib/availability';
 import {
   MapPin, Users, BedDouble, Calendar, Phone, Mail, Check,
   ShieldCheck, Loader2, ChevronLeft, Building2, LifeBuoy, Send, CheckCircle2
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-
-// Real, non-PII availability data — reservation itself has no public read
-// policy (correctly: guest names/emails/phones), so this reads from the
-// public_availability view (property/room/dates/status only) instead.
-// Used both to render the calendar and to re-validate right before
-// creating a booking, so two guests can't be sold the same last room.
-async function fetchPublicAvailability(propertyId) {
-  const { data, error } = await supabase
-    .from('public_availability')
-    .select('*')
-    .eq('property_id', propertyId);
-  if (error) throw error;
-  return data || [];
-}
 
 export default function PublicBooking() {
   const { toast } = useToast();

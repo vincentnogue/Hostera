@@ -3,6 +3,9 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect } from "react";
 
 import { Image } from "@/components/ui/image";
+import { computeUnavailableDates } from "@/components/AvailabilityCalendar";
+import { fetchPublicAvailability } from "@/lib/availability";
+import { useToast } from "@/components/ui/use-toast";
 import { Building2, CalendarDays, LogOut, MapPin, Search, Star, X, CheckCircle2, Sparkles } from "lucide-react";
 
 const HERO_IMG = "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=2000&auto=format&fit=crop";
@@ -25,9 +28,11 @@ const today = () => new Date().toISOString().slice(0, 10);
 const addDays = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
 
 export default function GuestDashboard() {
+  const { toast } = useToast();
   const [me, setMe] = useState(null);
   const [properties, setProperties] = useState([]);
   const [roomTypes, setRoomTypes] = useState([]);
+  const [rooms, setRooms] = useState([]);
   const [stays, setStays] = useState([]);
   const [loading, setLoading] = useState(true);
   const [destination, setDestination] = useState("");
@@ -40,13 +45,21 @@ export default function GuestDashboard() {
       db.auth.me().catch(() => null),
       db.entities.Property.list().catch(() => []),
       db.entities.RoomType.list().catch(() => []),
+      db.entities.Room.list().catch(() => []),
       db.entities.Reservation.list().catch(() => []),
     ])
-      .then(([user, props, types, reservations]) => {
+      .then(([user, props, types, allRooms, reservations]) => {
         setMe(user);
         setProperties(props || []);
         setRoomTypes(types || []);
-        setStays((reservations || []).filter(r => user && r.created_by_id === user.id));
+        setRooms(allRooms || []);
+        // RLS already restricts this query to reservations where
+        // guest_id is this user's own auth id (see the
+        // "guests can access their own reservations" policy) — no
+        // further client-side filtering needed. The previous filter
+        // checked created_by_id, a field bookings here never actually
+        // set (they set guest_id), so this list was always empty.
+        setStays(reservations || []);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -78,8 +91,23 @@ export default function GuestDashboard() {
     if (!selectedType || !me) return;
     setSaving(true);
     try {
+      // Revalidate immediately before creating the reservation, against a
+      // fresh fetch — not the possibly-stale state loaded when the guest
+      // opened this page — same real check as the public booking page.
+      const freshAvailability = await fetchPublicAvailability(bookingProperty.id);
+      const unavailable = computeUnavailableDates(
+        selectedType.id, rooms, freshAvailability,
+        new Date(form.check_in), new Date(form.check_out)
+      );
+      if (unavailable.size > 0) {
+        setSaving(false);
+        toast({ title: 'Sold out for these dates', description: 'This room type just sold out for one or more selected nights — please choose different dates or another room type.', variant: 'destructive' });
+        return;
+      }
+
       const created = await db.entities.Reservation.create({
         property_id: bookingProperty.id,
+        organization_id: bookingProperty.organization_id,
         guest_id: me.id,
         room_type_id: selectedType.id,
         check_in: form.check_in,
@@ -94,6 +122,10 @@ export default function GuestDashboard() {
       });
       setStays(prev => [created, ...prev]);
       setBookingProperty(null);
+      toast({ title: 'Booking confirmed', description: `${bookingProperty.name} — ${form.check_in} to ${form.check_out}.` });
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not complete your booking', description: e.message || 'Please try again.', variant: 'destructive' });
     } finally {
       setSaving(false);
     }
