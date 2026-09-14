@@ -10,7 +10,7 @@ const addDays = (d, n) => new Date(d.getTime() + n * MS_PER_DAY);
 // once every physical room of that type is already booked (checked in
 // covers [check_in, check_out) — a guest checking out on day X frees the
 // room for a new arrival that same day).
-function computeUnavailableDates(roomTypeId, rooms, reservations, rangeStart, rangeEnd) {
+export function computeUnavailableDates(roomTypeId, rooms, reservations, rangeStart, rangeEnd) {
   const totalRooms = rooms.filter(r => r.room_type_id === roomTypeId).length;
   if (totalRooms === 0) return new Set();
 
