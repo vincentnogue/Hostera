@@ -110,6 +110,13 @@ export default function PublicBooking() {
         property_id: property?.id,
         organization_id: property?.organization_id,
       });
+      db.entities.Notification.create({
+        organization_id: property?.organization_id,
+        title: 'New guest question',
+        message: `From ${supportEmail.trim()}: ${supportMsg.trim().slice(0, 120)}`,
+        type: 'support',
+        read: false,
+      }).catch(() => {});
       setSupportSent(true);
       setSupportMsg('');
     } catch (err) {
@@ -162,6 +169,7 @@ export default function PublicBooking() {
       const { total } = calculateStayTax({ subtotal, nights, property });
       const reservation = await db.entities.Reservation.create({
         property_id: propertyId,
+        organization_id: property?.organization_id,
         room_type_id: selectedRoomType.id,
         guest_name: guestInfo.full_name,
         guest_email: guestInfo.email,
@@ -177,6 +185,16 @@ export default function PublicBooking() {
         total_amount: total,
         paid_amount: 0,
       });
+      // Real, automatic notification for staff — a guest just booked
+      // while nobody may have been watching. Best-effort: a notification
+      // failure should never block the guest's confirmation.
+      db.entities.Notification.create({
+        organization_id: property?.organization_id,
+        title: 'New online booking',
+        message: `${guestInfo.full_name} booked ${selectedRoomType.name} for ${checkIn} → ${checkOut}.`,
+        type: 'reservation',
+        read: false,
+      }).catch(() => {});
       setConfirmed(reservation);
     } catch (e) {
       console.error(e);

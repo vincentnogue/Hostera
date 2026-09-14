@@ -82,7 +82,19 @@ export default function FrontDesk() {
     if (!walkInForm.guest_name || !walkInForm.room_id) return;
     setSaving(true);
     try {
-      const room = rooms.find(r => r.id === walkInForm.room_id);
+      // Re-check the room's live status immediately before assigning it —
+      // the list shown when the modal opened could be stale if another
+      // staff member checked someone else into this same room in the
+      // meantime. Small window, but a real one.
+      const freshRoom = await db.entities.Room.get(walkInForm.room_id);
+      if (!freshRoom || (freshRoom.status !== 'available' && freshRoom.status !== 'clean')) {
+        toast({ title: 'Room no longer available', description: 'Someone else just assigned this room — please pick another.', variant: 'destructive' });
+        setSaving(false);
+        fetchData();
+        return;
+      }
+
+      const room = freshRoom;
       const today = getPropertyToday(selectedProperty);
       const checkOut = new Date(new Date(today).getTime() + (Number(walkInForm.nights) || 1) * 86400000)
         .toISOString().slice(0, 10);

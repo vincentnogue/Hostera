@@ -78,7 +78,15 @@ export default function GuestPortal() {
         requester_email: guest?.email || '',
         booking_reference: res?.confirmation_code || res?.id || '',
         property_id: res?.property_id,
+        organization_id: res?.organization_id,
       });
+      db.entities.Notification.create({
+        organization_id: res?.organization_id,
+        title: 'New guest question',
+        message: `From ${guest?.full_name || guest?.email || 'a guest'}: ${supportMsg.trim().slice(0, 120)}`,
+        type: 'support',
+        read: false,
+      }).catch(() => {});
       setSupportSent(true);
       setSupportMsg('');
     } catch (e) {
