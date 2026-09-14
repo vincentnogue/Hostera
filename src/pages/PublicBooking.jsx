@@ -2,13 +2,28 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import AvailabilityCalendar from '@/components/AvailabilityCalendar';
+import AvailabilityCalendar, { computeUnavailableDates } from '@/components/AvailabilityCalendar';
 import { calculateStayTax } from '@/lib/tax';
+import { supabase } from '@/lib/supabaseClient';
 import {
   MapPin, Users, BedDouble, Calendar, Phone, Mail, Check,
   ShieldCheck, Loader2, ChevronLeft, Building2, LifeBuoy, Send, CheckCircle2
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+
+// Real, non-PII availability data — reservation itself has no public read
+// policy (correctly: guest names/emails/phones), so this reads from the
+// public_availability view (property/room/dates/status only) instead.
+// Used both to render the calendar and to re-validate right before
+// creating a booking, so two guests can't be sold the same last room.
+async function fetchPublicAvailability(propertyId) {
+  const { data, error } = await supabase
+    .from('public_availability')
+    .select('*')
+    .eq('property_id', propertyId);
+  if (error) throw error;
+  return data || [];
+}
 
 export default function PublicBooking() {
   const { toast } = useToast();
@@ -40,12 +55,11 @@ export default function PublicBooking() {
   useEffect(() => {
     async function load() {
       try {
-        const [props, allRoomTypes, allSettings, allRooms, allReservations] = await Promise.all([
+        const [props, allRoomTypes, allSettings, allRooms] = await Promise.all([
           db.entities.Property.list(),
           db.entities.RoomType.list(),
           db.entities.BookingEngineSetting.list(),
           db.entities.Room.list(),
-          db.entities.Reservation.list(),
         ]);
         const prop = (props || []).find(p => p.id === propertyId);
         if (!prop) {
@@ -55,7 +69,8 @@ export default function PublicBooking() {
         setProperty(prop);
         setRoomTypes((allRoomTypes || []).filter(rt => rt.property_id === propertyId));
         setRooms((allRooms || []).filter(r => r.property_id === propertyId));
-        setReservations((allReservations || []).filter(r => r.property_id === propertyId));
+        const availability = await fetchPublicAvailability(propertyId).catch(() => []);
+        setReservations(availability);
         setSettings((allSettings || []).find(s => s.property_id === propertyId) || {
           direct_bookings_enabled: true,
           show_availability: true,
@@ -128,6 +143,21 @@ export default function PublicBooking() {
     }
     setSubmitting(true);
     try {
+      // Revalidate availability immediately before creating the
+      // reservation, against a fresh fetch (not the state loaded when the
+      // page opened) — this is what actually prevents overselling a room
+      // type between when the guest started browsing and when they submit.
+      const freshAvailability = await fetchPublicAvailability(propertyId);
+      const unavailable = computeUnavailableDates(
+        selectedRoomType.id, rooms, freshAvailability,
+        new Date(checkIn), new Date(checkOut)
+      );
+      if (unavailable.size > 0) {
+        setFormError('Sorry — this room type just sold out for one or more of your selected nights. Please choose different dates or another room type.');
+        setSubmitting(false);
+        return;
+      }
+
       const subtotal = (selectedRoomType.base_price || 0) * nights;
       const { total } = calculateStayTax({ subtotal, nights, property });
       const reservation = await db.entities.Reservation.create({
