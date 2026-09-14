@@ -26,7 +26,11 @@ export default function PendingVerification() {
     finally { setLoading(false); setChecking(false); }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    const interval = setInterval(load, 20000);
+    return () => clearInterval(interval);
+  }, []);
 
   const recheck = () => { setChecking(true); load(); };
 
