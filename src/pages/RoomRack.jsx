@@ -1,6 +1,8 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useProperty } from '@/lib/PropertyContext';
+import { useToast } from '@/components/ui/use-toast';
 
 import { ChevronLeft, ChevronRight, Grid3X3, X, LogIn, LogOut, User, Calendar, ArrowRightLeft } from 'lucide-react';
 
@@ -14,6 +16,8 @@ const statusBlockColors = {
 };
 
 export default function RoomRack() {
+  const { scopeIds, loading: propsLoading } = useProperty();
+  const { toast } = useToast();
   const [reservations, setReservations] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [guests, setGuests] = useState([]);
@@ -30,17 +34,18 @@ export default function RoomRack() {
         db.entities.Room.list(),
         db.entities.Guest.list(),
       ]);
-      setReservations(resData || []);
-      setRooms(roomData || []);
+      setReservations((resData || []).filter(r => !r.property_id || (scopeIds || []).includes(r.property_id)));
+      setRooms((roomData || []).filter(r => !r.property_id || (scopeIds || []).includes(r.property_id)));
       setGuests(guestData || []);
     } catch (e) {
       console.error(e);
+      toast({ title: 'Could not load the room rack', description: e.message || 'Please try again.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { if (!propsLoading) fetchData(); }, [propsLoading, scopeIds]);
 
   const dates = useMemo(() => {
     return Array.from({ length: 7 }, (_, i) => {
@@ -93,7 +98,11 @@ export default function RoomRack() {
       await db.entities.Room.update(activeRes.room_id, { status: 'occupied' });
       await fetchData();
       setActiveRes(null);
-    } catch (e) { console.error(e); }
+      toast({ title: 'Guest checked in' });
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not check in', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
     finally { setSaving(false); }
   };
 
@@ -104,7 +113,11 @@ export default function RoomRack() {
       await db.entities.Room.update(activeRes.room_id, { status: 'dirty' });
       await fetchData();
       setActiveRes(null);
-    } catch (e) { console.error(e); }
+      toast({ title: 'Guest checked out' });
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not check out', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
     finally { setSaving(false); }
   };
 
@@ -120,7 +133,11 @@ export default function RoomRack() {
       await fetchData();
       setActiveRes(null);
       setMoving(false);
-    } catch (e) { console.error(e); }
+      toast({ title: 'Room changed' });
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not move room', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
     finally { setSaving(false); }
   };
 

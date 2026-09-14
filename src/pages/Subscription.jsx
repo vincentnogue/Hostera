@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 
 import BrandLogo from '@/components/marketing/BrandLogos';
 import { CreditCard, Plus, X, Check, Star, ArrowUpCircle, Building2, Users as UsersIcon } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 import { PLANS, ONBOARDING } from '@/lib/marketing';
 
 const PSPS = [
@@ -24,6 +25,7 @@ const PLAN_KEYS = PLANS.map(p => p.name.toLowerCase());
 const PLAN_BY_KEY = Object.fromEntries(PLANS.map(p => [p.name.toLowerCase(), p]));
 
 export default function Subscription() {
+  const { toast } = useToast();
   const [settings, setSettings] = useState(null);
   const [methods, setMethods] = useState([]);
   const [propertyCount, setPropertyCount] = useState(null);
@@ -71,24 +73,42 @@ export default function Subscription() {
   const addMethod = async (e) => {
     e.preventDefault();
     if (!form.label) return;
-    const first = methods.length === 0;
-    const created = await db.entities.SubscriptionPaymentMethod.create({ psp: form.psp, label: form.label, is_default: first });
-    setMethods(prev => [...prev, created]);
-    if (first) await updatePlan({ current_psp: form.psp });
-    setForm({ psp: 'stripe', label: '' });
-    setShowAdd(false);
+    try {
+      const first = methods.length === 0;
+      const created = await db.entities.SubscriptionPaymentMethod.create({ psp: form.psp, label: form.label, is_default: first });
+      setMethods(prev => [...prev, created]);
+      if (first) await updatePlan({ current_psp: form.psp });
+      setForm({ psp: 'stripe', label: '' });
+      setShowAdd(false);
+      toast({ title: 'Payment method added' });
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Could not add payment method', description: err.message || 'Please try again.', variant: 'destructive' });
+    }
   };
 
   const setDefault = async (m) => {
-    await db.entities.SubscriptionPaymentMethod.updateMany({ is_default: true }, { $set: { is_default: false } });
-    await db.entities.SubscriptionPaymentMethod.update(m.id, { is_default: true });
-    setMethods(prev => prev.map(x => ({ ...x, is_default: x.id === m.id })));
-    await updatePlan({ current_psp: m.psp });
+    try {
+      await db.entities.SubscriptionPaymentMethod.updateMany({ is_default: true }, { $set: { is_default: false } });
+      await db.entities.SubscriptionPaymentMethod.update(m.id, { is_default: true });
+      setMethods(prev => prev.map(x => ({ ...x, is_default: x.id === m.id })));
+      await updatePlan({ current_psp: m.psp });
+      toast({ title: 'Default payment method updated' });
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Could not update default method', description: err.message || 'Please try again.', variant: 'destructive' });
+    }
   };
 
   const removeMethod = async (id) => {
-    await db.entities.SubscriptionPaymentMethod.delete(id);
-    setMethods(prev => prev.filter(m => m.id !== id));
+    try {
+      await db.entities.SubscriptionPaymentMethod.delete(id);
+      setMethods(prev => prev.filter(m => m.id !== id));
+      toast({ title: 'Payment method removed' });
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Could not remove payment method', description: err.message || 'Please try again.', variant: 'destructive' });
+    }
   };
 
   if (loading) return <p className="text-sm text-brand-slate">Loading subscription…</p>;
