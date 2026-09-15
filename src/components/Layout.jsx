@@ -214,10 +214,7 @@ export default function Layout() {
   const [accessState, setAccessState] = useState('checking'); // 'checking' | 'allowed' | 'blocked'
 
   useEffect(() => {
-    if (loading || location.pathname === '/onboarding') {
-      if (location.pathname === '/onboarding') setAccessState('allowed');
-      return;
-    }
+    if (loading) return;
     let cancelled = false;
     setAccessState('checking');
 

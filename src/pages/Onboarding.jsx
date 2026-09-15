@@ -4,8 +4,23 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { COUNTRIES, CURRENCIES } from '@/lib/referenceData';
-import { Building2, Hotel, BedDouble, Rocket, Check, ArrowLeft, ArrowRight, Quote, ShieldCheck, Upload, Loader2, User, FileText, Camera } from 'lucide-react';
+import { Building2, Hotel, BedDouble, Rocket, Check, ArrowLeft, ArrowRight, Quote, ShieldCheck, Upload, Loader2, User, FileText, Camera, LogOut } from 'lucide-react';
 import { HOTEL_PHOTOS, AUTH_VIDEOS } from '@/lib/hotelMedia';
+import { useAuth } from '@/lib/AuthContext';
+
+// Real IANA timezone database via the browser — every property gets a
+// real timezone from day one instead of defaulting to UTC and needing a
+// manual fix later (the spec explicitly warns against relying on
+// browser-local time for business logic; a wrong default timezone is the
+// same mistake one step removed).
+const TIMEZONES = (() => {
+  try {
+    return Intl.supportedValuesOf('timeZone');
+  } catch {
+    return ['UTC', 'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Asia/Dubai', 'Asia/Riyadh',
+      'America/New_York', 'America/Los_Angeles', 'Asia/Tokyo', 'Africa/Casablanca', 'Australia/Sydney'];
+  }
+})();
 
 const STEPS = [
   {
@@ -63,12 +78,17 @@ function OnboardingPreviewPanel({ step }) {
 
 export default function Onboarding() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
   const [orgId, setOrgId] = useState(null);
   const [creatingOrg, setCreatingOrg] = useState(false);
   const [org, setOrg] = useState({ name: '', type: 'independent', country: '', currency: 'USD' });
-  const [property, setProperty] = useState({ name: '', property_type: 'hotel', city: '', checkin_time: '14:00', checkout_time: '11:00' });
+  const [property, setProperty] = useState({
+    name: '', property_type: 'hotel', city: '', phone: '',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+    checkin_time: '14:00', checkout_time: '11:00',
+  });
   const [roomTypes, setRoomTypes] = useState([
     { name: 'Standard Double', base_price: 120, capacity: 2 },
   ]);
@@ -139,7 +159,8 @@ export default function Onboarding() {
       const id = await ensureOrg();
       const createdProp = await db.entities.Property.create({
         organization_id: id, name: property.name || 'My Property', property_type: property.property_type,
-        city: property.city, country: org.country, currency: org.currency, checkin_time: property.checkin_time,
+        city: property.city, country: org.country, currency: org.currency, phone: property.phone,
+        timezone: property.timezone, checkin_time: property.checkin_time,
         checkout_time: property.checkout_time, status: 'active',
       });
       const validRooms = roomTypes.filter(r => r.name);
@@ -175,7 +196,22 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_320px] gap-10 items-start">
+    <div className="min-h-screen bg-brand-bg">
+      <header className="bg-white border-b border-brand-border">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-brand-navy flex items-center justify-center">
+              <Building2 className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-bold text-brand-ink">HOSTERA</span>
+          </div>
+          <button onClick={() => logout()} className="flex items-center gap-1.5 text-xs text-brand-slate hover:text-brand-navy">
+            <LogOut className="w-3.5 h-3.5" /> Sign out
+          </button>
+        </div>
+      </header>
+
+      <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_320px] gap-10 items-start p-4 lg:p-8">
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-brand-ink">Welcome to Hostera 👋</h1>
@@ -236,6 +272,12 @@ export default function Onboarding() {
                 {['hotel', 'resort', 'boutique', 'apartment', 'villa', 'guest_house', 'hostel', 'bnb', 'lodge', 'serviced_apartment'].map(t => <option key={t} value={t} className="capitalize">{t.replace('_', ' ')}</option>)}
               </select>
               <input placeholder="City" value={property.city} onChange={e => setProperty({ ...property, city: e.target.value })} className={inputCls} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <input type="tel" placeholder="Property phone (with country code, e.g. +212 5XX-XXXXXX)" value={property.phone} onChange={e => setProperty({ ...property, phone: e.target.value })} className={inputCls} />
+              <select value={property.timezone} onChange={e => setProperty({ ...property, timezone: e.target.value })} className={inputCls}>
+                {TIMEZONES.map(tz => <option key={tz}>{tz}</option>)}
+              </select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -365,6 +407,7 @@ export default function Onboarding() {
     </div>
 
     <OnboardingPreviewPanel step={step} />
+    </div>
     </div>
   );
 }

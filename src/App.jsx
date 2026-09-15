@@ -158,6 +158,7 @@ const AuthenticatedApp = () => {
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/guest" element={<GuestDashboard />} />
           <Route path="/pending-verification" element={<PendingVerification />} />
+          <Route path="/onboarding" element={<Onboarding />} />
           <Route element={<PropertyProvider><Layout /></PropertyProvider>}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/front-desk" element={<FrontDesk />} />
@@ -203,7 +204,6 @@ const AuthenticatedApp = () => {
             <Route path="/support" element={<Support />} />
             <Route path="/ai" element={<HosteraAI />} />
             <Route path="/expense-manager" element={<Expenses />} />
-            <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/property-settings" element={<PropertySettings />} />
           </Route>
           <Route element={<PlatformLayout />}>
