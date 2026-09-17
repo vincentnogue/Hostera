@@ -7,7 +7,8 @@ import { calculateStayTax } from '@/lib/tax';
 import { fetchPublicAvailability } from '@/lib/availability';
 import {
   MapPin, Users, BedDouble, Calendar, Phone, Mail, Check,
-  ShieldCheck, Loader2, ChevronLeft, Building2, LifeBuoy, Send, CheckCircle2
+  ShieldCheck, Loader2, ChevronLeft, Building2, LifeBuoy, Send, CheckCircle2,
+  Compass, Star, HelpCircle
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import StripePaymentForm from '@/components/booking/StripePaymentForm';
@@ -40,14 +41,26 @@ export default function PublicBooking() {
   const [supportSent, setSupportSent] = useState(false);
   const [sendingSupport, setSendingSupport] = useState(false);
 
+  const [certifiedReviews, setCertifiedReviews] = useState([]);
+  const [hotelQuestions, setHotelQuestions] = useState([]);
+  const [experiences, setExperiences] = useState([]);
+  const [selectedExperienceIds, setSelectedExperienceIds] = useState([]);
+  const [askName, setAskName] = useState('');
+  const [askQuestion, setAskQuestion] = useState('');
+  const [askSent, setAskSent] = useState(false);
+  const [askSending, setAskSending] = useState(false);
+
   useEffect(() => {
     async function load() {
       try {
-        const [props, allRoomTypes, allSettings, allRooms] = await Promise.all([
+        const [props, allRoomTypes, allSettings, allRooms, allReviews, allQuestions, allExperiences] = await Promise.all([
           db.entities.Property.list(),
           db.entities.RoomType.list(),
           db.entities.BookingEngineSetting.list(),
           db.entities.Room.list(),
+          db.entities.CertifiedReview.list().catch(() => []),
+          db.entities.HotelQuestion.list().catch(() => []),
+          db.entities.Experience.list().catch(() => []),
         ]);
         const prop = (props || []).find(p => p.id === propertyId);
         if (!prop) {
@@ -57,6 +70,9 @@ export default function PublicBooking() {
         setProperty(prop);
         setRoomTypes((allRoomTypes || []).filter(rt => rt.property_id === propertyId));
         setRooms((allRooms || []).filter(r => r.property_id === propertyId));
+        setCertifiedReviews((allReviews || []).filter(r => r.property_id === propertyId));
+        setHotelQuestions((allQuestions || []).filter(q => q.property_id === propertyId));
+        setExperiences((allExperiences || []).filter(x => x.property_id === propertyId && x.status === 'active'));
         const availability = await fetchPublicAvailability(propertyId).catch(() => []);
         setReservations(availability);
         setSettings((allSettings || []).find(s => s.property_id === propertyId) || {
@@ -82,6 +98,55 @@ export default function PublicBooking() {
 
   const currency = property?.currency || 'USD';
   const fmt = (n) => new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n || 0);
+
+  const submitQuestion = async (e) => {
+    e.preventDefault();
+    if (!askQuestion.trim()) return;
+    setAskSending(true);
+    try {
+      await db.entities.HotelQuestion.create({
+        property_id: property.id,
+        organization_id: property.organization_id,
+        guest_name: askName.trim() || 'A traveler',
+        question: askQuestion.trim(),
+        status: 'pending',
+      });
+      setAskSent(true);
+      setAskQuestion('');
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setAskSending(false);
+    }
+  };
+
+  // Creates one ExperienceBooking per selected add-on once the room
+  // reservation itself is confirmed — best-effort, never blocks the room
+  // booking if an experience request happens to fail.
+  const bookSelectedExperiences = async (reservation) => {
+    for (const expId of selectedExperienceIds) {
+      const exp = experiences.find(x => x.id === expId);
+      if (!exp) continue;
+      const participants = (reservation.adults || 1) + (reservation.children || 0);
+      const total = Number(exp.price) * participants;
+      try {
+        await db.entities.ExperienceBooking.create({
+          experience_id: exp.id,
+          property_id: property.id,
+          organization_id: property.organization_id,
+          guest_name: reservation.guest_name,
+          guest_email: reservation.guest_email,
+          participants,
+          scheduled_date: reservation.check_in,
+          total_amount: total,
+          commission_amount: total * ((Number(exp.commission_rate) || 0) / 100),
+          status: 'requested',
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
 
   const submitSupportRequest = async (e) => {
     e.preventDefault();
@@ -231,6 +296,7 @@ export default function PublicBooking() {
         type: 'reservation',
         read: false,
       }).catch(() => {});
+      await bookSelectedExperiences(reservation);
       setConfirmed(reservation);
     } catch (e) {
       console.error(e);
@@ -296,6 +362,7 @@ export default function PublicBooking() {
         type: 'reservation',
         read: false,
       }).catch(() => {});
+      await bookSelectedExperiences(paymentStep.reservation);
       setConfirmed(paymentStep.reservation);
       setPaymentStep(null);
     };
@@ -479,6 +546,29 @@ export default function PublicBooking() {
             </div>
           </div>
 
+          {experiences.length > 0 && (
+            <div className="bg-white border border-brand-border rounded-2xl p-5">
+              <h2 className="text-sm font-semibold text-brand-ink mb-3 flex items-center gap-1.5"><Compass className="w-3.5 h-3.5" /> Add a local experience</h2>
+              <div className="space-y-2">
+                {experiences.map(exp => {
+                  const checked = selectedExperienceIds.includes(exp.id);
+                  return (
+                    <label key={exp.id} className={`flex items-center justify-between gap-3 p-3 rounded-xl border cursor-pointer ${checked ? 'border-brand-navy bg-blue-50/30' : 'border-brand-border'}`}>
+                      <div className="flex items-center gap-3">
+                        <input type="checkbox" checked={checked} onChange={() => setSelectedExperienceIds(prev => checked ? prev.filter(id => id !== exp.id) : [...prev, exp.id])} />
+                        <div>
+                          <p className="text-sm font-medium text-brand-ink">{exp.title}</p>
+                          <p className="text-xs text-brand-slate">{exp.duration_minutes} min · {exp.category}</p>
+                        </div>
+                      </div>
+                      <span className="text-sm font-semibold text-brand-navy">{fmt(exp.price)}/person</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {formError && <p className="text-sm text-red-600">{formError}</p>}
 
           {selectedRoomType && nights > 0 && (() => {
@@ -508,6 +598,65 @@ export default function PublicBooking() {
             );
           })()}
         </form>
+
+        {/* Certified reviews — only from guests whose reservation was actually checked_out */}
+        {certifiedReviews.length > 0 && (
+          <div className="mt-8 border-t border-brand-border pt-6">
+            <h2 className="text-sm font-semibold text-brand-ink mb-3 flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-green-600" /> Guest reviews
+              <span className="text-brand-slate font-normal">
+                ({(certifiedReviews.reduce((s, r) => s + (Number(r.overall_rating) || 0), 0) / certifiedReviews.length).toFixed(1)} avg · {certifiedReviews.length} verified stays)
+              </span>
+            </h2>
+            <div className="space-y-3">
+              {certifiedReviews.slice(0, 6).map(r => (
+                <div key={r.id} className="bg-white border border-brand-border rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-medium text-brand-ink">{r.guest_name || 'Guest'}</span>
+                    <div className="flex items-center gap-0.5">
+                      {[1, 2, 3, 4, 5].map(n => <Star key={n} className={`w-3 h-3 ${n <= Math.round(r.overall_rating) ? 'text-amber-400 fill-amber-400' : 'text-brand-border'}`} />)}
+                    </div>
+                  </div>
+                  <p className="text-sm text-brand-slate">{r.comment}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Public Q&A */}
+        <div className="mt-8 border-t border-brand-border pt-6">
+          <h2 className="text-sm font-semibold text-brand-ink mb-3 flex items-center gap-1.5"><HelpCircle className="w-4 h-4 text-brand-navy" /> Questions & answers</h2>
+          {hotelQuestions.length > 0 && (
+            <div className="space-y-3 mb-4">
+              {hotelQuestions.slice(0, 8).map(q => (
+                <div key={q.id} className="bg-white border border-brand-border rounded-xl p-4">
+                  <p className="text-sm font-medium text-brand-ink">Q: {q.question}</p>
+                  {q.answer ? (
+                    <p className="text-sm text-brand-slate mt-1">A: {q.answer}</p>
+                  ) : (
+                    <p className="text-xs text-brand-slate/60 mt-1 italic">Awaiting an answer from the property</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          {askSent ? (
+            <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 rounded-lg p-3.5">
+              <CheckCircle2 className="w-4 h-4 shrink-0" /> Your question was posted — the property will answer publicly here.
+            </div>
+          ) : (
+            <form onSubmit={submitQuestion} className="flex flex-col sm:flex-row gap-2">
+              <input value={askName} onChange={e => setAskName(e.target.value)} placeholder="Your name (optional)"
+                className="sm:w-40 px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
+              <input required value={askQuestion} onChange={e => setAskQuestion(e.target.value)} placeholder="Ask the property a question…"
+                className="flex-1 px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
+              <button type="submit" disabled={askSending} className="flex items-center justify-center gap-1.5 px-4 py-2 bg-brand-navy text-white text-xs font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60 shrink-0">
+                <Send className="w-3.5 h-3.5" /> {askSending ? 'Posting…' : 'Ask'}
+              </button>
+            </form>
+          )}
+        </div>
 
         {/* Guest support — no account needed, per spec section 37 */}
         <div className="mt-6 border-t border-brand-border pt-5">

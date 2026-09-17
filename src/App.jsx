@@ -54,6 +54,7 @@ const BookingEngine = lazy(() => import('@/pages/BookingEngine'));
 const ShiftManagement = lazy(() => import('@/pages/ShiftManagement'));
 const MarketingTools = lazy(() => import('@/pages/MarketingTools'));
 const AdsManager = lazy(() => import('@/pages/AdsManager'));
+const Experiences = lazy(() => import('@/pages/Experiences'));
 const AuditLogs = lazy(() => import('@/pages/AuditLogs'));
 const Expenses = lazy(() => import('@/pages/Expenses'));
 const PlatformHR = lazy(() => import('@/pages/platform/PlatformHR'));
@@ -193,6 +194,7 @@ const AuthenticatedApp = () => {
             <Route path="/integration-hub" element={<IntegrationHub />} />
             <Route path="/marketing-tools" element={<MarketingTools />} />
             <Route path="/ads-manager" element={<AdsManager />} />
+            <Route path="/experiences" element={<Experiences />} />
             <Route path="/activity-log" element={<ActivityLog />} />
             <Route path="/audit-logs" element={<AuditLogs />} />
             <Route path="/document-center" element={<DocumentCenter />} />

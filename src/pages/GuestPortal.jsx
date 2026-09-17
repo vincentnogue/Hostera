@@ -5,8 +5,81 @@ import { useToast } from '@/components/ui/use-toast';
 
 import {
   CalendarCheck, MapPin, Users, Clock, Receipt, CreditCard,
-  Bell, Sparkles, LifeBuoy, Send, CheckCircle2
+  Bell, Sparkles, LifeBuoy, Send, CheckCircle2, Star, ShieldCheck
 } from 'lucide-react';
+
+function StarInput({ value, onChange, label }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-xs text-brand-slate">{label}</span>
+      <div className="flex gap-0.5">
+        {[1, 2, 3, 4, 5].map(n => (
+          <button type="button" key={n} onClick={() => onChange(n)}>
+            <Star className={`w-5 h-5 ${n <= value ? 'text-amber-400 fill-amber-400' : 'text-brand-border'}`} />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function LeaveReviewCard({ reservation, onSubmitted }) {
+  const { toast } = useToast();
+  const [ratings, setRatings] = useState({ cleanliness: 0, location: 0, service: 0, value: 0 });
+  const [comment, setComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    const { cleanliness, location, service, value } = ratings;
+    if (!cleanliness || !location || !service || !value) {
+      toast({ title: 'Please rate all four categories', variant: 'destructive' });
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const overall = (cleanliness + location + service + value) / 4;
+      await db.entities.CertifiedReview.create({
+        reservation_id: reservation.id,
+        property_id: reservation.property_id,
+        organization_id: reservation.organization_id,
+        guest_name: reservation.guest_name || '',
+        rating_cleanliness: cleanliness,
+        rating_location: location,
+        rating_service: service,
+        rating_value: value,
+        overall_rating: overall,
+        comment: comment.trim(),
+        status: 'published',
+      });
+      toast({ title: 'Thanks for your review!', description: 'It\u2019s now live on the hotel\u2019s listing, marked as a verified stay.' });
+      onSubmitted();
+    } catch (err) {
+      toast({ title: 'Could not submit review', description: String(err.message || err), variant: 'destructive' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} className="bg-white rounded-xl border border-brand-border p-5 space-y-3">
+      <div className="flex items-center gap-2">
+        <ShieldCheck className="w-4 h-4 text-green-600" />
+        <h2 className="text-base font-semibold text-brand-ink">Leave a certified review</h2>
+      </div>
+      <p className="text-xs text-brand-slate">For your stay {reservation.check_in} → {reservation.check_out}. Verified as a completed stay — it can&apos;t be faked.</p>
+      <StarInput label="Cleanliness" value={ratings.cleanliness} onChange={v => setRatings({ ...ratings, cleanliness: v })} />
+      <StarInput label="Location" value={ratings.location} onChange={v => setRatings({ ...ratings, location: v })} />
+      <StarInput label="Service" value={ratings.service} onChange={v => setRatings({ ...ratings, service: v })} />
+      <StarInput label="Value for money" value={ratings.value} onChange={v => setRatings({ ...ratings, value: v })} />
+      <textarea value={comment} onChange={e => setComment(e.target.value)} rows={3} placeholder="Tell future guests about your stay…"
+        className="w-full px-3.5 py-2.5 border border-brand-border rounded-xl text-sm outline-none focus:border-brand-navy resize-none" />
+      <button type="submit" disabled={submitting} className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60">
+        {submitting ? 'Submitting…' : 'Submit review'}
+      </button>
+    </form>
+  );
+}
 
 export default function GuestPortal() {
   const { toast } = useToast();
@@ -14,6 +87,7 @@ export default function GuestPortal() {
   const [guests, setGuests] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [invoices, setInvoices] = useState([]);
+  const [myCertifiedReviews, setMyCertifiedReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [preferences, setPreferences] = useState({
     early_checkin: false, late_checkout: false,
@@ -25,16 +99,18 @@ export default function GuestPortal() {
 
   const fetchData = async () => {
     try {
-      const [resData, guestData, roomData, invData] = await Promise.all([
+      const [resData, guestData, roomData, invData, reviewData] = await Promise.all([
         db.entities.Reservation.list(),
         db.entities.Guest.list(),
         db.entities.Room.list(),
         db.entities.Invoice.list(),
+        db.entities.CertifiedReview.list().catch(() => []),
       ]);
       setReservations(resData || []);
       setGuests(guestData || []);
       setRooms(roomData || []);
       setInvoices(invData || []);
+      setMyCertifiedReviews(reviewData || []);
     } catch (e) {
       console.error(e);
     } finally {
@@ -106,6 +182,7 @@ export default function GuestPortal() {
 
   const today = new Date().toISOString().split('T')[0];
   const upcoming = reservations.filter(r => r.status === 'confirmed' || r.status === 'checked_in');
+  const reviewableStays = reservations.filter(r => r.status === 'checked_out' && !myCertifiedReviews.some(rv => rv.reservation_id === r.id));
   const currentGuest = guests[0];
   const guestInvoices = invoices.slice(0, 5);
 
@@ -181,6 +258,11 @@ export default function GuestPortal() {
           );
         })
       )}
+
+      {/* Leave a review after a completed stay */}
+      {reviewableStays.map(r => (
+        <LeaveReviewCard key={r.id} reservation={r} onSubmitted={fetchData} />
+      ))}
 
       {/* Check-in Preferences */}
       <div className="bg-white rounded-xl border border-brand-border p-5">
