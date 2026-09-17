@@ -26,4 +26,4 @@ VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhY
 # Replace with your real live/test publishable key ("pk_...") from
 # https://dashboard.stripe.com/apikeys — until then, card payments are
 # disabled and properties fall back to "book now, pay at hotel".
-VITE_STRIPE_PUBLISHABLE_KEY = ""
+VITE_STRIPE_PUBLISHABLE_KEY = "pk_live_51TRfM0RhcVRS1qEcrEYqtBF2yk5m5422po7rboiw0yQoL6N6UgVnQxipvRw6mLSOVr2iTVQXsAbED9TT9DUehaSK00WOROhxSk"
