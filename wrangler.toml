@@ -20,3 +20,10 @@ pages_build_output_dir = "dist"
 [vars]
 VITE_SUPABASE_URL = "https://wtzpuunmurbydsydghii.supabase.co"
 VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0enB1dW5tdXJieWRzeWRnaGlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3OTQzMTksImV4cCI6MjEwNDM3MDMxOX0.U2vE4VKedAbIBHqvFqD-qSP9rnCTnhDHIubMKe7KMb8"
+# Stripe publishable key — safe to expose to the browser by design (unlike
+# STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET / SUPABASE_SERVICE_ROLE_KEY,
+# which must ONLY ever be set as "Secret" dashboard vars, never here).
+# Replace with your real live/test publishable key ("pk_...") from
+# https://dashboard.stripe.com/apikeys — until then, card payments are
+# disabled and properties fall back to "book now, pay at hotel".
+VITE_STRIPE_PUBLISHABLE_KEY = ""

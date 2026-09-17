@@ -7,6 +7,7 @@ import { THEME_PRESETS, applyThemeColors } from '@/lib/theme';
 
 import { Save, Building2, Clock, Globe, DollarSign, Camera, Loader2, X, Palette, Check, Percent } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import StripeConnectPanel from '@/components/settings/StripeConnectPanel';
 
 // Real IANA timezone database via the browser (hundreds of zones, always
 // current) — falls back to a representative worldwide set on older
@@ -355,6 +356,8 @@ export default function PropertySettings() {
           )}
         </div>
       </div>
+
+      <StripeConnectPanel property={property} onUpdated={refreshProperties} />
     </div>
   );
 }

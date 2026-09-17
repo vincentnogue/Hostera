@@ -1,10 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
-  MapPin, Users, Search, Loader2, Globe2, BedDouble, ArrowRight, Building2
+  MapPin, Users, Search, Loader2, Globe2, BedDouble, ArrowRight, Building2, Sparkles
 } from 'lucide-react';
 import { fetchMarketplaceListings, REGIONS } from '@/lib/marketplace';
 import { HOTEL_PHOTOS } from '@/lib/hotelMedia';
+import { recordAdEvent, isCampaignLive } from '@/lib/ads';
+
+const db = globalThis.__B44_DB__ || { entities: new Proxy({}, { get: () => ({ list: async () => [] }) }) };
 
 const NAVY = '#123B63';
 
@@ -17,6 +20,7 @@ function photoFor(listing, i) {
 export default function Marketplace() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [listings, setListings] = useState([]);
+  const [sponsoredByProperty, setSponsoredByProperty] = useState({});
   const [loading, setLoading] = useState(true);
   const [region, setRegion] = useState('All');
 
@@ -26,20 +30,58 @@ export default function Marketplace() {
   const [guests, setGuests] = useState(Number(searchParams.get('guests')) || 2);
 
   useEffect(() => {
-    fetchMarketplaceListings()
-      .then(setListings)
-      .finally(() => setLoading(false));
+    Promise.all([
+      fetchMarketplaceListings(),
+      // Paid "Top Listing" placement — real campaigns, not a curated list.
+      // RLS only lets an anonymous visitor read campaigns that are both
+      // platform-approved and currently active (see the "public can read
+      // active approved ad campaigns" policy), so this never leaks a
+      // hotel's pending/paused campaign to the public.
+      db.entities.AdCampaign.list().catch(() => []),
+    ]).then(([l, campaigns]) => {
+      setListings(l);
+      const byProperty = {};
+      for (const c of campaigns || []) {
+        if (c.campaign_type === 'top_listing' && isCampaignLive(c) && !byProperty[c.property_id]) {
+          byProperty[c.property_id] = c;
+        }
+      }
+      setSponsoredByProperty(byProperty);
+    }).finally(() => setLoading(false));
   }, []);
+
+  // Fire one impression per sponsored listing actually rendered on screen —
+  // not per campaign fetched, so a hotel is only charged/counted for
+  // placements a visitor genuinely saw in this search result.
+  const impressedRef = React.useRef(new Set());
 
   const filtered = useMemo(() => {
     const q = destination.trim().toLowerCase();
-    return listings.filter(l => {
+    const matches = listings.filter(l => {
       if (region !== 'All' && l.region !== region) return false;
       if (!q) return true;
       const haystack = [l.property.name, l.property.city, l.property.country].filter(Boolean).join(' ').toLowerCase();
       return haystack.includes(q);
     });
-  }, [listings, destination, region]);
+    // Sponsored ("Top Listing") properties surface first, in the order
+    // matched — this is the actual product being sold in Ads Manager, so
+    // it has to change real ranking, not just show a badge.
+    return [...matches].sort((a, b) => {
+      const sa = sponsoredByProperty[a.property.id] ? 1 : 0;
+      const sb = sponsoredByProperty[b.property.id] ? 1 : 0;
+      return sb - sa;
+    });
+  }, [listings, destination, region, sponsoredByProperty]);
+
+  useEffect(() => {
+    for (const l of filtered) {
+      const campaign = sponsoredByProperty[l.property.id];
+      if (campaign && !impressedRef.current.has(campaign.id)) {
+        impressedRef.current.add(campaign.id);
+        recordAdEvent(campaign, 'impression');
+      }
+    }
+  }, [filtered, sponsoredByProperty]);
 
   const regionCounts = useMemo(() => {
     const counts = { All: listings.length };
@@ -141,10 +183,13 @@ export default function Marketplace() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((l, i) => (
+            {filtered.map((l, i) => {
+              const campaign = sponsoredByProperty[l.property.id];
+              return (
               <Link
                 key={l.property.id}
                 to={bookingUrl(l.property.id)}
+                onClick={() => { if (campaign) recordAdEvent(campaign, 'click'); }}
                 className="group bg-white rounded-2xl border border-brand-border overflow-hidden hover:shadow-xl hover:border-brand-blue/40 transition-all"
               >
                 <div className="aspect-[4/3] overflow-hidden bg-brand-overlay relative">
@@ -157,6 +202,11 @@ export default function Marketplace() {
                   <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-[10px] font-bold uppercase tracking-wide" style={{ color: NAVY }}>
                     {l.region}
                   </span>
+                  {campaign && (
+                    <span className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-400 text-[10px] font-bold uppercase tracking-wide text-brand-navy">
+                      <Sparkles className="w-3 h-3" /> Sponsored
+                    </span>
+                  )}
                 </div>
                 <div className="p-4">
                   <h3 className="text-sm font-semibold text-brand-ink truncate">{l.property.name}</h3>
@@ -177,7 +227,8 @@ export default function Marketplace() {
                   </div>
                 </div>
               </Link>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

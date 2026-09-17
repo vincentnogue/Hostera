@@ -53,6 +53,7 @@ const ActivityLog = lazy(() => import('@/pages/ActivityLog'));
 const BookingEngine = lazy(() => import('@/pages/BookingEngine'));
 const ShiftManagement = lazy(() => import('@/pages/ShiftManagement'));
 const MarketingTools = lazy(() => import('@/pages/MarketingTools'));
+const AdsManager = lazy(() => import('@/pages/AdsManager'));
 const AuditLogs = lazy(() => import('@/pages/AuditLogs'));
 const Expenses = lazy(() => import('@/pages/Expenses'));
 const PlatformHR = lazy(() => import('@/pages/platform/PlatformHR'));
@@ -81,6 +82,7 @@ const PlatformSystemHealth = lazy(() => import('@/pages/platform/PlatformSystemH
 const PlatformFeatureFlags = lazy(() => import('@/pages/platform/PlatformFeatureFlags'));
 const PlatformAnnouncements = lazy(() => import('@/pages/platform/PlatformAnnouncements'));
 const PlatformAudit = lazy(() => import('@/pages/platform/PlatformAudit'));
+const PlatformAdManager = lazy(() => import('@/pages/platform/PlatformAdManager'));
 const Features = lazy(() => import('@/pages/marketing/Features'));
 const Industries = lazy(() => import('@/pages/marketing/Industries'));
 const Pricing = lazy(() => import('@/pages/marketing/Pricing'));
@@ -190,6 +192,7 @@ const AuthenticatedApp = () => {
             <Route path="/rate-manager" element={<RateManager />} />
             <Route path="/integration-hub" element={<IntegrationHub />} />
             <Route path="/marketing-tools" element={<MarketingTools />} />
+            <Route path="/ads-manager" element={<AdsManager />} />
             <Route path="/activity-log" element={<ActivityLog />} />
             <Route path="/audit-logs" element={<AuditLogs />} />
             <Route path="/document-center" element={<DocumentCenter />} />
@@ -218,6 +221,7 @@ const AuthenticatedApp = () => {
             <Route path="/platform/feature-flags" element={<PlatformFeatureFlags />} />
             <Route path="/platform/announcements" element={<PlatformAnnouncements />} />
             <Route path="/platform/audit" element={<PlatformAudit />} />
+            <Route path="/platform/ads" element={<PlatformAdManager />} />
             <Route path="/platform/hr" element={<PlatformHR />} />
             <Route path="/platform/admins" element={<PlatformAdmins />} />
           </Route>

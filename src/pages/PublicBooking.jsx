@@ -10,6 +10,7 @@ import {
   ShieldCheck, Loader2, ChevronLeft, Building2, LifeBuoy, Send, CheckCircle2
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import StripePaymentForm from '@/components/booking/StripePaymentForm';
 
 export default function PublicBooking() {
   const { toast } = useToast();
@@ -31,6 +32,7 @@ export default function PublicBooking() {
   const [guestInfo, setGuestInfo] = useState({ full_name: '', email: '', phone: '' });
   const [submitting, setSubmitting] = useState(false);
   const [confirmed, setConfirmed] = useState(null);
+  const [paymentStep, setPaymentStep] = useState(null); // { reservation, clientSecret } once a connected hotel requires card payment
   const [formError, setFormError] = useState('');
   const [showSupport, setShowSupport] = useState(false);
   const [supportMsg, setSupportMsg] = useState('');
@@ -153,6 +155,54 @@ export default function PublicBooking() {
 
       const subtotal = (selectedRoomType.base_price || 0) * nights;
       const { total } = calculateStayTax({ subtotal, nights, property });
+
+      // Split-payment path: only when this property has completed Stripe
+      // Connect onboarding (property.stripe_account_id, set from
+      // PropertySettings.jsx's Stripe panel). Properties that haven't
+      // connected Stripe keep the original "book now, pay at hotel" flow
+      // below unchanged — this is additive, not a behavior change for them.
+      if (property?.stripe_account_id) {
+        const reservation = await db.entities.Reservation.create({
+          property_id: propertyId,
+          organization_id: property?.organization_id,
+          room_type_id: selectedRoomType.id,
+          guest_name: guestInfo.full_name,
+          guest_email: guestInfo.email,
+          guest_phone: guestInfo.phone,
+          check_in: checkIn,
+          check_out: checkOut,
+          adults,
+          children,
+          reservation_number: `RES-${Date.now()}`,
+          source: 'website',
+          status: 'pending_payment',
+          currency,
+          total_amount: total,
+          paid_amount: 0,
+          payment_status: 'pending',
+        });
+
+        const intentResp = await fetch('/api/create-payment-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: Math.round(total * 100),
+            currency,
+            connected_account_id: property.stripe_account_id,
+            booking_reference: reservation.id,
+          }),
+        });
+        const intentData = await intentResp.json();
+        if (!intentResp.ok || !intentData.client_secret) {
+          setFormError(intentData.message || 'Could not start payment. Please try again.');
+          setSubmitting(false);
+          return;
+        }
+        setPaymentStep({ reservation, clientSecret: intentData.client_secret });
+        setSubmitting(false);
+        return;
+      }
+
       const reservation = await db.entities.Reservation.create({
         property_id: propertyId,
         organization_id: property?.organization_id,
@@ -219,6 +269,52 @@ export default function PublicBooking() {
         <div className="flex flex-col gap-1.5 mt-2 text-sm text-brand-slate">
           {property.phone && <span className="flex items-center gap-2"><Phone className="w-4 h-4" />{property.phone}</span>}
           {property.email && <span className="flex items-center gap-2"><Mail className="w-4 h-4" />{property.email}</span>}
+        </div>
+      </div>
+    );
+  }
+
+  if (paymentStep) {
+    const handlePaySuccess = async (paymentIntentId) => {
+      try {
+        await db.entities.Reservation.update(paymentStep.reservation.id, {
+          status: 'confirmed',
+          payment_status: 'paid',
+          paid_amount: paymentStep.reservation.total_amount,
+          payment_intent_id: paymentIntentId,
+        });
+      } catch (e) {
+        console.error(e);
+        // The Stripe webhook (functions/api/stripe-webhook.js) is the
+        // durable source of truth and will mark this paid independently
+        // even if this optimistic client-side update fails.
+      }
+      db.entities.Notification.create({
+        organization_id: property?.organization_id,
+        title: 'New online booking',
+        message: `${guestInfo.full_name} booked ${selectedRoomType.name} for ${checkIn} → ${checkOut}.`,
+        type: 'reservation',
+        read: false,
+      }).catch(() => {});
+      setConfirmed(paymentStep.reservation);
+      setPaymentStep(null);
+    };
+
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-brand-bg px-6">
+        <div className="w-full max-w-sm bg-white border border-brand-border rounded-2xl p-6 space-y-4">
+          <h1 className="text-lg font-bold text-brand-ink text-center">Secure card payment</h1>
+          <p className="text-xs text-brand-slate text-center">
+            {property.name} · {checkIn} → {checkOut} · {fmt(paymentStep.reservation.total_amount)}
+          </p>
+          <StripePaymentForm
+            clientSecret={paymentStep.clientSecret}
+            onSuccess={handlePaySuccess}
+            payLabel={`Pay ${fmt(paymentStep.reservation.total_amount)} & confirm`}
+          />
+          <button type="button" onClick={() => setPaymentStep(null)} className="w-full text-xs text-brand-slate hover:text-brand-ink">
+            Cancel and go back
+          </button>
         </div>
       </div>
     );

@@ -5,7 +5,7 @@ import { Outlet, Link, useLocation, Navigate } from 'react-router-dom';
 
 import {
   LayoutDashboard, Building2, CreditCard, Ticket, LifeBuoy, Shield,
-  Activity, Flag, Megaphone, FileText, ArrowLeft, Building, Users, UserCog, Palette, ShieldCheck
+  Activity, Flag, Megaphone, FileText, ArrowLeft, Building, Users, UserCog, Palette, ShieldCheck, Target
 } from 'lucide-react';
 import { PLATFORM_OWNERS } from '@/lib/platformAdmins';
 import { THEME_PRESETS, applyThemeColors } from '@/lib/theme';
@@ -21,6 +21,7 @@ const navItems = [
   { label: 'System Health', icon: Activity, path: '/platform/system-health' },
   { label: 'Feature Flags', icon: Flag, path: '/platform/feature-flags' },
   { label: 'Announcements', icon: Megaphone, path: '/platform/announcements' },
+  { label: 'Ad Network', icon: Target, path: '/platform/ads' },
   { label: 'Audit Logs', icon: FileText, path: '/platform/audit' },
   { label: 'Workforce & HR', icon: Users, path: '/platform/hr' },
   { label: 'Platform Admins', icon: UserCog, path: '/platform/admins' },

@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { PLATFORM_OWNERS } from '@/lib/platformAdmins';
 
 // ---------------------------------------------------------------------------
 // Entity <-> table name mapping
@@ -33,6 +34,8 @@ const PLATFORM_LEVEL_ENTITIES = new Set([
   'AuditLog',
   'SecurityAlert',
   'FeatureFlag',
+  'PlatformCommission',
+  'AdPricingSetting',
 ]);
 
 // ---------------------------------------------------------------------------
@@ -62,7 +65,38 @@ const getCurrentUser = async () => {
 
 supabase.auth.onAuthStateChange((_event, session) => {
   cachedUser = mapSupabaseUser(session?.user || null);
+  cachedIsPlatformAdmin = null;
 });
+
+// ---------------------------------------------------------------------------
+// Platform-admin detection (mirrors PlatformLayout.jsx's own gating check:
+// hardcoded owners in PLATFORM_OWNERS, or an explicit platform_admin row).
+// Org-scoped entity queries below use this to skip the organization_id
+// filter for platform admins, so /platform/* pages actually see cross-
+// tenant data instead of only the admin's own organization. RLS enforces
+// the same rule server-side (see is_platform_admin() and the updated
+// policies in supabase/add-ads-commissions-platform-crosstenant.sql) — this
+// client-side check is purely an optimization/UX concern, never the actual
+// security boundary.
+// ---------------------------------------------------------------------------
+let cachedIsPlatformAdmin = null;
+
+const isCurrentUserPlatformAdmin = async () => {
+  if (cachedIsPlatformAdmin !== null) return cachedIsPlatformAdmin;
+  const user = await getCurrentUser();
+  if (!user?.email) return (cachedIsPlatformAdmin = false);
+  if (PLATFORM_OWNERS.includes(user.email.toLowerCase())) {
+    return (cachedIsPlatformAdmin = true);
+  }
+  try {
+    const { data, error } = await supabase.from('platform_admin').select('email').eq('email', user.email);
+    if (error) throw error;
+    cachedIsPlatformAdmin = (data || []).length > 0;
+  } catch {
+    cachedIsPlatformAdmin = false;
+  }
+  return cachedIsPlatformAdmin;
+};
 
 // ---------------------------------------------------------------------------
 // data-column flattening
@@ -121,6 +155,11 @@ const buildEntityClient = (entityName) => {
 
   const scoped = async (query) => {
     if (!isOrgScoped) return query;
+    // Platform admins see across every tenant (PlatformOverview,
+    // PlatformOrganizations, the Ad Manager moderation queue, etc. all rely
+    // on this) — RLS grants the same cross-tenant access, so this filter
+    // skip is consistent with what the database will actually return.
+    if (await isCurrentUserPlatformAdmin()) return query;
     const user = await getCurrentUser();
     if (user?.organization_id) {
       return query.eq('organization_id', user.organization_id);
