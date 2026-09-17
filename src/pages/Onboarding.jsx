@@ -101,6 +101,8 @@ export default function Onboarding() {
 
   const inputCls = "w-full px-3.5 py-2.5 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
 
+  const [orgError, setOrgError] = useState('');
+
   // The organization must exist (with a real membership row — see the
   // on_organization_created trigger) before KYC documents can be uploaded,
   // since their storage path is namespaced by organization_id and gated
@@ -108,6 +110,7 @@ export default function Onboarding() {
   const ensureOrg = async () => {
     if (orgId) return orgId;
     setCreatingOrg(true);
+    setOrgError('');
     try {
       const existing = await db.entities.Organization.list().catch(() => []);
       if (existing?.[0]?.id) { setOrgId(existing[0].id); return existing[0].id; }
@@ -116,6 +119,10 @@ export default function Onboarding() {
       });
       setOrgId(created.id);
       return created.id;
+    } catch (e) {
+      console.error(e);
+      setOrgError(e.message || 'Could not create your organization. Please try again.');
+      return null;
     } finally { setCreatingOrg(false); }
   };
 
@@ -129,7 +136,7 @@ export default function Onboarding() {
   const goNext = async () => {
     if (step === 1) {
       const id = await ensureOrg();
-      if (!id) return;
+      if (!id) return; // ensureOrg already surfaced the real error via orgError
     }
     setStep(s => s + 1);
   };
@@ -387,6 +394,10 @@ export default function Onboarding() {
               </p>
             </div>
           </div>
+        )}
+
+        {orgError && (
+          <p className="mt-6 text-sm text-red-600 bg-red-50 rounded-lg px-3.5 py-2.5">{orgError}</p>
         )}
 
         <div className="flex items-center justify-between pt-8">
