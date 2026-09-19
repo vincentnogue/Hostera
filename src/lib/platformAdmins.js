@@ -1,1 +1,1 @@
-export const PLATFORM_OWNERS = ['webdxb1@gmail.com', 'vincentnogue2@gmail.com'];
+export const PLATFORM_OWNERS = ['webdxb1@gmail.com', 'vincentnogue2@gmail.com', 'vincentnogue@yahoo.com'];

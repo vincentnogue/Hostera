@@ -179,18 +179,31 @@ const buildEntityClient = (entityName) => {
   const table = tableNameFor(entityName);
   const isOrgScoped = !PLATFORM_LEVEL_ENTITIES.has(entityName);
 
-  const scoped = async (query) => {
-    if (!isOrgScoped) return query;
+  // Resolves the organization_id filter (if any) to apply for the current
+  // user on this org-scoped entity — returns undefined when no filter is
+  // needed (platform-level entity, platform admin, or no org yet).
+  //
+  // CRITICAL: this must never return the Supabase query builder itself.
+  // PostgrestFilterBuilder implements `.then()` (that's what makes `await
+  // supabase.from(x).select()` work), so a thenable value returned from an
+  // async function gets assimilated by the Promise resolution procedure —
+  // the caller's `await scopeFilter(query)` would silently receive the
+  // query's *already-executed* `{ data, error }` result instead of the
+  // callable builder. Every `.maybeSingle()` / `.select()` chained after
+  // that (both places in update() below) would then throw "X.maybeSingle
+  // is not a function" — which is exactly the bug this replaced: the old
+  // `scoped(query)` did `return query` / `return query.eq(...)` directly,
+  // silently breaking every update() call whose payload touched a jsonb
+  // field (i.e. almost all of them) for as long as this file has existed.
+  const scopeFilter = async () => {
+    if (!isOrgScoped) return undefined;
     // Platform admins see across every tenant (PlatformOverview,
     // PlatformOrganizations, the Ad Manager moderation queue, etc. all rely
     // on this) — RLS grants the same cross-tenant access, so this filter
     // skip is consistent with what the database will actually return.
-    if (await isCurrentUserPlatformAdmin()) return query;
+    if (await isCurrentUserPlatformAdmin()) return undefined;
     const user = await getCurrentUser();
-    if (user?.organization_id) {
-      return query.eq('organization_id', user.organization_id);
-    }
-    return query;
+    return user?.organization_id || undefined;
   };
 
   return {
@@ -203,7 +216,8 @@ const buildEntityClient = (entityName) => {
         query = query.order(columnRef(table, field), { ascending: !descending });
       }
       if (limit) query = query.limit(limit);
-      query = await scoped(query);
+      const orgId = await scopeFilter();
+      if (orgId) query = query.eq('organization_id', orgId);
       const { data, error } = await query;
       if (error) throw error;
       return (data || []).map(row => flattenRow(table, row));
@@ -214,7 +228,8 @@ const buildEntityClient = (entityName) => {
       Object.entries(criteria).forEach(([key, value]) => {
         query = query.eq(columnRef(table, key), value);
       });
-      query = await scoped(query);
+      const orgId = await scopeFilter();
+      if (orgId) query = query.eq('organization_id', orgId);
       const { data, error } = await query;
       if (error) throw error;
       return (data || []).map(row => flattenRow(table, row));
@@ -222,7 +237,8 @@ const buildEntityClient = (entityName) => {
 
     async get(id) {
       let query = supabase.from(table).select('*').eq('id', id);
-      query = await scoped(query);
+      const orgId = await scopeFilter();
+      if (orgId) query = query.eq('organization_id', orgId);
       const { data, error } = await query.maybeSingle();
       if (error) throw error;
       return flattenRow(table, data);
@@ -244,6 +260,7 @@ const buildEntityClient = (entityName) => {
     async update(id, payload) {
       const { columns, data } = splitPayload(table, payload);
       const updateRow = { ...columns, updated_at: new Date().toISOString() };
+      const orgId = await scopeFilter();
       if (Object.keys(data).length > 0) {
         // Merge into the existing `data` blob so a partial update (e.g.
         // { base_price: 120 }) doesn't wipe out sibling fields that were
@@ -251,13 +268,13 @@ const buildEntityClient = (entityName) => {
         // bumps updated_at on UPDATE (only a default on INSERT), so it's
         // set manually above too.
         let existingQuery = supabase.from(table).select('data').eq('id', id);
-        existingQuery = await scoped(existingQuery);
+        if (orgId) existingQuery = existingQuery.eq('organization_id', orgId);
         const { data: existingRow, error: fetchError } = await existingQuery.maybeSingle();
         if (fetchError) throw fetchError;
         updateRow.data = { ...(existingRow?.data || {}), ...data };
       }
       let query = supabase.from(table).update(updateRow).eq('id', id);
-      query = await scoped(query);
+      if (orgId) query = query.eq('organization_id', orgId);
       const { data: updated, error } = await query.select().maybeSingle();
       if (error) throw error;
       return flattenRow(table, updated);
@@ -265,7 +282,8 @@ const buildEntityClient = (entityName) => {
 
     async delete(id) {
       let query = supabase.from(table).delete().eq('id', id);
-      query = await scoped(query);
+      const orgId = await scopeFilter();
+      if (orgId) query = query.eq('organization_id', orgId);
       const { error } = await query;
       if (error) throw error;
       return { success: true };
