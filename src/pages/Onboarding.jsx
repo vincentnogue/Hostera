@@ -160,11 +160,18 @@ export default function Onboarding() {
     }
   };
 
+  const [finishError, setFinishError] = useState('');
+
   const finish = async () => {
     setSaving(true);
+    setFinishError('');
     try {
       const id = await ensureOrg();
-      const createdProp = await db.entities.Property.create({
+      // Idempotent: if a previous attempt got this far before failing
+      // later in the flow, reuse that property instead of creating a
+      // duplicate every time the user hits Submit again after an error.
+      const existingProps = await db.entities.Property.list().catch(() => []);
+      const createdProp = existingProps?.[0] || await db.entities.Property.create({
         organization_id: id, name: property.name || 'My Property', property_type: property.property_type,
         city: property.city, country: org.country, currency: org.currency, phone: property.phone,
         timezone: property.timezone, checkin_time: property.checkin_time,
@@ -172,14 +179,25 @@ export default function Onboarding() {
       });
       const validRooms = roomTypes.filter(r => r.name);
       if (validRooms.length > 0) {
-        await db.entities.RoomType.bulkCreate(validRooms.map(r => ({
-          property_id: createdProp.id, name: r.name, base_price: Number(r.base_price) || 0, capacity: Number(r.capacity) || 2, currency: org.currency,
-        })));
+        const existingRoomTypes = await db.entities.RoomType.list().catch(() => []);
+        if (!existingRoomTypes?.length) {
+          // organization_id must be explicit here (as Property.create
+          // already does above) — this session's own auth metadata still
+          // predates the organization that was just created a moment ago,
+          // so leaving it to be auto-derived resolves to null and this
+          // insert violates room_type's NOT NULL constraint, aborting the
+          // whole submission with no created room types and no KYC status
+          // ever recorded, silently.
+          await db.entities.RoomType.bulkCreate(validRooms.map(r => ({
+            organization_id: id, property_id: createdProp.id, name: r.name,
+            base_price: Number(r.base_price) || 0, capacity: Number(r.capacity) || 2, currency: org.currency,
+          })));
+        }
       }
       try {
         const bs = await db.entities.BookingEngineSetting.list();
         if (!(bs || []).length) {
-          await db.entities.BookingEngineSetting.create({ property_id: createdProp.id });
+          await db.entities.BookingEngineSetting.create({ organization_id: id, property_id: createdProp.id });
         }
       } catch (e) { /* non-blocking */ }
 
@@ -199,6 +217,10 @@ export default function Onboarding() {
       navigate('/pending-verification');
     } catch (e) {
       console.error(e);
+      // Silently swallowing this (as before) left people stuck with a
+      // half-created business and zero explanation — they'd just click
+      // Submit again, creating a duplicate property each time.
+      setFinishError(e.message || 'Something went wrong submitting your business for verification. Please try again — if this keeps happening, contact support.');
     } finally { setSaving(false); }
   };
 
@@ -409,9 +431,12 @@ export default function Onboarding() {
               {creatingOrg ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Continue <ArrowRight className="w-4 h-4" /></>}
             </button>
           ) : (
-            <button onClick={finish} disabled={saving} className="flex items-center gap-1.5 px-6 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60">
-              <Rocket className="w-4 h-4" /> {saving ? 'Submitting…' : 'Submit for Verification'}
-            </button>
+            <div>
+              <button onClick={finish} disabled={saving} className="flex items-center gap-1.5 px-6 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60">
+                <Rocket className="w-4 h-4" /> {saving ? 'Submitting…' : 'Submit for Verification'}
+              </button>
+              {finishError && <p className="text-sm text-red-600 mt-2 max-w-xs text-right">{finishError}</p>}
+            </div>
           )}
         </div>
       </div>
