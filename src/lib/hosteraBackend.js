@@ -447,6 +447,7 @@ const users = {
 };
 
 export const db = { auth, app, entities, integrations, users };
+export { isCurrentUserPlatformAdmin };
 
 // Every page in this app reads `globalThis.__B44_DB__` (base44's own
 // generated pattern) falling back to an empty stub if it isn't set. Setting

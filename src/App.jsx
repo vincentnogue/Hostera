@@ -10,6 +10,7 @@ import ScrollToTop from './components/ScrollToTop';
 import ErrorBoundary from './components/ErrorBoundary';
 // Add page imports here
 import ProtectedRoute from '@/components/ProtectedRoute';
+import KycGate from '@/components/KycGate';
 import Layout from '@/components/Layout';
 import PlatformLayout from '@/components/platform/PlatformLayout';
 import MarketingLayout from '@/components/marketing/MarketingLayout';
@@ -162,9 +163,10 @@ const AuthenticatedApp = () => {
           <Route path="/guest" element={<GuestDashboard />} />
           <Route path="/pending-verification" element={<PendingVerification />} />
           <Route path="/onboarding" element={<Onboarding />} />
-          <Route element={<PropertyProvider><Layout /></PropertyProvider>}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/front-desk" element={<FrontDesk />} />
+          <Route element={<KycGate />}>
+            <Route element={<PropertyProvider><Layout /></PropertyProvider>}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/front-desk" element={<FrontDesk />} />
             <Route path="/reservations" element={<Reservations />} />
             <Route path="/room-rack" element={<RoomRack />} />
             <Route path="/room-types" element={<RoomTypes />} />
@@ -210,6 +212,7 @@ const AuthenticatedApp = () => {
             <Route path="/ai" element={<HosteraAI />} />
             <Route path="/expense-manager" element={<Expenses />} />
             <Route path="/property-settings" element={<PropertySettings />} />
+            </Route>
           </Route>
           <Route element={<PlatformLayout />}>
             <Route path="/platform" element={<PlatformOverview />} />

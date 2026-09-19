@@ -73,6 +73,13 @@ export default function PlatformVerifications() {
     try {
       await db.entities.Organization.update(active.id, { kyc_status: 'verified', kyc_verified_at: new Date().toISOString() });
       setOrgs(prev => prev.map(o => o.id === active.id ? { ...o, kyc_status: 'verified' } : o));
+      db.entities.Notification.create({
+        organization_id: active.id,
+        title: 'Your account is verified! 🎉',
+        message: 'Your business has been approved — the full dashboard is now unlocked.',
+        type: 'system',
+        read: false,
+      }).catch(() => {});
       setActive(null);
     } catch (e) { console.error(e); }
     finally { setSaving(false); }
@@ -84,6 +91,13 @@ export default function PlatformVerifications() {
     try {
       await db.entities.Organization.update(active.id, { kyc_status: 'rejected', kyc_rejection_reason: rejectReason.trim() });
       setOrgs(prev => prev.map(o => o.id === active.id ? { ...o, kyc_status: 'rejected' } : o));
+      db.entities.Notification.create({
+        organization_id: active.id,
+        title: 'Verification needs attention',
+        message: rejectReason.trim(),
+        type: 'system',
+        read: false,
+      }).catch(() => {});
       setActive(null);
     } catch (e) { console.error(e); }
     finally { setSaving(false); }
