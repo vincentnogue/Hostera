@@ -133,7 +133,7 @@ export default function PlatformVerifications() {
             <h3 className="text-lg font-bold text-white">{active.name}</h3>
             <p className="text-xs text-white/50 mt-1">{active.kyc_manager_name} · {active.kyc_id_type?.replace('_', ' ')} {active.kyc_id_number}</p>
 
-            <div className="grid grid-cols-3 gap-3 mt-5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
               {[
                 { key: 'business_doc', label: 'Business doc', icon: FileText },
                 { key: 'manager_id', label: 'Manager ID', icon: User },

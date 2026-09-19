@@ -172,7 +172,7 @@ export default function PlatformFeatureFlags() {
                 <label className="text-sm font-medium text-white/70 mb-1 block">Description</label>
                 <input type="text" value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="What this flag controls..." className={inputCls} />
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="text-sm font-medium text-white/70 mb-1 block">Status</label>
                   <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} className={inputCls}>

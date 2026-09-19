@@ -169,7 +169,7 @@ export default function RatePlans() {
                 </select>
                 <input type="number" placeholder="Price / night" value={form.price} onChange={e => setForm({ ...form, price: Number(e.target.value) })} className={inputCls} />
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <input type="number" placeholder="Min stay" value={form.min_stay} onChange={e => setForm({ ...form, min_stay: Number(e.target.value) })} className={inputCls} />
                 <input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} className={inputCls} />
                 <input type="date" value={form.end_date} onChange={e => setForm({ ...form, end_date: e.target.value })} className={inputCls} />

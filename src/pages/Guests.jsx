@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 
 import { Search, Users, Mail, Phone, MapPin } from 'lucide-react';
 import CommunicationActions from '@/components/CommunicationActions';
+import { useProperty } from '@/lib/PropertyContext';
 
 const vipColors = {
   none: 'bg-gray-100 text-gray-600',
@@ -13,6 +14,7 @@ const vipColors = {
 };
 
 export default function Guests() {
+  const { selectedProperty, properties } = useProperty();
   const [guests, setGuests] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,7 +46,21 @@ export default function Guests() {
     );
   }
 
-  const filtered = guests.filter(g => {
+  // Guest records themselves aren't property-scoped (the same guest can
+  // stay at more than one property in a group), but for a hotel group
+  // managing several properties the directory should still follow the
+  // property switcher like every other page — otherwise every property's
+  // guests show up mixed together with no way to tell them apart.
+  const property = selectedProperty || properties[0];
+  const propertyReservations = properties.length > 1 && property
+    ? reservations.filter(r => r.property_id === property.id)
+    : reservations;
+  const visibleGuestIds = properties.length > 1
+    ? new Set(propertyReservations.map(r => r.guest_id))
+    : null;
+  const scopedGuests = visibleGuestIds ? guests.filter(g => visibleGuestIds.has(g.id)) : guests;
+
+  const filtered = scopedGuests.filter(g => {
     if (!search) return true;
     const name = `${g.first_name} ${g.last_name}`.toLowerCase();
     return name.includes(search.toLowerCase()) ||
@@ -52,7 +68,7 @@ export default function Guests() {
       (g.phone || '').includes(search);
   });
 
-  const getGuestReservations = (guestId) => reservations.filter(r => r.guest_id === guestId);
+  const getGuestReservations = (guestId) => propertyReservations.filter(r => r.guest_id === guestId);
 
   return (
     <div className="space-y-6">
@@ -125,7 +141,7 @@ export default function Guests() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-brand-border">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4 pt-4 border-t border-brand-border">
                   <div className="text-center">
                     <p className="text-lg font-bold text-brand-ink">{activeRes.length}</p>
                     <p className="text-[10px] text-brand-slate">Stays</p>

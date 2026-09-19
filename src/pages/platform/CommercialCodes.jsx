@@ -195,7 +195,7 @@ export default function CommercialCodes() {
                   <input type="text" value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Launch Campaign" className={inputCls} />
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="text-sm font-medium text-white/70 mb-1 block">Type</label>
                   <select value={form.type} onChange={e => setForm({...form, type: e.target.value})} className={inputCls}>

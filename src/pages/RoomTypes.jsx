@@ -309,7 +309,7 @@ export default function RoomTypes() {
                 <label className="text-sm font-medium text-brand-ink mb-1 block">Description</label>
                 <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} rows={2} placeholder="Describe this room type..." className={`${inputCls} resize-none`} />
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="text-sm font-medium text-brand-ink mb-1 block">Capacity</label>
                   <input type="number" min="1" value={form.capacity} onChange={e => setForm({...form, capacity: parseInt(e.target.value) || 1})} className={inputCls} />

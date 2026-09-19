@@ -158,7 +158,7 @@ export default function PlatformAnnouncements() {
                 <label className="text-sm font-medium text-white/70 mb-1 block">Content</label>
                 <textarea value={form.content} onChange={e => setForm({...form, content: e.target.value})} rows={4} placeholder="Announcement body..." className={`${inputCls} resize-none`} />
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="text-sm font-medium text-white/70 mb-1 block">Audience</label>
                   <select value={form.audience} onChange={e => setForm({...form, audience: e.target.value})} className={inputCls}>

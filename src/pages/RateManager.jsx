@@ -197,7 +197,7 @@ export default function RateManager() {
                   </select>
                   <input type="number" placeholder="Price per night" value={planForm.price} onChange={e => setPlanForm({ ...planForm, price: Number(e.target.value) })} className={inputCls} />
                 </div>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <input type="number" placeholder="Min stay" value={planForm.min_stay} onChange={e => setPlanForm({ ...planForm, min_stay: Number(e.target.value) })} className={inputCls} />
                   <div className="relative">
                     <Calendar className="w-3.5 h-3.5 text-brand-slate-light absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -216,7 +216,7 @@ export default function RateManager() {
                   </select>
                   <input type="number" placeholder="Value %" value={ruleForm.value_percent} onChange={e => setRuleForm({ ...ruleForm, value_percent: Number(e.target.value) })} className={inputCls} />
                 </div>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <input type="number" placeholder="Min occupancy %" value={ruleForm.min_occupancy_percent} onChange={e => setRuleForm({ ...ruleForm, min_occupancy_percent: Number(e.target.value) })} className={inputCls} />
                   <input type="number" placeholder="Min stay (nights)" value={ruleForm.min_stay} onChange={e => setRuleForm({ ...ruleForm, min_stay: Number(e.target.value) })} className={inputCls} />
                   <input type="number" placeholder="Priority" value={ruleForm.priority} onChange={e => setRuleForm({ ...ruleForm, priority: Number(e.target.value) })} className={inputCls} />

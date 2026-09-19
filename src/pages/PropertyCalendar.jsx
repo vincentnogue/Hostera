@@ -96,11 +96,13 @@ export default function PropertyCalendar() {
               <button onClick={() => setCursor(new Date(year, month + 1, 1))} className="p-2 border border-brand-border text-brand-slate rounded-full hover:border-brand-navy hover:text-brand-navy"><ChevronRight className="w-4 h-4" /></button>
             </div>
           </div>
-          <div className="grid grid-cols-7 gap-1 mb-2">
-            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => (
-              <div key={d} className="text-[10px] text-brand-slate-light text-center font-semibold uppercase">{d}</div>
-            ))}
-          </div>
+          <div className="overflow-x-auto">
+            <div className="min-w-[560px]">
+              <div className="grid grid-cols-7 gap-1 mb-2">
+                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => (
+                  <div key={d} className="text-[10px] text-brand-slate-light text-center font-semibold uppercase">{d}</div>
+                ))}
+              </div>
           <div className="grid grid-cols-7 gap-1">
             {Array.from({ length: firstWeekday }, (_, i) => <div key={`pad-${i}`} />)}
             {Array.from({ length: daysInMonth }, (_, i) => {
@@ -123,6 +125,8 @@ export default function PropertyCalendar() {
                 </div>
               );
             })}
+          </div>
+            </div>
           </div>
         </div>
 

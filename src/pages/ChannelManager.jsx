@@ -150,7 +150,7 @@ export default function ChannelManager() {
                 </span>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
                 <div className="text-center p-2 bg-brand-bg rounded-lg">
                   <p className="text-sm font-bold text-brand-ink">{channel.rooms_mapped}</p>
                   <p className="text-[10px] text-brand-slate">Rooms</p>

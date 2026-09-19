@@ -174,7 +174,7 @@ export default function InventoryManagement() {
                 </select>
                 <input placeholder="Unit (pcs, kg, L)" value={form.unit} onChange={e => setForm({ ...form, unit: e.target.value })} className={inputCls} />
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <input type="number" placeholder="Qty" value={form.quantity} onChange={e => setForm({ ...form, quantity: Number(e.target.value) })} className={inputCls} />
                 <input type="number" placeholder="Min stock" value={form.min_stock} onChange={e => setForm({ ...form, min_stock: Number(e.target.value) })} className={inputCls} />
                 <input type="number" step="0.01" placeholder="Unit cost" value={form.unit_cost} onChange={e => setForm({ ...form, unit_cost: Number(e.target.value) })} className={inputCls} />

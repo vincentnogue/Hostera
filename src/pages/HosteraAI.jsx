@@ -156,7 +156,7 @@ export default function HosteraAI() {
         <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-4">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center px-6">
-              <div className="grid grid-cols-3 gap-3 mb-6 text-brand-slate-light">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 text-brand-slate-light">
                 <div className="flex flex-col items-center gap-1"><TrendingUp className="w-5 h-5" /><span className="text-[10px]">Revenue</span></div>
                 <div className="flex flex-col items-center gap-1"><BedDouble className="w-5 h-5" /><span className="text-[10px]">Occupancy</span></div>
                 <div className="flex flex-col items-center gap-1"><Users className="w-5 h-5" /><span className="text-[10px]">Guests</span></div>

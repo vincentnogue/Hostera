@@ -58,7 +58,7 @@ function CertifiedReviewsTab() {
                   {r.status === 'published' ? <><Eye className="w-3.5 h-3.5" /> Published</> : <><EyeOff className="w-3.5 h-3.5" /> Hidden</>}
                 </button>
               </div>
-              <div className="grid grid-cols-4 gap-2 mb-2 text-[11px] text-brand-slate">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-2 text-[11px] text-brand-slate">
                 <span>Cleanliness: {r.rating_cleanliness}/5</span>
                 <span>Location: {r.rating_location}/5</span>
                 <span>Service: {r.rating_service}/5</span>

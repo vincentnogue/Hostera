@@ -88,7 +88,7 @@ export default function Experiences() {
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
           { label: 'Live experiences', value: experiences.filter(e => e.status === 'active').length },
           { label: 'Bookings', value: bookings.length },

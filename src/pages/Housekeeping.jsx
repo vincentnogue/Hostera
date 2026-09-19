@@ -2,6 +2,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
+import { useProperty } from '@/lib/PropertyContext';
 
 import { Sparkles, BedDouble, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 
@@ -20,8 +21,9 @@ const taskStatusFlow = ['pending', 'assigned', 'in_progress', 'completed', 'insp
 
 export default function Housekeeping() {
   const { toast } = useToast();
-  const [rooms, setRooms] = useState([]);
-  const [tasks, setTasks] = useState([]);
+  const { selectedProperty, properties } = useProperty();
+  const [allRooms, setAllRooms] = useState([]);
+  const [allTasks, setAllTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
 
@@ -31,8 +33,8 @@ export default function Housekeeping() {
         db.entities.Room.list(),
         db.entities.HousekeepingTask.list(),
       ]);
-      setRooms(roomData || []);
-      setTasks(taskData || []);
+      setAllRooms(roomData || []);
+      setAllTasks(taskData || []);
     } catch (e) {
       console.error(e);
     } finally {
@@ -41,6 +43,18 @@ export default function Housekeeping() {
   };
 
   useEffect(() => { fetchData(); }, []);
+
+  // Derived at render time (not baked into state at fetch time) so
+  // switching properties via the header switcher updates this board
+  // immediately, the same way RoomTypes/Reservations/Rate Manager do.
+  const property = selectedProperty || properties[0];
+  const scoped = properties.length > 1 && property;
+  const rooms = scoped ? allRooms.filter(r => r.property_id === property.id) : allRooms;
+  const roomIds = scoped ? new Set(rooms.map(r => r.id)) : null;
+  // HousekeepingTask rows link to a room, not directly to a property, so
+  // scope through the room rather than assuming a property_id field exists
+  // on the task itself.
+  const tasks = scoped ? allTasks.filter(t => roomIds.has(t.room_id)) : allTasks;
 
   const handleRoomStatusChange = async (roomId, newStatus) => {
     try {

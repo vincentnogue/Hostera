@@ -133,7 +133,7 @@ export default function ShiftLogs() {
             </div>
             <form onSubmit={addLog} className="space-y-3">
               <input placeholder="Your name" value={form.staff_name} onChange={e => setForm({ ...form, staff_name: e.target.value })} className={inputCls} />
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <select value={form.log_type} onChange={e => setForm({ ...form, log_type: e.target.value })} className={inputCls}>
                   <option value="note">Note</option><option value="handover">Handover</option><option value="task">Task</option><option value="incident">Incident</option>
                 </select>

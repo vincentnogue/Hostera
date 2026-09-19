@@ -206,7 +206,7 @@ export default function RevenueManagement() {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="text-sm font-medium text-brand-ink mb-1 block">Season</label>
                   <select value={form.season} onChange={e => setForm({...form, season: e.target.value})} className={inputCls}>
