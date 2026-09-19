@@ -7,6 +7,7 @@ import { COUNTRIES, CURRENCIES } from '@/lib/referenceData';
 import { Building2, Hotel, BedDouble, Rocket, Check, ArrowLeft, ArrowRight, Quote, ShieldCheck, Upload, Loader2, User, FileText, Camera, LogOut } from 'lucide-react';
 import { HOTEL_PHOTOS, AUTH_VIDEOS } from '@/lib/hotelMedia';
 import { useAuth } from '@/lib/AuthContext';
+import { refreshCurrentUserOrg } from '@/lib/hosteraBackend';
 
 // Real IANA timezone database via the browser — every property gets a
 // real timezone from day one instead of defaulting to UTC and needing a
@@ -118,6 +119,12 @@ export default function Onboarding() {
         name: org.name, type: org.type, country: org.country, currency: org.currency, status: 'trial',
       });
       setOrgId(created.id);
+      // The membership row backing organization_id resolution for every
+      // OTHER org-scoped create() in this session (property, room types,
+      // ...) only exists after the on_organization_created trigger just
+      // fired — refresh the cache now so those calls don't fall back to
+      // a stale "no org yet" value.
+      refreshCurrentUserOrg();
       return created.id;
     } catch (e) {
       console.error(e);

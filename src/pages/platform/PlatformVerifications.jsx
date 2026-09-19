@@ -2,6 +2,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Clock, CheckCircle2, XCircle, FileText, User, Camera, ExternalLink, Loader2, X, AlertTriangle } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 const TABS = [
   { key: 'pending', label: 'Pending review' },
@@ -14,6 +15,7 @@ const TABS = [
 // approval; every business genuinely waits for a human to check these
 // documents.
 export default function PlatformVerifications() {
+  const { toast } = useToast();
   const [orgs, setOrgs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('pending');
@@ -80,8 +82,13 @@ export default function PlatformVerifications() {
         type: 'system',
         read: false,
       }).catch(() => {});
+      toast({ title: 'Business approved', description: `${active.name} now has full dashboard access.` });
       setActive(null);
-    } catch (e) { console.error(e); }
+      load();
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not approve', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
     finally { setSaving(false); }
   };
 
@@ -98,8 +105,13 @@ export default function PlatformVerifications() {
         type: 'system',
         read: false,
       }).catch(() => {});
+      toast({ title: 'Business rejected', description: `${active.name} was notified with your reason.` });
       setActive(null);
-    } catch (e) { console.error(e); }
+      load();
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not reject', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
     finally { setSaving(false); }
   };
 

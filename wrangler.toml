@@ -27,3 +27,20 @@ VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhY
 # https://dashboard.stripe.com/apikeys — until then, card payments are
 # disabled and properties fall back to "book now, pay at hotel".
 VITE_STRIPE_PUBLISHABLE_KEY = "pk_live_51TRfM0RhcVRS1qEcrEYqtBF2yk5m5422po7rboiw0yQoL6N6UgVnQxipvRw6mLSOVr2iTVQXsAbED9TT9DUehaSK00WOROhxSk"
+# Paddle price IDs for Hostera's own subscription plans (functions/api/
+# create-subscription-checkout.js) — these are catalog identifiers, not
+# secrets, so they're fine as plain vars here. Create matching prices in
+# your Paddle dashboard (Catalog > Prices) for each plan/cycle in
+# src/lib/marketing.js (Starter/Professional/Business/Enterprise ×
+# monthly/annual) and paste their price IDs ("pri_...") in below. Paddle
+# checkout for a plan/cycle you haven't filled in here will show a clear
+# "not configured" error instead of failing silently.
+VITE_PADDLE_CLIENT_TOKEN = ""
+PADDLE_PRICE_ID_STARTER_MONTHLY = ""
+PADDLE_PRICE_ID_STARTER_ANNUAL = ""
+PADDLE_PRICE_ID_PROFESSIONAL_MONTHLY = ""
+PADDLE_PRICE_ID_PROFESSIONAL_ANNUAL = ""
+PADDLE_PRICE_ID_BUSINESS_MONTHLY = ""
+PADDLE_PRICE_ID_BUSINESS_ANNUAL = ""
+PADDLE_PRICE_ID_ENTERPRISE_MONTHLY = ""
+PADDLE_PRICE_ID_ENTERPRISE_ANNUAL = ""

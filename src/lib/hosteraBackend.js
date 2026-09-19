@@ -29,8 +29,6 @@ const PLATFORM_LEVEL_ENTITIES = new Set([
   'PlatformIncident',
   'PlatformSubscription',
   'CommercialCode',
-  'SubscriptionSetting',
-  'SubscriptionPaymentMethod',
   'AuditLog',
   'SecurityAlert',
   'FeatureFlag',
@@ -42,6 +40,7 @@ const PLATFORM_LEVEL_ENTITIES = new Set([
 // Current-user / organization context
 // ---------------------------------------------------------------------------
 let cachedUser = null;
+let cachedMembershipOrgId = undefined; // undefined = not yet looked up, null = looked up, no membership
 
 const mapSupabaseUser = (user) => {
   if (!user) return null;
@@ -50,21 +49,48 @@ const mapSupabaseUser = (user) => {
     email: user.email,
     full_name: user.user_metadata?.full_name || '',
     role: user.user_metadata?.role || user.app_metadata?.role || 'user',
-    organization_id: user.user_metadata?.organization_id || null,
+    // NOTE: organization_id is intentionally NOT read from user_metadata
+    // here — nothing in this app ever writes it there (no call anywhere
+    // does auth.updateUser({ data: { organization_id }})), so that field
+    // is permanently null for every user, always. The real value is
+    // resolved from the `memberships` table below in getCurrentUser().
     ...user.user_metadata,
   };
 };
 
 const getCurrentUser = async () => {
-  if (cachedUser) return cachedUser;
+  if (cachedUser && cachedMembershipOrgId !== undefined) {
+    return { ...cachedUser, organization_id: cachedMembershipOrgId };
+  }
   const { data, error } = await supabase.auth.getUser();
   if (error || !data?.user) return null;
   cachedUser = mapSupabaseUser(data.user);
-  return cachedUser;
+  // A fresh, live lookup — not the dead JWT metadata field above — is what
+  // actually tells us which organization this person belongs to. This is
+  // the fix for a whole class of "creating X silently fails" bugs: every
+  // org-scoped create() falls back to this value when the caller doesn't
+  // pass organization_id explicitly, and until this lookup existed that
+  // fallback always resolved to null, violating the NOT NULL constraint
+  // on organization_id for anyone relying on the fallback.
+  try {
+    const { data: memberships, error: memErr } = await supabase.from('memberships').select('organization_id').limit(1);
+    if (memErr) throw memErr;
+    cachedMembershipOrgId = memberships?.[0]?.organization_id || null;
+  } catch {
+    cachedMembershipOrgId = null;
+  }
+  return { ...cachedUser, organization_id: cachedMembershipOrgId };
 };
+
+// Call this right after creating a new organization (see Onboarding.jsx) so
+// the very next org-scoped create() in the same session picks up the new
+// membership immediately, instead of the stale "no org yet" cached value
+// persisting until the next full page load.
+const refreshCurrentUserOrg = () => { cachedMembershipOrgId = undefined; };
 
 supabase.auth.onAuthStateChange((_event, session) => {
   cachedUser = mapSupabaseUser(session?.user || null);
+  cachedMembershipOrgId = undefined;
   cachedIsPlatformAdmin = null;
 });
 
@@ -447,7 +473,7 @@ const users = {
 };
 
 export const db = { auth, app, entities, integrations, users };
-export { isCurrentUserPlatformAdmin };
+export { isCurrentUserPlatformAdmin, refreshCurrentUserOrg };
 
 // Every page in this app reads `globalThis.__B44_DB__` (base44's own
 // generated pattern) falling back to an empty stub if it isn't set. Setting

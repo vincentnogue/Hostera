@@ -3,9 +3,10 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect } from 'react';
 
 import BrandLogo from '@/components/marketing/BrandLogos';
-import { CreditCard, Plus, X, Check, Star, ArrowUpCircle, Building2, Users as UsersIcon } from 'lucide-react';
+import { CreditCard, Star, ArrowUpCircle, Building2, Users as UsersIcon, ShieldCheck, ExternalLink, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { PLANS, ONBOARDING } from '@/lib/marketing';
+import { isCurrentUserPlatformAdmin } from '@/lib/hosteraBackend';
 
 const PSPS = [
   { id: 'payunit', name: 'PayUnit', label: 'PayUnit — Mobile money & cards (Africa)' },
@@ -13,7 +14,6 @@ const PSPS = [
   { id: 'paddle', name: 'Paddle', label: 'Paddle — Merchant of record' },
   { id: 'flutterwave', name: 'Flutterwave', label: 'Flutterwave — Africa & global' },
   { id: 'paystack', name: 'Paystack', label: 'Paystack — Africa' },
-  { id: 'korapay', name: 'Kora Pay', label: 'Kora Pay — Africa payouts' },
 ];
 
 // Single source of truth for plan pricing/limits lives in src/lib/marketing.js
@@ -26,92 +26,145 @@ const PLAN_BY_KEY = Object.fromEntries(PLANS.map(p => [p.name.toLowerCase(), p])
 
 export default function Subscription() {
   const { toast } = useToast();
+  const [isAdmin, setIsAdmin] = useState(null); // null = checking
   const [settings, setSettings] = useState(null);
-  const [methods, setMethods] = useState([]);
+  const [orgId, setOrgId] = useState(null);
+  const [orgName, setOrgName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
   const [propertyCount, setPropertyCount] = useState(null);
   const [userCount, setUserCount] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ psp: 'stripe', label: '' });
+  const [selectedPsp, setSelectedPsp] = useState('stripe');
+  const [checkingOut, setCheckingOut] = useState(false);
+
+  // Paddle Billing is the one PSP here that doesn't do a plain redirect —
+  // it opens its own checkout overlay via Paddle.js, so that script has to
+  // be loaded and initialized with the account's client-side token before
+  // startCheckout() can call window.Paddle.Checkout.open(). Loaded lazily,
+  // only once, only when Paddle is actually selected.
+  useEffect(() => {
+    if (selectedPsp !== 'paddle' || window.Paddle) return;
+    const token = import.meta.env.VITE_PADDLE_CLIENT_TOKEN;
+    if (!token) return; // startCheckout() surfaces a clear error if this is missing
+    const script = document.createElement('script');
+    script.src = 'https://cdn.paddle.com/paddle/v2/paddle.js';
+    script.onload = () => window.Paddle?.Initialize({ token });
+    document.head.appendChild(script);
+  }, [selectedPsp]);
 
   useEffect(() => {
-    Promise.all([
-      db.entities.SubscriptionSetting.list(),
-      db.entities.SubscriptionPaymentMethod.list(),
-      db.entities.Organization.list().catch(() => []),
-      db.entities.Property.list().catch(() => []),
-      db.entities.User.list().catch(() => []),
-    ])
-      .then(async ([subs, pm, orgs, properties, members]) => {
+    (async () => {
+      const admin = await isCurrentUserPlatformAdmin();
+      setIsAdmin(admin);
+      if (admin) { setLoading(false); return; } // platform admins never pay — see below, no subscription row is even created for them
+
+      try {
+        const [subs, orgs, properties, members, me] = await Promise.all([
+          db.entities.SubscriptionSetting.list(),
+          db.entities.Organization.list().catch(() => []),
+          db.entities.Property.list().catch(() => []),
+          db.entities.User.list().catch(() => []),
+          db.auth.me().catch(() => null),
+        ]);
+        const org = (orgs || [])[0];
+        setOrgId(org?.id || null);
+        setOrgName(org?.name || 'My Organization');
+        setCustomerEmail(me?.email || '');
         let s = (subs || [])[0];
-        if (!s) {
-          const orgName = (orgs || [])[0]?.name || 'My Organization';
+        if (!s && org) {
           const nextMonth = new Date(); nextMonth.setMonth(nextMonth.getMonth() + 1); nextMonth.setDate(1);
-          s = await db.entities.SubscriptionSetting.create({ organization_name: orgName, plan: 'starter', status: 'trial', billing_cycle: 'monthly', seats: 5, next_billing_date: nextMonth.toISOString().slice(0, 10) });
+          s = await db.entities.SubscriptionSetting.create({ organization_id: org.id, organization_name: org.name, plan: 'starter', status: 'trial', billing_cycle: 'monthly', seats: 5, next_billing_date: nextMonth.toISOString().slice(0, 10) });
         }
-        setSettings(s);
-        setMethods(pm || []);
+        setSettings(s || null);
         setPropertyCount((properties || []).length);
         setUserCount((members || []).length);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+      } catch (e) {
+        console.error(e);
+        toast({ title: 'Could not load subscription', description: e.message || 'Please refresh and try again.', variant: 'destructive' });
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
-
-  const inputCls = "w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
 
   const updatePlan = async (patch) => {
     setSaving(true);
     try {
       await db.entities.SubscriptionSetting.update(settings.id, patch);
       setSettings({ ...settings, ...patch });
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not update plan', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
     finally { setSaving(false); }
   };
 
-  const addMethod = async (e) => {
-    e.preventDefault();
-    if (!form.label) return;
+  // Real checkout: creates a hosted session with whichever PSP is selected
+  // (functions/api/create-subscription-checkout.js) and sends the browser
+  // there. The subscription only actually activates once that PSP's
+  // webhook confirms payment (functions/api/subscription-webhook.js) —
+  // this button starting a checkout is not itself proof of payment.
+  const startCheckout = async (plan) => {
+    if (!orgId) return;
+    setCheckingOut(true);
     try {
-      const first = methods.length === 0;
-      const created = await db.entities.SubscriptionPaymentMethod.create({ psp: form.psp, label: form.label, is_default: first });
-      setMethods(prev => [...prev, created]);
-      if (first) await updatePlan({ current_psp: form.psp });
-      setForm({ psp: 'stripe', label: '' });
-      setShowAdd(false);
-      toast({ title: 'Payment method added' });
+      const planDef = PLAN_BY_KEY[plan];
+      const resp = await fetch('/api/create-subscription-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          psp: selectedPsp,
+          plan,
+          billing_cycle: settings.billing_cycle || 'monthly',
+          amount: settings.billing_cycle === 'annual' ? planDef.price * 10 : planDef.price, // 2 months free annually, matches the UI copy below
+          currency: 'USD',
+          organization_id: orgId,
+          organization_name: orgName,
+          customer_email: customerEmail,
+          success_url: `${window.location.origin}/subscription?checkout=success`,
+          cancel_url: `${window.location.origin}/subscription?checkout=cancelled`,
+        }),
+      });
+      const data = await resp.json();
+      if (!resp.ok || data.error) {
+        toast({ title: `${PSPS.find(p => p.id === selectedPsp)?.name || selectedPsp} checkout unavailable`, description: data.message || 'Please try a different provider.', variant: 'destructive' });
+        return;
+      }
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
+      } else if (data.checkout_transaction_id) {
+        // Paddle Billing opens its own overlay client-side rather than a
+        // plain redirect — Paddle.js must be loaded for this to work; see
+        // the note in create-subscription-checkout.js.
+        if (window.Paddle) {
+          window.Paddle.Checkout.open({ transactionId: data.checkout_transaction_id });
+        } else {
+          toast({ title: 'Paddle checkout not loaded', description: 'Paddle.js failed to initialize — try another provider.', variant: 'destructive' });
+        }
+      }
     } catch (err) {
-      console.error(err);
-      toast({ title: 'Could not add payment method', description: err.message || 'Please try again.', variant: 'destructive' });
+      toast({ title: 'Checkout failed', description: String(err.message || err), variant: 'destructive' });
+    } finally {
+      setCheckingOut(false);
     }
   };
 
-  const setDefault = async (m) => {
-    try {
-      await db.entities.SubscriptionPaymentMethod.updateMany({ is_default: true }, { $set: { is_default: false } });
-      await db.entities.SubscriptionPaymentMethod.update(m.id, { is_default: true });
-      setMethods(prev => prev.map(x => ({ ...x, is_default: x.id === m.id })));
-      await updatePlan({ current_psp: m.psp });
-      toast({ title: 'Default payment method updated' });
-    } catch (err) {
-      console.error(err);
-      toast({ title: 'Could not update default method', description: err.message || 'Please try again.', variant: 'destructive' });
-    }
-  };
+  const inputCls = "w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy";
 
-  const removeMethod = async (id) => {
-    try {
-      await db.entities.SubscriptionPaymentMethod.delete(id);
-      setMethods(prev => prev.filter(m => m.id !== id));
-      toast({ title: 'Payment method removed' });
-    } catch (err) {
-      console.error(err);
-      toast({ title: 'Could not remove payment method', description: err.message || 'Please try again.', variant: 'destructive' });
-    }
-  };
+  if (loading || isAdmin === null) return <p className="text-sm text-brand-slate">Loading subscription…</p>;
 
-  if (loading) return <p className="text-sm text-brand-slate">Loading subscription…</p>;
+  if (isAdmin) {
+    return (
+      <div className="max-w-md mx-auto mt-12 text-center bg-white rounded-2xl border border-brand-border p-8">
+        <ShieldCheck className="w-10 h-10 text-green-600 mx-auto mb-3" />
+        <h1 className="text-lg font-bold text-brand-ink">Platform Admin</h1>
+        <p className="text-sm text-brand-slate mt-2">Platform administrators don&apos;t pay for a subscription and have unrestricted access to the whole platform — nothing to configure here.</p>
+      </div>
+    );
+  }
+
+  if (!settings) return <p className="text-sm text-brand-slate">No subscription found for your organization yet.</p>;
 
   const currentPlan = PLAN_BY_KEY[settings.plan] || PLANS[0];
   const propertiesUsed = propertyCount ?? 0;
@@ -188,13 +241,13 @@ export default function Subscription() {
               {PLAN_KEYS.map(p => (
                 <button
                   key={p}
-                  disabled={saving}
-                  onClick={() => updatePlan({ plan: p })}
+                  disabled={saving || checkingOut || p === settings.plan}
+                  onClick={() => startCheckout(p)}
                   className={`p-3.5 rounded-xl border-2 text-left transition-all disabled:opacity-60 ${settings.plan === p ? 'border-brand-navy bg-blue-50/30' : 'border-brand-border hover:border-brand-blue/50'}`}
                 >
                   <p className="text-sm font-bold text-brand-ink capitalize">{p}</p>
                   <p className="text-xs text-brand-navy font-semibold">${PLAN_BY_KEY[p].price}/mo</p>
-                  {settings.plan === p && <span className="text-[9px] text-green-600 font-semibold">Current</span>}
+                  {settings.plan === p ? <span className="text-[9px] text-green-600 font-semibold">Current</span> : <span className="text-[9px] text-brand-slate">Pay & switch</span>}
                 </button>
               ))}
             </div>
@@ -213,69 +266,30 @@ export default function Subscription() {
           </div>
         </div>
 
-        {/* Payment methods */}
+        {/* Payment provider */}
         <div className="bg-white rounded-xl border border-brand-border p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-brand-ink flex items-center gap-2">
-              <CreditCard className="w-4 h-4 text-brand-navy" /> Payment Methods
-            </h3>
-            <button onClick={() => setShowAdd(true)} className="flex items-center gap-1 px-3 py-1.5 bg-brand-navy text-white text-xs font-semibold rounded-full hover:bg-brand-blue">
-              <Plus className="w-3.5 h-3.5" /> Add
-            </button>
+          <h3 className="text-sm font-semibold text-brand-ink flex items-center gap-2 mb-4">
+            <CreditCard className="w-4 h-4 text-brand-navy" /> Payment Provider
+          </h3>
+          <div className="space-y-2">
+            {PSPS.map(p => (
+              <button type="button" key={p.id} onClick={() => setSelectedPsp(p.id)}
+                className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-colors ${selectedPsp === p.id ? 'border-brand-navy bg-blue-50/30' : 'border-brand-border hover:border-brand-blue/50'}`}>
+                <BrandLogo name={p.name} size="sm" />
+                <span className="text-[11px] text-brand-slate">{p.label}</span>
+              </button>
+            ))}
           </div>
-          {methods.length === 0 ? (
-            <p className="text-xs text-brand-slate-light py-4 text-center border border-dashed border-brand-border rounded-xl">No payment method yet.</p>
-          ) : (
-            <div className="space-y-2.5">
-              {methods.map(m => (
-                <div key={m.id} className="p-3.5 rounded-xl border border-brand-border">
-                  <div className="flex items-center justify-between mb-2">
-                    <BrandLogo name={PSPS.find(p => p.id === m.psp)?.name || m.psp} size="sm" />
-                    {m.is_default ? (
-                      <span className="flex items-center gap-1 text-[10px] text-green-600 font-semibold"><Check className="w-3 h-3" /> Default</span>
-                    ) : (
-                      <button onClick={() => setDefault(m)} className="text-[10px] px-2 py-0.5 border border-brand-border text-brand-slate rounded-full hover:border-brand-navy">Set default</button>
-                    )}
-                  </div>
-                  <p className="text-xs text-brand-ink font-medium">{m.label}</p>
-                  {!m.is_default && (
-                    <button onClick={() => removeMethod(m.id)} className="text-[10px] text-red-500 hover:text-red-600 mt-1.5 font-medium">Remove</button>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+          <button onClick={() => startCheckout(settings.plan)} disabled={checkingOut}
+            className="w-full mt-4 flex items-center justify-center gap-1.5 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60">
+            {checkingOut ? <Loader2 className="w-4 h-4 animate-spin" /> : <ExternalLink className="w-4 h-4" />}
+            {checkingOut ? 'Redirecting…' : `Pay with ${PSPS.find(p => p.id === selectedPsp)?.name}`}
+          </button>
           <p className="text-[10px] text-brand-slate-light mt-4 leading-relaxed">
-            Hostera connects through 6 payment service providers for subscriptions: PayUnit, Stripe, Paddle, Flutterwave, Paystack and Kora Pay.
+            You&apos;ll be taken to {PSPS.find(p => p.id === selectedPsp)?.name}&apos;s secure checkout. Your plan activates automatically once payment is confirmed.
           </p>
         </div>
       </div>
-
-      {showAdd && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowAdd(false)}>
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-brand-ink">Add Payment Method</h3>
-              <button onClick={() => setShowAdd(false)}><X className="w-4 h-4 text-brand-slate" /></button>
-            </div>
-            <form onSubmit={addMethod} className="space-y-3">
-              <div>
-                <label className="text-xs font-medium text-brand-slate block mb-1.5">Provider</label>
-                <div className="space-y-2">
-                  {PSPS.map(p => (
-                    <button type="button" key={p.id} onClick={() => setForm({ ...form, psp: p.id })} className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-colors ${form.psp === p.id ? 'border-brand-navy bg-blue-50/30' : 'border-brand-border hover:border-brand-blue/50'}`}>
-                      <BrandLogo name={p.name} size="sm" />
-                      <span className="text-[11px] text-brand-slate">{p.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <input placeholder="Label (e.g. Visa •••• 4242 or account name)" value={form.label} onChange={e => setForm({ ...form, label: e.target.value })} className={inputCls} />
-              <button type="submit" className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">Add Method</button>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
