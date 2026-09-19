@@ -1,7 +1,7 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, Clock, CheckCircle2, XCircle, FileText, User, Camera, ExternalLink, Loader2 } from 'lucide-react';
+import { ShieldCheck, Clock, CheckCircle2, XCircle, FileText, User, Camera, ExternalLink, Loader2, X, AlertTriangle } from 'lucide-react';
 
 const TABS = [
   { key: 'pending', label: 'Pending review' },
@@ -103,6 +103,13 @@ export default function PlatformVerifications() {
     finally { setSaving(false); }
   };
 
+  const docFields = [
+    { key: 'business_doc', label: 'Business registration', icon: FileText },
+    { key: 'manager_id', label: 'Manager ID', icon: User },
+    { key: 'manager_selfie', label: 'Manager selfie', icon: Camera },
+  ];
+  const missingDocs = active ? docFields.filter(f => !active[`kyc_${f.key}_url`]) : [];
+
   return (
     <div className="space-y-6">
       <div>
@@ -124,6 +131,9 @@ export default function PlatformVerifications() {
         <div className="bg-white/5 border border-dashed border-white/10 rounded-xl p-10 text-center">
           <ShieldCheck className="w-8 h-8 text-white/20 mx-auto mb-3" />
           <p className="text-sm text-white/50">Nothing here.</p>
+          {tab === 'pending' && (
+            <p className="text-xs text-white/30 mt-2">Businesses only land here once they submit documents from onboarding — check the Organizations page for accounts still mid-setup.</p>
+          )}
         </div>
       ) : (
         <div className="bg-white/5 border border-white/10 rounded-xl divide-y divide-white/5">
@@ -144,32 +154,53 @@ export default function PlatformVerifications() {
       {active && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setActive(null)}>
           <div className="bg-brand-navy-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-white">{active.name}</h3>
-            <p className="text-xs text-white/50 mt-1">{active.kyc_manager_name} · {active.kyc_id_type?.replace('_', ' ')} {active.kyc_id_number}</p>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-bold text-white">{active.name}</h3>
+                <p className="text-xs text-white/50 mt-1">{active.kyc_manager_name} · {active.kyc_id_type?.replace('_', ' ')} {active.kyc_id_number}</p>
+              </div>
+              <button onClick={() => setActive(null)} className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 shrink-0" aria-label="Close">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
-              {[
-                { key: 'business_doc', label: 'Business doc', icon: FileText },
-                { key: 'manager_id', label: 'Manager ID', icon: User },
-                { key: 'manager_selfie', label: 'Selfie', icon: Camera },
-              ].map(f => (
-                <a key={f.key} href={signedUrls[f.key] || '#'} target="_blank" rel="noopener noreferrer"
-                  className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border border-white/10 ${signedUrls[f.key] ? 'hover:border-brand-blue' : 'opacity-40 pointer-events-none'}`}>
-                  {loadingDocs ? <Loader2 className="w-5 h-5 text-white/40 animate-spin" /> : <f.icon className="w-5 h-5 text-white/60" />}
-                  <span className="text-[10px] text-white/60">{f.label}</span>
-                  {signedUrls[f.key] && <ExternalLink className="w-3 h-3 text-white/30" />}
-                </a>
-              ))}
+              {docFields.map(f => {
+                const hasDoc = !!active[`kyc_${f.key}_url`];
+                const url = signedUrls[f.key];
+                return (
+                  <a key={f.key} href={url || undefined} target="_blank" rel="noopener noreferrer"
+                    className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border ${!hasDoc ? 'border-red-500/30 bg-red-500/5' : url ? 'border-white/10 hover:border-brand-blue' : 'border-white/10 opacity-50 pointer-events-none'}`}>
+                    {loadingDocs && hasDoc ? <Loader2 className="w-5 h-5 text-white/40 animate-spin" /> : !hasDoc ? <AlertTriangle className="w-5 h-5 text-red-400" /> : <f.icon className="w-5 h-5 text-white/60" />}
+                    <span className="text-[10px] text-white/60 text-center">{f.label}</span>
+                    {!hasDoc ? (
+                      <span className="text-[9px] text-red-400 font-medium">Missing</span>
+                    ) : url ? (
+                      <ExternalLink className="w-3 h-3 text-white/30" />
+                    ) : loadingDocs ? null : (
+                      <span className="text-[9px] text-amber-400">Link unavailable</span>
+                    )}
+                  </a>
+                );
+              })}
             </div>
+
+            {missingDocs.length > 0 && (
+              <div className="flex items-start gap-2 text-xs text-red-300 bg-red-500/10 rounded-lg p-3 mt-4">
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{missingDocs.length === docFields.length ? 'No documents were submitted with this application.' : `Missing: ${missingDocs.map(d => d.label).join(', ')}.`} Reject instead of approving until the file is complete.</span>
+              </div>
+            )}
 
             {active.kyc_status === 'pending' && (
               <>
                 {!showReject ? (
                   <div className="flex gap-2 mt-6">
-                    <button onClick={approve} disabled={saving} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-full hover:bg-green-700 disabled:opacity-60">
+                    <button onClick={approve} disabled={saving || missingDocs.length > 0} title={missingDocs.length > 0 ? 'Cannot approve — required documents are missing' : undefined}
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-full hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed">
                       <CheckCircle2 className="w-4 h-4" /> Approve
                     </button>
-                    <button onClick={() => setShowReject(true)} disabled={saving} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 border border-white/20 text-white text-sm font-semibold rounded-full hover:bg-white/5">
+                    <button onClick={() => setShowReject(true)} disabled={saving} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 border border-white/20 text-white text-sm font-semibold rounded-full hover:bg-white/5 disabled:opacity-60">
                       <XCircle className="w-4 h-4" /> Reject
                     </button>
                   </div>
@@ -177,15 +208,25 @@ export default function PlatformVerifications() {
                   <div className="mt-6 space-y-2">
                     <textarea value={rejectReason} onChange={e => setRejectReason(e.target.value)} placeholder="Reason (shown to the business)" rows={2}
                       className="w-full px-3.5 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white outline-none focus:border-brand-blue resize-none" />
-                    <button onClick={reject} disabled={saving || !rejectReason.trim()} className="w-full py-2.5 bg-red-600 text-white text-sm font-semibold rounded-full hover:bg-red-700 disabled:opacity-60">
-                      Confirm rejection
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={reject} disabled={saving || !rejectReason.trim()} className="flex-1 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-full hover:bg-red-700 disabled:opacity-60">
+                        Confirm rejection
+                      </button>
+                      <button onClick={() => setShowReject(false)} disabled={saving} className="px-5 py-2.5 border border-white/20 text-white text-sm font-semibold rounded-full hover:bg-white/5">
+                        Cancel
+                      </button>
+                    </div>
                   </div>
                 )}
               </>
             )}
             {active.kyc_status === 'rejected' && active.kyc_rejection_reason && (
               <p className="text-xs text-red-300 bg-red-500/10 rounded-lg p-3 mt-5">{active.kyc_rejection_reason}</p>
+            )}
+            {active.kyc_status === 'verified' && (
+              <p className="flex items-center gap-1.5 text-xs text-green-400 bg-green-500/10 rounded-lg p-3 mt-5">
+                <CheckCircle2 className="w-3.5 h-3.5" /> Verified {active.kyc_verified_at ? new Date(active.kyc_verified_at).toLocaleDateString() : ''}
+              </p>
             )}
           </div>
         </div>

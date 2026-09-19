@@ -1,8 +1,9 @@
 const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { Building2, Search, CheckCircle2, Ban, RotateCcw } from 'lucide-react';
+import { Building2, Search, CheckCircle2, Ban, RotateCcw, ShieldCheck, ShieldAlert, ShieldQuestion, ShieldX } from 'lucide-react';
 
 const statusColors = {
   active: 'bg-green-500/15 text-green-400',
@@ -12,7 +13,22 @@ const statusColors = {
   closed: 'bg-white/10 text-white/40',
 };
 
+// kyc_status (identity/document verification, reviewed in
+// /platform/verifications) is deliberately a separate field from
+// org.status (active/trial/suspended, managed right here) — a business
+// can be suspended for billing reasons independent of whether its
+// documents were ever verified. Shown together here so there's one place
+// to see both, with a direct link into the verification review instead of
+// two disconnected admin screens.
+const kycBadge = {
+  verified: { icon: ShieldCheck, label: 'Verified', cls: 'bg-green-500/15 text-green-400' },
+  pending: { icon: ShieldQuestion, label: 'Pending review', cls: 'bg-amber-500/15 text-amber-400' },
+  rejected: { icon: ShieldAlert, label: 'Rejected', cls: 'bg-red-500/15 text-red-400' },
+};
+const notSubmittedBadge = { icon: ShieldX, label: 'Not submitted', cls: 'bg-white/10 text-white/40' };
+
 export default function PlatformOrganizations() {
+  const navigate = useNavigate();
   const [orgs, setOrgs] = useState([]);
   const [properties, setProperties] = useState([]);
   const [subs, setSubs] = useState([]);
@@ -130,6 +146,7 @@ export default function PlatformOrganizations() {
                   <th className="px-4 py-3 font-medium">Properties</th>
                   <th className="px-4 py-3 font-medium">Plan</th>
                   <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Verification</th>
                   <th className="px-4 py-3 font-medium text-right">Actions</th>
                 </tr>
               </thead>
@@ -154,6 +171,21 @@ export default function PlatformOrganizations() {
                         <span className={`text-xs px-2.5 py-1 rounded-full font-medium capitalize ${statusColors[org.status] || 'bg-white/10 text-white/50'}`}>
                           {org.status}
                         </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        {(() => {
+                          const kb = kycBadge[org.kyc_status] || notSubmittedBadge;
+                          return (
+                            <button
+                              onClick={() => navigate('/platform/verifications')}
+                              disabled={!org.kyc_status}
+                              title={org.kyc_status ? 'Open in Verifications' : 'Nothing submitted yet — nothing to review'}
+                              className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium ${kb.cls} ${org.kyc_status ? 'hover:brightness-125 cursor-pointer' : 'cursor-default'}`}
+                            >
+                              <kb.icon className="w-3.5 h-3.5" /> {kb.label}
+                            </button>
+                          );
+                        })()}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2 justify-end">

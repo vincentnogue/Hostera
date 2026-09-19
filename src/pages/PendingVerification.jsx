@@ -3,7 +3,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
-import { Clock, ShieldCheck, XCircle, RefreshCw, LogOut, Mail } from 'lucide-react';
+import { Clock, ShieldCheck, XCircle, RefreshCw, LogOut, Mail, AlertTriangle } from 'lucide-react';
 
 // Gate shown between onboarding submission and a platform admin's manual
 // KYC review. A business account can't reach the real dashboard while
@@ -36,12 +36,25 @@ export default function PendingVerification() {
 
   if (loading) return null;
 
-  const status = org?.kyc_status || 'pending';
+  const status = org?.kyc_status || 'not_submitted';
 
   return (
     <div className="min-h-screen bg-brand-bg flex items-center justify-center p-6">
       <div className="max-w-md w-full bg-white rounded-2xl border border-brand-border p-8 text-center">
-        {status === 'rejected' ? (
+        {status === 'not_submitted' ? (
+          <>
+            <div className="w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="w-7 h-7 text-amber-500" />
+            </div>
+            <h1 className="text-xl font-bold text-brand-ink">Your business setup isn&apos;t finished yet</h1>
+            <p className="text-sm text-brand-slate mt-2">
+              {org?.name ? `${org.name} was` : 'Your business was'} created, but the verification documents were never submitted — nothing is waiting for review yet.
+            </p>
+            <button onClick={() => navigate('/onboarding')} className="mt-6 w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">
+              Finish setup
+            </button>
+          </>
+        ) : status === 'rejected' ? (
           <>
             <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
               <XCircle className="w-7 h-7 text-red-500" />
