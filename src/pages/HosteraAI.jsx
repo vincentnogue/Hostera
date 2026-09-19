@@ -3,6 +3,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect, useRef } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
 import { PLANS } from '@/lib/marketing';
+import { isCurrentUserPlatformAdmin } from '@/lib/hosteraBackend';
 
 import { Sparkles, Send, Loader2, Lock, AlertTriangle, TrendingUp, BedDouble, Users } from 'lucide-react';
 
@@ -22,6 +23,7 @@ const SUGGESTIONS = [
 export default function HosteraAI() {
   const { selectedProperty } = useProperty();
   const [plan, setPlan] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -31,12 +33,16 @@ export default function HosteraAI() {
   const scrollRef = useRef(null);
 
   useEffect(() => {
+    isCurrentUserPlatformAdmin().then(setIsAdmin);
     db.entities.SubscriptionSetting.list().catch(() => []).then(subs => {
       setPlan(PLANS.find(p => p.name.toLowerCase() === (subs || [])[0]?.plan) || PLANS[0]);
     });
   }, []);
 
-  const hasAccess = plan && (plan.modules?.some(m => /hostera ai/i.test(m)) || plan?.name === 'Business' || plan?.name === 'Enterprise');
+  // Platform admins have unrestricted access to every part of the
+  // platform, including the PMS itself — a plan-gated feature is exactly
+  // the kind of restriction that must not apply to them.
+  const hasAccess = isAdmin || (plan && (plan.modules?.some(m => /hostera ai/i.test(m)) || plan?.name === 'Business' || plan?.name === 'Enterprise'));
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
