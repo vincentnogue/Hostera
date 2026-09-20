@@ -3,6 +3,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
 import { getPropertyToday } from '@/lib/timezone';
+import { calculateStayTax } from '@/lib/tax';
 
 import { LogIn, LogOut, Users, BedDouble, DollarSign, Plus, Search, X, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
@@ -20,6 +21,7 @@ export default function FrontDesk() {
   const { toast } = useToast();
   const [reservations, setReservations] = useState([]);
   const [rooms, setRooms] = useState([]);
+  const [roomTypes, setRoomTypes] = useState([]);
   const [guests, setGuests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -34,10 +36,11 @@ export default function FrontDesk() {
 
   const fetchData = async () => {
     try {
-      const [resData, roomData, guestData] = await Promise.all([
+      const [resData, roomData, guestData, roomTypeData] = await Promise.all([
         db.entities.Reservation.list(),
         db.entities.Room.list(),
         db.entities.Guest.list(),
+        db.entities.RoomType.list(),
       ]);
       // Reservation/Room carry property_id — scope to the current
       // selection (kept permissive for records with no property_id yet,
@@ -46,6 +49,7 @@ export default function FrontDesk() {
       setReservations((resData || []).filter(inScope));
       setRooms((roomData || []).filter(inScope));
       setGuests(guestData || []);
+      setRoomTypes(roomTypeData || []);
     } catch (e) {
       console.error(e);
     } finally {
@@ -96,8 +100,18 @@ export default function FrontDesk() {
 
       const room = freshRoom;
       const today = getPropertyToday(selectedProperty);
-      const checkOut = new Date(new Date(today).getTime() + (Number(walkInForm.nights) || 1) * 86400000)
+      const nights = Number(walkInForm.nights) || 1;
+      const checkOut = new Date(new Date(today).getTime() + nights * 86400000)
         .toISOString().slice(0, 10);
+      // Walk-ins used to save total_amount as a hardcoded 0, so the
+      // "Outstanding" balance shown further down (total_amount - paid_amount)
+      // never reflected what the guest actually owed — staff had to work
+      // it out themselves before recording a payment. Price it the same
+      // way the online booking flow does: room type's rate × nights, plus
+      // this property's configured VAT/city tax.
+      const roomType = roomTypes.find(rt => rt.id === room?.room_type_id);
+      const subtotal = (roomType?.base_price || 0) * nights;
+      const { total: totalAmount } = calculateStayTax({ subtotal, nights, property: selectedProperty });
       const [firstName, ...rest] = walkInForm.guest_name.trim().split(' ');
       const guest = await db.entities.Guest.create({
         first_name: firstName || walkInForm.guest_name,
@@ -117,7 +131,7 @@ export default function FrontDesk() {
         status: 'checked_in',
         source: 'walk_in',
         currency,
-        total_amount: 0,
+        total_amount: totalAmount,
         paid_amount: 0,
       });
       await db.entities.Room.update(walkInForm.room_id, { status: 'occupied' });
