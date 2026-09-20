@@ -13,6 +13,14 @@ const statusConfig = {
   syncing: { icon: Loader2, color: 'text-blue-600', bg: 'bg-blue-50', label: 'Syncing' },
 };
 
+// There was previously no way to add a channel at all — ChannelConnection
+// rows were only ever updated, never created, so a brand new property had
+// zero channels and zero way to ever get one. These are the OTAs a hotel
+// PMS channel manager is expected to support; "Add a channel" below lets
+// staff create the row (disconnected) so the existing connect flow has
+// something to open.
+const KNOWN_CHANNELS = ['Booking.com', 'Airbnb', 'Expedia', 'Google Hotel Ads', 'Vrbo'];
+
 export default function ChannelManager() {
   const { selectedProperty, scopeIds, loading: propsLoading } = useProperty();
   const [channels, setChannels] = useState([]);
@@ -68,6 +76,26 @@ export default function ChannelManager() {
   const openConnect = (channel) => {
     setConnectingChannel(channel);
     setCredentialForm({ account_id: channel.account_id || '', api_key: '' });
+  };
+
+  const addChannel = async (channelName) => {
+    setSaving(true);
+    try {
+      const created = await db.entities.ChannelConnection.create({
+        organization_id: selectedProperty?.organization_id,
+        property_id: selectedProperty?.id,
+        channel_name: channelName,
+        channel_type: channelName.toLowerCase().replace(/[^a-z]+/g, '_'),
+        status: 'disconnected',
+      });
+      fetchData();
+      openConnect(created);
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not add channel', description: e.message || 'Please try again.', variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const submitConnect = async (e) => {
@@ -128,6 +156,19 @@ export default function ChannelManager() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {KNOWN_CHANNELS.filter(name => !channels.some(c => c.channel_name === name)).length > 0 && (
+          <div className="bg-white rounded-xl border border-dashed border-brand-border p-5">
+            <p className="text-sm font-semibold text-brand-ink mb-3">Add a channel</p>
+            <div className="flex flex-wrap gap-2">
+              {KNOWN_CHANNELS.filter(name => !channels.some(c => c.channel_name === name)).map(name => (
+                <button key={name} disabled={saving} onClick={() => addChannel(name)}
+                  className="px-3 py-1.5 rounded-full border border-brand-border text-xs font-medium text-brand-slate hover:border-brand-navy hover:text-brand-navy disabled:opacity-50">
+                  + {name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         {channels.map((channel) => {
           const config = statusConfig[channel.status] || statusConfig.disconnected;
           const StatusIcon = config.icon;

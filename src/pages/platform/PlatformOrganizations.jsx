@@ -42,7 +42,7 @@ export default function PlatformOrganizations() {
       const [orgData, propData, subData] = await Promise.all([
         db.entities.Organization.list(),
         db.entities.Property.list(),
-        db.entities.PlatformSubscription.list(),
+        db.entities.SubscriptionSetting.list(),
       ]);
       setOrgs(orgData || []);
       setProperties(propData || []);

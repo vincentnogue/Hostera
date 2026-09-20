@@ -21,10 +21,21 @@ export default function PlatformSubscriptions() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
+  // Reads subscription_setting — the same table the real PSP checkout/
+  // webhook flow (Subscription.jsx, functions/api/subscription-webhook.js)
+  // actually writes to. This page used to read a separate, disconnected
+  // platform_subscription table that nothing ever wrote to, so it always
+  // showed "No subscriptions found" even for hotels that had genuinely
+  // paid — this is the fix, not a cosmetic change.
   const fetchData = async () => {
     try {
-      const data = await db.entities.PlatformSubscription.list();
-      setSubs(data || []);
+      const [subData, propData] = await Promise.all([
+        db.entities.SubscriptionSetting.list(),
+        db.entities.Property.list().catch(() => []),
+      ]);
+      const countsByOrg = {};
+      (propData || []).forEach(p => { countsByOrg[p.organization_id] = (countsByOrg[p.organization_id] || 0) + 1; });
+      setSubs((subData || []).map(s => ({ ...s, properties_count: countsByOrg[s.organization_id] || 1 })));
     } catch (e) {
       console.error(e);
     } finally {
@@ -42,7 +53,7 @@ export default function PlatformSubscriptions() {
         finalUpdates.mrr = price;
         finalUpdates.arr = price * 12;
       }
-      await db.entities.PlatformSubscription.update(sub.id, finalUpdates);
+      await db.entities.SubscriptionSetting.update(sub.id, finalUpdates);
       await db.entities.AuditLog.create({
         user_name: 'Platform Admin',
         action: `${actionLabel} subscription`,

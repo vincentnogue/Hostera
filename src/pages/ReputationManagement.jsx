@@ -2,7 +2,9 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 
 import React, { useState, useEffect } from 'react';
 
-import { Star, MessageSquare, Send, TrendingUp, Filter, ShieldCheck, HelpCircle, EyeOff, Eye } from 'lucide-react';
+import { Star, MessageSquare, Send, TrendingUp, Filter, ShieldCheck, HelpCircle, EyeOff, Eye, Plus, X } from 'lucide-react';
+import { useProperty } from '@/lib/PropertyContext';
+import { useToast } from '@/components/ui/use-toast';
 
 const sourceLabels = { direct: 'Direct', google: 'Google', booking: 'Booking.com', tripadvisor: 'TripAdvisor', expedia: 'Expedia' };
 const sourcePills = { direct: 'bg-blue-50 text-brand-navy', google: 'bg-amber-50 text-amber-700', booking: 'bg-blue-50 text-blue-700', tripadvisor: 'bg-green-50 text-green-700', expedia: 'bg-yellow-50 text-yellow-700' };
@@ -139,12 +141,20 @@ function GuestQuestionsTab() {
 
 export default function ReputationManagement() {
   const [tab, setTab] = useState('external');
+  const { selectedProperty } = useProperty();
+  const { toast } = useToast();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [source, setSource] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [replying, setReplying] = useState(null);
   const [replyText, setReplyText] = useState('');
+  // Review rows were only ever updated (staff replying), never created —
+  // there was no way to log a review an employee read on Google/
+  // Booking.com/TripAdvisor into the system in the first place.
+  const [showLog, setShowLog] = useState(false);
+  const [logForm, setLogForm] = useState({ source: 'google', rating: 5, author_name: '', comment: '' });
+  const [logging, setLogging] = useState(false);
 
   useEffect(() => {
     db.entities.Review.list('-review_date', 200)
@@ -174,6 +184,32 @@ export default function ReputationManagement() {
     setReplyText('');
   };
 
+  const logReview = async (e) => {
+    e.preventDefault();
+    setLogging(true);
+    try {
+      const created = await db.entities.Review.create({
+        organization_id: selectedProperty?.organization_id,
+        property_id: selectedProperty?.id,
+        source: logForm.source,
+        rating: Number(logForm.rating),
+        author_name: logForm.author_name.trim() || 'Guest',
+        comment: logForm.comment.trim(),
+        review_date: new Date().toISOString().slice(0, 10),
+        status: 'new',
+      });
+      setReviews(prev => [created, ...prev]);
+      setShowLog(false);
+      setLogForm({ source: 'google', rating: 5, author_name: '', comment: '' });
+      toast({ title: 'Review logged' });
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Could not log review', description: err.message || 'Please try again.', variant: 'destructive' });
+    } finally {
+      setLogging(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -181,18 +217,51 @@ export default function ReputationManagement() {
         <p className="text-sm text-brand-slate">Aggregate and respond to guest reviews across every platform.</p>
       </div>
 
-      <div className="flex items-center gap-2">
-        {[
-          { key: 'external', label: 'External Reviews', icon: MessageSquare },
-          { key: 'certified', label: 'Certified Reviews', icon: ShieldCheck },
-          { key: 'questions', label: 'Guest Questions', icon: HelpCircle },
-        ].map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium transition-colors ${tab === t.key ? 'bg-brand-navy text-white' : 'bg-white border border-brand-border text-brand-slate hover:border-brand-navy'}`}>
-            <t.icon className="w-3.5 h-3.5" /> {t.label}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {[
+            { key: 'external', label: 'External Reviews', icon: MessageSquare },
+            { key: 'certified', label: 'Certified Reviews', icon: ShieldCheck },
+            { key: 'questions', label: 'Guest Questions', icon: HelpCircle },
+          ].map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium transition-colors ${tab === t.key ? 'bg-brand-navy text-white' : 'bg-white border border-brand-border text-brand-slate hover:border-brand-navy'}`}>
+              <t.icon className="w-3.5 h-3.5" /> {t.label}
+            </button>
+          ))}
+        </div>
+        {tab === 'external' && (
+          <button onClick={() => setShowLog(true)} className="flex items-center gap-1.5 px-3.5 py-2 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">
+            <Plus className="w-3.5 h-3.5" /> Log a review
           </button>
-        ))}
+        )}
       </div>
+
+      {showLog && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowLog(false)}>
+          <form onSubmit={logReview} onClick={e => e.stopPropagation()} className="bg-white rounded-2xl p-6 w-full max-w-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-brand-ink">Log an external review</h2>
+              <button type="button" onClick={() => setShowLog(false)}><X className="w-4 h-4" /></button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <select value={logForm.source} onChange={e => setLogForm({ ...logForm, source: e.target.value })} className="px-3 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy">
+                {Object.entries(sourceLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+              </select>
+              <select value={logForm.rating} onChange={e => setLogForm({ ...logForm, rating: e.target.value })} className="px-3 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy">
+                {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} star{n > 1 ? 's' : ''}</option>)}
+              </select>
+            </div>
+            <input value={logForm.author_name} onChange={e => setLogForm({ ...logForm, author_name: e.target.value })} placeholder="Reviewer name"
+              className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy" />
+            <textarea required value={logForm.comment} onChange={e => setLogForm({ ...logForm, comment: e.target.value })} placeholder="What did they write?" rows={3}
+              className="w-full px-3.5 py-2 border border-brand-border rounded-2xl text-sm outline-none focus:border-brand-navy resize-none" />
+            <button type="submit" disabled={logging} className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60">
+              {logging ? 'Saving…' : 'Log review'}
+            </button>
+          </form>
+        </div>
+      )}
 
       {tab === 'certified' && <CertifiedReviewsTab />}
       {tab === 'questions' && <GuestQuestionsTab />}

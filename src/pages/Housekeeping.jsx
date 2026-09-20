@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { useProperty } from '@/lib/PropertyContext';
 
-import { Sparkles, BedDouble, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { Sparkles, BedDouble, CheckCircle2, Clock, AlertCircle, Plus, X } from 'lucide-react';
 
 const roomStatusConfig = {
   available: { color: 'bg-green-100 text-green-700 border-green-200', dot: 'bg-green-500', label: 'Available' },
@@ -26,6 +26,12 @@ export default function Housekeeping() {
   const [allTasks, setAllTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  // HousekeepingTask rows were only ever updated (status changes), never
+  // created — there was no way for staff to actually log a new task, so
+  // this board could only ever show tasks that don't exist yet.
+  const [showNewTask, setShowNewTask] = useState(false);
+  const [newTask, setNewTask] = useState({ room_id: '', type: 'cleaning', priority: 'normal' });
+  const [creatingTask, setCreatingTask] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -75,6 +81,32 @@ export default function Housekeeping() {
     } catch (e) {
       console.error(e);
       toast({ title: 'Could not update task', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
+  };
+
+  const createTask = async (e) => {
+    e.preventDefault();
+    if (!newTask.room_id) return;
+    setCreatingTask(true);
+    try {
+      const room = allRooms.find(r => r.id === newTask.room_id);
+      await db.entities.HousekeepingTask.create({
+        organization_id: room?.organization_id || property?.organization_id,
+        property_id: room?.property_id || property?.id,
+        room_id: newTask.room_id,
+        type: newTask.type,
+        priority: newTask.priority,
+        status: 'pending',
+      });
+      setShowNewTask(false);
+      setNewTask({ room_id: '', type: 'cleaning', priority: 'normal' });
+      fetchData();
+      toast({ title: 'Task created' });
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not create task', description: e.message || 'Please try again.', variant: 'destructive' });
+    } finally {
+      setCreatingTask(false);
     }
   };
 
@@ -198,6 +230,46 @@ export default function Housekeeping() {
           );
         })}
       </div>
+
+      <div className="flex justify-end">
+        <button onClick={() => setShowNewTask(true)} className="flex items-center gap-1.5 px-3.5 py-2 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue">
+          <Plus className="w-3.5 h-3.5" /> New task
+        </button>
+      </div>
+
+      {showNewTask && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowNewTask(false)}>
+          <form onSubmit={createTask} onClick={e => e.stopPropagation()} className="bg-white rounded-2xl p-6 w-full max-w-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-brand-ink">New housekeeping task</h2>
+              <button type="button" onClick={() => setShowNewTask(false)}><X className="w-4 h-4" /></button>
+            </div>
+            <select required value={newTask.room_id} onChange={e => setNewTask({ ...newTask, room_id: e.target.value })}
+              className="w-full px-3.5 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy">
+              <option value="">Select a room…</option>
+              {allRooms.map(r => <option key={r.id} value={r.id}>Room {r.number}</option>)}
+            </select>
+            <div className="grid grid-cols-2 gap-2">
+              <select value={newTask.type} onChange={e => setNewTask({ ...newTask, type: e.target.value })} className="px-3 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy">
+                <option value="cleaning">Cleaning</option>
+                <option value="deep_clean">Deep clean</option>
+                <option value="turndown">Turndown</option>
+                <option value="inspection">Inspection</option>
+                <option value="maintenance">Maintenance</option>
+              </select>
+              <select value={newTask.priority} onChange={e => setNewTask({ ...newTask, priority: e.target.value })} className="px-3 py-2 border border-brand-border rounded-full text-sm outline-none focus:border-brand-navy">
+                <option value="low">Low</option>
+                <option value="normal">Normal</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </div>
+            <button type="submit" disabled={creatingTask || !newTask.room_id} className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60">
+              {creatingTask ? 'Creating…' : 'Create task'}
+            </button>
+          </form>
+        </div>
+      )}
 
       {/* Pending Tasks */}
       {pendingTasks.length > 0 && (
