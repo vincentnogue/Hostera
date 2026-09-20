@@ -1,0 +1,99 @@
+{
+  "notFound": {
+    "title": "Property not found",
+    "description": "This booking link may be out of date or the property is no longer listed."
+  },
+  "bookingDisabled": {
+    "description": "Online booking isn't available for this property right now. Please contact them directly to book your stay."
+  },
+  "payment": {
+    "title": "Secure card payment",
+    "summary": "{{name}} · {{checkIn}} → {{checkOut}} · {{amount}}",
+    "payAndConfirm": "Pay {{amount}} & confirm",
+    "cancel": "Cancel and go back"
+  },
+  "confirmed": {
+    "titleConfirmed": "Booking confirmed",
+    "titleReceived": "Booking received",
+    "confirmationFor": "Confirmation {{number}} for {{name}}.",
+    "depositNote": " A deposit of {{percent}}% will be requested by the property to secure your stay.",
+    "sentTo": " A confirmation has been sent to {{email}}.",
+    "summary": "{{checkIn}} → {{checkOut}} · {{count}} night · {{amount}}",
+    "summary_plural": "{{checkIn}} → {{checkOut}} · {{count}} nights · {{amount}}"
+  },
+  "rooms": {
+    "heading": "Choose a room",
+    "none": "No room types are published for this property yet.",
+    "upTo": "Up to {{count}} guests",
+    "perNight": "/ night",
+    "contactForRate": "Contact for rate"
+  },
+  "calendar": {
+    "heading": "Select your dates",
+    "summary": "{{checkIn}} → {{checkOut}} · {{count}} night",
+    "summary_plural": "{{checkIn}} → {{checkOut}} · {{count}} nights",
+    "minStayNote": " · {{count}}-night minimum stay"
+  },
+  "guests": {
+    "adults": "Adults",
+    "children": "Children"
+  },
+  "guestDetails": {
+    "heading": "Your details",
+    "fullName": "Full name",
+    "email": "Email",
+    "phone": "Phone"
+  },
+  "experiences": {
+    "heading": "Add a local experience",
+    "perPerson": "/person"
+  },
+  "pricing": {
+    "roomTotal": "Room total: {{amount}}",
+    "vat": "VAT/GST ({{rate}}%): {{amount}}",
+    "cityTax": "City tax: {{amount}}",
+    "depositRequired": "{{percent}}% deposit required to confirm",
+    "bookNow": "Book now",
+    "booking": "Booking…"
+  },
+  "reviews": {
+    "heading": "Guest reviews",
+    "avgSuffix": "({{avg}} avg · {{count}} verified stays)",
+    "guestFallback": "Guest"
+  },
+  "qa": {
+    "heading": "Questions & answers",
+    "questionPrefix": "Q: {{question}}",
+    "answerPrefix": "A: {{answer}}",
+    "awaitingAnswer": "Awaiting an answer from the property",
+    "posted": "Your question was posted — the property will answer publicly here.",
+    "namePlaceholder": "Your name (optional)",
+    "questionPlaceholder": "Ask the property a question…",
+    "ask": "Ask",
+    "posting": "Posting…"
+  },
+  "support": {
+    "needHelp": "Need help with this booking?",
+    "sent": "Sent — the property will follow up by email.",
+    "contactHeading": "Contact the property",
+    "emailPlaceholder": "Your email",
+    "questionPlaceholder": "Your question",
+    "send": "Send",
+    "sending": "Sending…"
+  },
+  "footer": {
+    "backToHostera": "Back to Hostera"
+  },
+  "errors": {
+    "minStay": "This property requires a minimum stay of {{count}} night(s).",
+    "soldOut": "Sorry — this room type just sold out for one or more of your selected nights. Please choose different dates or another room type.",
+    "paymentStartFailed": "Could not start payment. Please try again.",
+    "genericSubmit": "Something went wrong submitting your booking. Please try again.",
+    "supportSendFailed": "Could not send your message",
+    "supportSendFailedDesc": "Please try again or contact the property directly."
+  },
+  "language": {
+    "en": "English",
+    "fr": "Français"
+  }
+}

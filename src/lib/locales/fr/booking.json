@@ -1,0 +1,99 @@
+{
+  "notFound": {
+    "title": "Établissement introuvable",
+    "description": "Ce lien de réservation n'est peut-être plus valide ou l'établissement n'est plus référencé."
+  },
+  "bookingDisabled": {
+    "description": "La réservation en ligne n'est pas disponible pour cet établissement pour le moment. Merci de le contacter directement pour réserver votre séjour."
+  },
+  "payment": {
+    "title": "Paiement sécurisé par carte",
+    "summary": "{{name}} · {{checkIn}} → {{checkOut}} · {{amount}}",
+    "payAndConfirm": "Payer {{amount}} et confirmer",
+    "cancel": "Annuler et revenir en arrière"
+  },
+  "confirmed": {
+    "titleConfirmed": "Réservation confirmée",
+    "titleReceived": "Réservation reçue",
+    "confirmationFor": "Confirmation {{number}} pour {{name}}.",
+    "depositNote": " Un acompte de {{percent}}% vous sera demandé par l'établissement pour garantir votre séjour.",
+    "sentTo": " Une confirmation a été envoyée à {{email}}.",
+    "summary": "{{checkIn}} → {{checkOut}} · {{count}} nuit · {{amount}}",
+    "summary_plural": "{{checkIn}} → {{checkOut}} · {{count}} nuits · {{amount}}"
+  },
+  "rooms": {
+    "heading": "Choisissez une chambre",
+    "none": "Aucun type de chambre n'est encore publié pour cet établissement.",
+    "upTo": "Jusqu'à {{count}} personnes",
+    "perNight": "/ nuit",
+    "contactForRate": "Nous contacter pour le tarif"
+  },
+  "calendar": {
+    "heading": "Choisissez vos dates",
+    "summary": "{{checkIn}} → {{checkOut}} · {{count}} nuit",
+    "summary_plural": "{{checkIn}} → {{checkOut}} · {{count}} nuits",
+    "minStayNote": " · séjour minimum de {{count}} nuits"
+  },
+  "guests": {
+    "adults": "Adultes",
+    "children": "Enfants"
+  },
+  "guestDetails": {
+    "heading": "Vos coordonnées",
+    "fullName": "Nom complet",
+    "email": "Email",
+    "phone": "Téléphone"
+  },
+  "experiences": {
+    "heading": "Ajouter une expérience locale",
+    "perPerson": "/personne"
+  },
+  "pricing": {
+    "roomTotal": "Total chambre : {{amount}}",
+    "vat": "TVA ({{rate}}%) : {{amount}}",
+    "cityTax": "Taxe de séjour : {{amount}}",
+    "depositRequired": "Acompte de {{percent}}% requis pour confirmer",
+    "bookNow": "Réserver",
+    "booking": "Réservation…"
+  },
+  "reviews": {
+    "heading": "Avis des voyageurs",
+    "avgSuffix": "({{avg}} moy. · {{count}} séjours vérifiés)",
+    "guestFallback": "Client"
+  },
+  "qa": {
+    "heading": "Questions & réponses",
+    "questionPrefix": "Q : {{question}}",
+    "answerPrefix": "R : {{answer}}",
+    "awaitingAnswer": "En attente d'une réponse de l'établissement",
+    "posted": "Votre question a été publiée — l'établissement y répondra ici publiquement.",
+    "namePlaceholder": "Votre nom (optionnel)",
+    "questionPlaceholder": "Posez une question à l'établissement…",
+    "ask": "Envoyer",
+    "posting": "Envoi…"
+  },
+  "support": {
+    "needHelp": "Besoin d'aide pour cette réservation ?",
+    "sent": "Envoyé — l'établissement vous répondra par email.",
+    "contactHeading": "Contacter l'établissement",
+    "emailPlaceholder": "Votre email",
+    "questionPlaceholder": "Votre question",
+    "send": "Envoyer",
+    "sending": "Envoi…"
+  },
+  "footer": {
+    "backToHostera": "Retour à Hostera"
+  },
+  "errors": {
+    "minStay": "Cet établissement exige un séjour minimum de {{count}} nuit(s).",
+    "soldOut": "Désolé — ce type de chambre vient d'être complet pour une ou plusieurs des nuits sélectionnées. Merci de choisir d'autres dates ou un autre type de chambre.",
+    "paymentStartFailed": "Impossible de démarrer le paiement. Merci de réessayer.",
+    "genericSubmit": "Une erreur est survenue lors de l'envoi de votre réservation. Merci de réessayer.",
+    "supportSendFailed": "Impossible d'envoyer votre message",
+    "supportSendFailedDesc": "Merci de réessayer ou de contacter directement l'établissement."
+  },
+  "language": {
+    "en": "English",
+    "fr": "Français"
+  }
+}
