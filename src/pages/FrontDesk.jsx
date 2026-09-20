@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
 import { getPropertyToday } from '@/lib/timezone';
 import { calculateStayTax } from '@/lib/tax';
+import { generateInvoiceForReservation } from '@/lib/invoicing';
 
 import { LogIn, LogOut, Users, BedDouble, DollarSign, Plus, Search, X, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
@@ -74,6 +75,8 @@ export default function FrontDesk() {
     try {
       await db.entities.Reservation.update(resId, { status: 'checked_out' });
       if (roomId) await db.entities.Room.update(roomId, { status: 'dirty' });
+      const reservation = reservations.find(r => r.id === resId);
+      if (reservation) await generateInvoiceForReservation({ ...reservation, status: 'checked_out' });
       fetchData();
     } catch (e) {
       console.error(e);

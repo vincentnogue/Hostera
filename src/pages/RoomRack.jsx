@@ -3,6 +3,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect, useMemo } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
 import { useToast } from '@/components/ui/use-toast';
+import { generateInvoiceForReservation } from '@/lib/invoicing';
 
 import { ChevronLeft, ChevronRight, Grid3X3, X, LogIn, LogOut, User, Calendar, ArrowRightLeft } from 'lucide-react';
 
@@ -111,6 +112,7 @@ export default function RoomRack() {
     try {
       await db.entities.Reservation.update(activeRes.id, { status: 'checked_out' });
       await db.entities.Room.update(activeRes.room_id, { status: 'dirty' });
+      await generateInvoiceForReservation({ ...activeRes, status: 'checked_out' });
       await fetchData();
       setActiveRes(null);
       toast({ title: 'Guest checked out' });
