@@ -28,6 +28,18 @@ export default function RoomTypes() {
   const [formUploading, setFormUploading] = useState(false);
   const [photoError, setPhotoError] = useState('');
 
+  // Individual room units (Room 101, 102, ...) were never actually
+  // creatable anywhere in the app — RoomTypes only ever created the
+  // *type* (e.g. "Deluxe Double"), so the room count shown here, the
+  // Housekeeping board, and the Room Rack were always empty regardless of
+  // how many room types got added. This is the fix: real Room rows.
+  const [manageRoomsFor, setManageRoomsFor] = useState(null);
+  const [newRoomNumber, setNewRoomNumber] = useState('');
+  const [newRoomFloor, setNewRoomFloor] = useState('');
+  const [bulkStart, setBulkStart] = useState('');
+  const [bulkCount, setBulkCount] = useState(1);
+  const [savingRoom, setSavingRoom] = useState(false);
+
   const fetchData = async () => {
     try {
       const [rtData, roomData, propData] = await Promise.all([
@@ -66,6 +78,77 @@ export default function RoomTypes() {
       toast({ title: 'Could not create room type', description: e.message || 'Please try again.', variant: 'destructive' });
     } finally {
       setCreating(false);
+    }
+  };
+
+  const addRoom = async (roomType) => {
+    if (!newRoomNumber.trim()) return;
+    setSavingRoom(true);
+    try {
+      const property = selectedProperty || properties[0];
+      await db.entities.Room.create({
+        // organization_id explicit, not auto-derived — same lesson as the
+        // onboarding room-type bug: don't rely on the fallback when we
+        // already know exactly which org this belongs to.
+        organization_id: roomType.organization_id || property?.organization_id,
+        property_id: roomType.property_id || property?.id,
+        room_type_id: roomType.id,
+        number: newRoomNumber.trim(),
+        floor: newRoomFloor ? Number(newRoomFloor) : undefined,
+        status: 'available',
+      });
+      setNewRoomNumber('');
+      setNewRoomFloor('');
+      fetchData();
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not add room', description: e.message || 'Please try again.', variant: 'destructive' });
+    } finally {
+      setSavingRoom(false);
+    }
+  };
+
+  const addRoomsInBulk = async (roomType) => {
+    const start = parseInt(bulkStart, 10);
+    const count = Math.max(1, Math.min(50, Number(bulkCount) || 1));
+    if (!bulkStart.trim() || Number.isNaN(start)) return;
+    setSavingRoom(true);
+    try {
+      const property = selectedProperty || properties[0];
+      const orgId = roomType.organization_id || property?.organization_id;
+      const propId = roomType.property_id || property?.id;
+      await Promise.all(
+        Array.from({ length: count }, (_, i) =>
+          db.entities.Room.create({
+            organization_id: orgId,
+            property_id: propId,
+            room_type_id: roomType.id,
+            number: String(start + i),
+            floor: newRoomFloor ? Number(newRoomFloor) : undefined,
+            status: 'available',
+          })
+        )
+      );
+      setBulkStart('');
+      setBulkCount(1);
+      setNewRoomFloor('');
+      fetchData();
+      toast({ title: `${count} rooms added` });
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not add rooms', description: e.message || 'Please try again.', variant: 'destructive' });
+    } finally {
+      setSavingRoom(false);
+    }
+  };
+
+  const removeRoom = async (roomId) => {
+    try {
+      await db.entities.Room.delete(roomId);
+      fetchData();
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not remove room', description: e.message || 'Please try again.', variant: 'destructive' });
     }
   };
 
@@ -200,9 +283,10 @@ export default function RoomTypes() {
                   <div className="w-11 h-11 rounded-xl bg-brand-bg flex items-center justify-center">
                     <BedDouble className="w-5 h-5 text-brand-navy" />
                   </div>
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-brand-bg text-brand-slate font-medium">
+                  <button type="button" onClick={() => setManageRoomsFor(rt)}
+                    className="text-xs px-2.5 py-1 rounded-full bg-brand-bg text-brand-slate font-medium hover:bg-brand-border/50">
                     {roomCount} rooms
-                  </span>
+                  </button>
                 </div>
 
                 {/* Photo gallery */}
@@ -289,6 +373,67 @@ export default function RoomTypes() {
           })
         )}
       </div>
+
+      {/* Manage Rooms Modal — add/remove the individual room units
+          (Room 101, 102, ...) that live under this room type */}
+      {manageRoomsFor && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setManageRoomsFor(null)}>
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-brand-ink">Rooms — {manageRoomsFor.name}</h2>
+              <button onClick={() => setManageRoomsFor(null)} className="text-brand-slate hover:text-brand-ink">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-1.5 mb-5 max-h-48 overflow-y-auto">
+              {rooms.filter(r => r.room_type_id === manageRoomsFor.id).length === 0 ? (
+                <p className="text-xs text-brand-slate">No rooms added yet — add at least one below so this type can actually be booked and shown on Housekeeping / Room Rack.</p>
+              ) : (
+                rooms.filter(r => r.room_type_id === manageRoomsFor.id).map(r => (
+                  <div key={r.id} className="flex items-center justify-between px-3 py-2 bg-brand-bg rounded-lg">
+                    <span className="text-sm text-brand-ink">Room {r.number}{r.floor != null && r.floor !== '' ? ` · Floor ${r.floor}` : ''}</span>
+                    <button onClick={() => removeRoom(r.id)} className="text-brand-slate hover:text-red-600">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="space-y-3 pt-3 border-t border-brand-border">
+              <div>
+                <label className="text-xs font-medium text-brand-slate">Add one room</label>
+                <div className="flex gap-2 mt-1">
+                  <input placeholder="Room number, e.g. 101" value={newRoomNumber} onChange={e => setNewRoomNumber(e.target.value)}
+                    className="flex-1 px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy" />
+                  <input placeholder="Floor" type="number" value={newRoomFloor} onChange={e => setNewRoomFloor(e.target.value)}
+                    className="w-20 px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy" />
+                  <button onClick={() => addRoom(manageRoomsFor)} disabled={savingRoom || !newRoomNumber.trim()}
+                    className="px-3 py-2 bg-brand-navy text-white rounded-lg text-sm font-medium disabled:opacity-50">
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-brand-slate">Or add several at once (sequential numbers)</label>
+                <div className="flex gap-2 mt-1">
+                  <input placeholder="Starting number, e.g. 201" value={bulkStart} onChange={e => setBulkStart(e.target.value)}
+                    className="flex-1 px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy" />
+                  <input placeholder="Count" type="number" min={1} max={50} value={bulkCount} onChange={e => setBulkCount(e.target.value)}
+                    className="w-20 px-3 py-2 border border-brand-border rounded-lg text-sm outline-none focus:border-brand-navy" />
+                  <button onClick={() => addRoomsInBulk(manageRoomsFor)} disabled={savingRoom || !bulkStart.trim()}
+                    className="px-3 py-2 bg-brand-navy text-white rounded-lg text-sm font-medium disabled:opacity-50 whitespace-nowrap">
+                    Add all
+                  </button>
+                </div>
+                <p className="text-[11px] text-brand-slate-light mt-1">e.g. start at 201, count 5 → rooms 201–205.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Create Modal */}
       {showCreate && (
