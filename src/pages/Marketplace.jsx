@@ -4,6 +4,8 @@ import {
   MapPin, Users, Search, Loader2, Globe2, BedDouble, ArrowRight, Building2, Sparkles
 } from 'lucide-react';
 import { fetchMarketplaceListings, REGIONS } from '@/lib/marketplace';
+import { fetchAllPublicAvailability } from '@/lib/availability';
+import { computeUnavailableDates } from '@/components/AvailabilityCalendar';
 import { HOTEL_PHOTOS } from '@/lib/hotelMedia';
 import { recordAdEvent, isCampaignLive } from '@/lib/ads';
 
@@ -21,6 +23,8 @@ export default function Marketplace() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [listings, setListings] = useState([]);
   const [sponsoredByProperty, setSponsoredByProperty] = useState({});
+  const [rooms, setRooms] = useState([]);
+  const [availability, setAvailability] = useState([]);
   const [loading, setLoading] = useState(true);
   const [region, setRegion] = useState('All');
 
@@ -38,8 +42,18 @@ export default function Marketplace() {
       // active approved ad campaigns" policy), so this never leaks a
       // hotel's pending/paused campaign to the public.
       db.entities.AdCampaign.list().catch(() => []),
-    ]).then(([l, campaigns]) => {
+      // Real availability, not just a text/region search — see
+      // `hasAvailability` below. Both of these were unreadable to
+      // anonymous visitors until the "public can read rooms for
+      // availability" RLS fix; without it every property always looked
+      // fully available for any dates, in the marketplace AND in the
+      // booking page's own pre-submit check.
+      db.entities.Room.list().catch(() => []),
+      fetchAllPublicAvailability().catch(() => []),
+    ]).then(([l, campaigns, roomData, availabilityData]) => {
       setListings(l);
+      setRooms(roomData || []);
+      setAvailability(availabilityData || []);
       const byProperty = {};
       for (const c of campaigns || []) {
         if (c.campaign_type === 'top_listing' && isCampaignLive(c) && !byProperty[c.property_id]) {
@@ -55,13 +69,32 @@ export default function Marketplace() {
   // placements a visitor genuinely saw in this search result.
   const impressedRef = React.useRef(new Set());
 
+  // True when at least one of this listing's room types has zero
+  // sold-out nights across the whole requested stay — i.e. an actual
+  // guest could actually complete this booking, not just "the hotel
+  // exists and matched the text search".
+  const hasAvailability = (listing) => {
+    if (!checkIn || !checkOut) return true; // no dates picked yet — show everything
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+    if (!(end > start)) return true;
+    return listing.roomTypes.some(rt => {
+      const rtRooms = rooms.filter(r => r.room_type_id === rt.id);
+      if (rtRooms.length === 0) return false; // room type exists but no actual room inventory yet
+      const unavailable = computeUnavailableDates(rt.id, rooms, availability, start, end);
+      return unavailable.size === 0;
+    });
+  };
+
   const filtered = useMemo(() => {
     const q = destination.trim().toLowerCase();
     const matches = listings.filter(l => {
       if (region !== 'All' && l.region !== region) return false;
-      if (!q) return true;
-      const haystack = [l.property.name, l.property.city, l.property.country].filter(Boolean).join(' ').toLowerCase();
-      return haystack.includes(q);
+      if (q) {
+        const haystack = [l.property.name, l.property.city, l.property.country].filter(Boolean).join(' ').toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
+      return hasAvailability(l);
     });
     // Sponsored ("Top Listing") properties surface first, in the order
     // matched — this is the actual product being sold in Ads Manager, so
@@ -71,7 +104,7 @@ export default function Marketplace() {
       const sb = sponsoredByProperty[b.property.id] ? 1 : 0;
       return sb - sa;
     });
-  }, [listings, destination, region, sponsoredByProperty]);
+  }, [listings, destination, region, sponsoredByProperty, rooms, availability, checkIn, checkOut]);
 
   useEffect(() => {
     for (const l of filtered) {
@@ -176,9 +209,11 @@ export default function Marketplace() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-24">
             <Building2 className="w-10 h-10 text-brand-border mx-auto mb-3" />
-            <p className="text-sm font-semibold text-brand-ink">No properties match yet</p>
+            <p className="text-sm font-semibold text-brand-ink">{checkIn && checkOut ? 'No properties available for these dates' : 'No properties match yet'}</p>
             <p className="text-sm text-brand-slate mt-1 max-w-sm mx-auto">
-              As hotels self-register and list their rooms on Hostera, they appear here automatically — try a different destination or check back soon.
+              {checkIn && checkOut
+                ? 'Try different dates, or clear them to browse everything with availability elsewhere.'
+                : 'As hotels self-register and list their rooms on Hostera, they appear here automatically — try a different destination or check back soon.'}
             </p>
           </div>
         ) : (

@@ -17,3 +17,15 @@ export async function fetchPublicAvailability(propertyId) {
   if (error) throw error;
   return data || [];
 }
+
+// Marketplace-wide variant — no property filter, since the search page
+// needs to check availability across every listed property at once
+// rather than one at a time. RLS on this view is already public (same
+// grant as the single-property version above).
+export async function fetchAllPublicAvailability() {
+  const { data, error } = await supabase
+    .from('public_availability')
+    .select('*');
+  if (error) throw error;
+  return data || [];
+}
