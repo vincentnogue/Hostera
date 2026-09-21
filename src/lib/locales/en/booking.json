@@ -48,6 +48,9 @@
     "heading": "Add a local experience",
     "perPerson": "/person"
   },
+  "houseRules": {
+    "heading": "House rules"
+  },
   "pricing": {
     "roomTotal": "Room total: {{amount}}",
     "vat": "VAT/GST ({{rate}}%): {{amount}}",

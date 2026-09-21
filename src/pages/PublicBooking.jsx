@@ -9,7 +9,7 @@ import { fetchPublicAvailability } from '@/lib/availability';
 import {
   MapPin, Users, BedDouble, Calendar, Phone, Mail, Check,
   ShieldCheck, Loader2, ChevronLeft, Building2, LifeBuoy, Send, CheckCircle2,
-  Compass, Star, HelpCircle
+  Compass, Star, HelpCircle, ScrollText
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import StripePaymentForm from '@/components/booking/StripePaymentForm';
@@ -47,6 +47,7 @@ export default function PublicBooking() {
 
   const [certifiedReviews, setCertifiedReviews] = useState([]);
   const [hotelQuestions, setHotelQuestions] = useState([]);
+  const [houseRules, setHouseRules] = useState(null);
   const [experiences, setExperiences] = useState([]);
   const [selectedExperienceIds, setSelectedExperienceIds] = useState([]);
   const [askName, setAskName] = useState('');
@@ -57,7 +58,7 @@ export default function PublicBooking() {
   useEffect(() => {
     async function load() {
       try {
-        const [props, allRoomTypes, allSettings, allRooms, allReviews, allQuestions, allExperiences] = await Promise.all([
+        const [props, allRoomTypes, allSettings, allRooms, allReviews, allQuestions, allExperiences, allHouseRules] = await Promise.all([
           db.entities.Property.list(),
           db.entities.RoomType.list(),
           db.entities.BookingEngineSetting.list(),
@@ -65,6 +66,7 @@ export default function PublicBooking() {
           db.entities.CertifiedReview.list().catch(() => []),
           db.entities.HotelQuestion.list().catch(() => []),
           db.entities.Experience.list().catch(() => []),
+          db.entities.HouseRule.list().catch(() => []),
         ]);
         const prop = (props || []).find(p => p.id === propertyId);
         if (!prop) {
@@ -77,6 +79,7 @@ export default function PublicBooking() {
         setCertifiedReviews((allReviews || []).filter(r => r.property_id === propertyId));
         setHotelQuestions((allQuestions || []).filter(q => q.property_id === propertyId));
         setExperiences((allExperiences || []).filter(x => x.property_id === propertyId && x.status === 'active'));
+        setHouseRules((allHouseRules || []).find(r => r.property_id === propertyId && r.status === 'published') || null);
         const availability = await fetchPublicAvailability(propertyId).catch(() => []);
         setReservations(availability);
         setSettings((allSettings || []).find(s => s.property_id === propertyId) || {
@@ -628,6 +631,19 @@ export default function PublicBooking() {
                   <p className="text-sm text-brand-slate">{r.comment}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* House rules — staff-managed, published version only */}
+        {houseRules && (
+          <div className="mt-8 border-t border-brand-border pt-6">
+            <h2 className="text-sm font-semibold text-brand-ink mb-3 flex items-center gap-1.5">
+              <ScrollText className="w-4 h-4 text-brand-navy" /> {t('houseRules.heading')}
+            </h2>
+            <div className="bg-white border border-brand-border rounded-xl p-4">
+              <p className="text-sm font-medium text-brand-ink mb-1">{houseRules.title}</p>
+              <p className="text-sm text-brand-slate whitespace-pre-line">{houseRules.content}</p>
             </div>
           </div>
         )}

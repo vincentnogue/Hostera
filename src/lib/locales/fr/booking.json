@@ -48,6 +48,9 @@
     "heading": "Ajouter une expérience locale",
     "perPerson": "/personne"
   },
+  "houseRules": {
+    "heading": "Règlement intérieur"
+  },
   "pricing": {
     "roomTotal": "Total chambre : {{amount}}",
     "vat": "TVA ({{rate}}%) : {{amount}}",
