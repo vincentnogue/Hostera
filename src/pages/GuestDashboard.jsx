@@ -6,7 +6,7 @@ import { Image } from "@/components/ui/image";
 import { computeUnavailableDates } from "@/components/AvailabilityCalendar";
 import { fetchPublicAvailability } from "@/lib/availability";
 import { useToast } from "@/components/ui/use-toast";
-import { Building2, CalendarDays, LogOut, MapPin, Search, Star, X, CheckCircle2, Sparkles } from "lucide-react";
+import { Building2, CalendarDays, LogOut, MapPin, Search, Star, X, CheckCircle2, Sparkles, ShieldCheck } from "lucide-react";
 
 const HERO_IMG = "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=2000&auto=format&fit=crop";
 const FALLBACK_PHOTOS = [
@@ -27,6 +27,21 @@ const STATUS_STYLES = {
 const today = () => new Date().toISOString().slice(0, 10);
 const addDays = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
 
+function StarInput({ value, onChange, label }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-xs text-brand-slate">{label}</span>
+      <div className="flex gap-0.5">
+        {[1, 2, 3, 4, 5].map(n => (
+          <button type="button" key={n} onClick={() => onChange(n)}>
+            <Star className={`w-5 h-5 ${n <= value ? 'text-amber-400 fill-amber-400' : 'text-brand-border'}`} />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function GuestDashboard() {
   const { toast } = useToast();
   const [me, setMe] = useState(null);
@@ -34,6 +49,11 @@ export default function GuestDashboard() {
   const [roomTypes, setRoomTypes] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [stays, setStays] = useState([]);
+  const [myReviews, setMyReviews] = useState([]);
+  const [reviewingStay, setReviewingStay] = useState(null);
+  const [reviewRatings, setReviewRatings] = useState({ cleanliness: 0, location: 0, service: 0, value: 0 });
+  const [reviewComment, setReviewComment] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
   const [loading, setLoading] = useState(true);
   const [destination, setDestination] = useState("");
   const [bookingProperty, setBookingProperty] = useState(null);
@@ -47,8 +67,9 @@ export default function GuestDashboard() {
       db.entities.RoomType.list().catch(() => []),
       db.entities.Room.list().catch(() => []),
       db.entities.Reservation.list().catch(() => []),
+      db.entities.CertifiedReview.list().catch(() => []),
     ])
-      .then(([user, props, types, allRooms, reservations]) => {
+      .then(([user, props, types, allRooms, reservations, reviews]) => {
         setMe(user);
         setProperties(props || []);
         setRoomTypes(types || []);
@@ -60,6 +81,7 @@ export default function GuestDashboard() {
         // checked created_by_id, a field bookings here never actually
         // set (they set guest_id), so this list was always empty.
         setStays(reservations || []);
+        setMyReviews(reviews || []);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -128,6 +150,45 @@ export default function GuestDashboard() {
       toast({ title: 'Could not complete your booking', description: e.message || 'Please try again.', variant: 'destructive' });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const openReview = (stay) => {
+    setReviewingStay(stay);
+    setReviewRatings({ cleanliness: 0, location: 0, service: 0, value: 0 });
+    setReviewComment('');
+  };
+
+  const submitReview = async () => {
+    const { cleanliness, location, service, value } = reviewRatings;
+    if (!cleanliness || !location || !service || !value) {
+      toast({ title: 'Please rate all four categories', variant: 'destructive' });
+      return;
+    }
+    setSubmittingReview(true);
+    try {
+      const overall = (cleanliness + location + service + value) / 4;
+      const created = await db.entities.CertifiedReview.create({
+        reservation_id: reviewingStay.id,
+        property_id: reviewingStay.property_id,
+        organization_id: reviewingStay.organization_id,
+        guest_name: me?.full_name || me?.email || '',
+        rating_cleanliness: cleanliness,
+        rating_location: location,
+        rating_service: service,
+        rating_value: value,
+        overall_rating: overall,
+        comment: reviewComment.trim(),
+        status: 'published',
+      });
+      setMyReviews(prev => [...prev, created]);
+      setReviewingStay(null);
+      toast({ title: 'Thanks for your review!', description: 'It\u2019s now live on the property\u2019s listing, marked as a verified stay.' });
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Could not submit review', description: err.message || 'Please try again.', variant: 'destructive' });
+    } finally {
+      setSubmittingReview(false);
     }
   };
 
@@ -258,6 +319,11 @@ export default function GuestDashboard() {
                       {r.status.replace("_", " ")}
                     </span>
                     <p className="text-sm font-bold text-brand-navy mt-2">{r.currency} {r.total_amount}</p>
+                    {r.status === 'checked_out' && !myReviews.some(rv => rv.reservation_id === r.id) && (
+                      <button onClick={() => openReview(r)} className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-brand-navy hover:underline">
+                        <ShieldCheck className="w-3 h-3" /> Leave a review
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -265,6 +331,28 @@ export default function GuestDashboard() {
           </div>
         )}
       </section>
+
+      {/* Review modal */}
+      {reviewingStay && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setReviewingStay(null)}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm space-y-3" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-brand-ink flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-green-600" /> Leave a certified review</h3>
+              <button onClick={() => setReviewingStay(null)}><X className="w-4 h-4" /></button>
+            </div>
+            <p className="text-xs text-brand-slate">{propertyById(reviewingStay.property_id)?.name} · {reviewingStay.check_in} → {reviewingStay.check_out}</p>
+            <StarInput label="Cleanliness" value={reviewRatings.cleanliness} onChange={v => setReviewRatings({ ...reviewRatings, cleanliness: v })} />
+            <StarInput label="Location" value={reviewRatings.location} onChange={v => setReviewRatings({ ...reviewRatings, location: v })} />
+            <StarInput label="Service" value={reviewRatings.service} onChange={v => setReviewRatings({ ...reviewRatings, service: v })} />
+            <StarInput label="Value for money" value={reviewRatings.value} onChange={v => setReviewRatings({ ...reviewRatings, value: v })} />
+            <textarea value={reviewComment} onChange={e => setReviewComment(e.target.value)} rows={3} placeholder="Tell future guests about your stay…"
+              className="w-full px-3.5 py-2 border border-brand-border rounded-xl text-sm outline-none focus:border-brand-navy resize-none" />
+            <button onClick={submitReview} disabled={submittingReview} className="w-full py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-60">
+              {submittingReview ? 'Submitting…' : 'Submit review'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Booking modal */}
       {bookingProperty && (
