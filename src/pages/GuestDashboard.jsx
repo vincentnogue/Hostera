@@ -49,6 +49,7 @@ export default function GuestDashboard() {
   const [roomTypes, setRoomTypes] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [stays, setStays] = useState([]);
+  const [invoices, setInvoices] = useState([]);
   const [myReviews, setMyReviews] = useState([]);
   const [reviewingStay, setReviewingStay] = useState(null);
   const [reviewRatings, setReviewRatings] = useState({ cleanliness: 0, location: 0, service: 0, value: 0 });
@@ -68,8 +69,9 @@ export default function GuestDashboard() {
       db.entities.Room.list().catch(() => []),
       db.entities.Reservation.list().catch(() => []),
       db.entities.CertifiedReview.list().catch(() => []),
+      db.entities.Invoice.list().catch(() => []),
     ])
-      .then(([user, props, types, allRooms, reservations, reviews]) => {
+      .then(([user, props, types, allRooms, reservations, reviews, invoiceData]) => {
         setMe(user);
         setProperties(props || []);
         setRoomTypes(types || []);
@@ -82,6 +84,7 @@ export default function GuestDashboard() {
         // set (they set guest_id), so this list was always empty.
         setStays(reservations || []);
         setMyReviews(reviews || []);
+        setInvoices(invoiceData || []);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -319,6 +322,12 @@ export default function GuestDashboard() {
                       {r.status.replace("_", " ")}
                     </span>
                     <p className="text-sm font-bold text-brand-navy mt-2">{r.currency} {r.total_amount}</p>
+                    {(() => {
+                      const inv = invoices.find(i => i.reservation_id === r.id);
+                      return inv ? (
+                        <p className="text-[10px] text-brand-slate mt-1">Invoice {inv.invoice_number} · {inv.status}</p>
+                      ) : null;
+                    })()}
                     {r.status === 'checked_out' && !myReviews.some(rv => rv.reservation_id === r.id) && (
                       <button onClick={() => openReview(r)} className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-brand-navy hover:underline">
                         <ShieldCheck className="w-3 h-3" /> Leave a review
