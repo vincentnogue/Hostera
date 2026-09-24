@@ -5,8 +5,10 @@ import React, { useState, useEffect } from "react";
 import { Image } from "@/components/ui/image";
 import { computeUnavailableDates } from "@/components/AvailabilityCalendar";
 import { fetchPublicAvailability } from "@/lib/availability";
+import { calculateStayTax } from "@/lib/tax";
 import { useToast } from "@/components/ui/use-toast";
-import { Building2, CalendarDays, LogOut, MapPin, Search, Star, X, CheckCircle2, Sparkles, ShieldCheck } from "lucide-react";
+import StripePaymentForm from "@/components/booking/StripePaymentForm";
+import { Building2, CalendarDays, LogOut, MapPin, Search, Star, X, CheckCircle2, Sparkles, ShieldCheck, Loader2 } from "lucide-react";
 
 const HERO_IMG = "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=2000&auto=format&fit=crop";
 const FALLBACK_PHOTOS = [
@@ -22,6 +24,7 @@ const STATUS_STYLES = {
   checked_out: "bg-gray-100 text-gray-500",
   cancelled: "bg-red-100 text-red-600",
   pending: "bg-amber-100 text-amber-700",
+  pending_payment: "bg-amber-100 text-amber-700",
 };
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -55,6 +58,7 @@ export default function GuestDashboard() {
   const [reviewRatings, setReviewRatings] = useState({ cleanliness: 0, location: 0, service: 0, value: 0 });
   const [reviewComment, setReviewComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [paymentStep, setPaymentStep] = useState(null); // { reservation, clientSecret } once a connected property requires card payment
   const [loading, setLoading] = useState(true);
   const [destination, setDestination] = useState("");
   const [bookingProperty, setBookingProperty] = useState(null);
@@ -130,6 +134,62 @@ export default function GuestDashboard() {
         return;
       }
 
+      // Same tax calculation PublicBooking.jsx already uses — this flow
+      // was quietly charging base_price x nights with no VAT/city tax,
+      // a different (lower, wrong) total than the anonymous booking page
+      // would have shown for the identical stay.
+      const subtotal = (selectedType.base_price || 0) * nights();
+      const { total } = calculateStayTax({ subtotal, nights: nights(), property: bookingProperty });
+      const currency = selectedType.currency || bookingProperty.currency || "USD";
+
+      // Split-payment path: only when this property has completed Stripe
+      // Connect onboarding, exactly the same condition PublicBooking.jsx
+      // already gates on. Before this fix, this flow NEVER collected
+      // payment regardless of that — a guest booking through their own
+      // account paid nothing while the same room, same dates, booked
+      // anonymously would have required real payment. Properties that
+      // haven't connected Stripe keep the pay-at-property behavior below.
+      if (bookingProperty.stripe_account_id) {
+        const reservation = await db.entities.Reservation.create({
+          property_id: bookingProperty.id,
+          organization_id: bookingProperty.organization_id,
+          guest_id: me.id,
+          room_type_id: selectedType.id,
+          check_in: form.check_in,
+          check_out: form.check_out,
+          adults: Number(form.adults),
+          children: Number(form.children),
+          source: "direct",
+          status: "pending_payment",
+          currency,
+          total_amount: total,
+          paid_amount: 0,
+          payment_status: 'pending',
+          special_requests: form.special_requests,
+        });
+
+        const intentResp = await fetch('/api/create-payment-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: Math.round(total * 100),
+            currency,
+            connected_account_id: bookingProperty.stripe_account_id,
+            booking_reference: reservation.id,
+          }),
+        });
+        const intentData = await intentResp.json();
+        if (!intentResp.ok || !intentData.client_secret) {
+          toast({ title: 'Could not start payment', description: intentData.message || 'Please try again.', variant: 'destructive' });
+          setSaving(false);
+          return;
+        }
+        setPaymentStep({ reservation, propertyName: bookingProperty.name, currency, clientSecret: intentData.client_secret });
+        setBookingProperty(null);
+        setSaving(false);
+        return;
+      }
+
       const created = await db.entities.Reservation.create({
         property_id: bookingProperty.id,
         organization_id: bookingProperty.organization_id,
@@ -141,8 +201,9 @@ export default function GuestDashboard() {
         children: Number(form.children),
         source: "direct",
         status: "confirmed",
-        total_amount: estimatedTotal,
-        currency: selectedType.currency || bookingProperty.currency || "USD",
+        total_amount: total,
+        paid_amount: 0,
+        currency,
         special_requests: form.special_requests,
       });
       setStays(prev => [created, ...prev]);
@@ -154,6 +215,25 @@ export default function GuestDashboard() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handlePaySuccess = async (paymentIntentId) => {
+    try {
+      await db.entities.Reservation.update(paymentStep.reservation.id, {
+        status: 'confirmed',
+        payment_status: 'paid',
+        paid_amount: paymentStep.reservation.total_amount,
+        payment_intent_id: paymentIntentId,
+      });
+    } catch (e) {
+      console.error(e);
+      // functions/api/stripe-webhook.js is the durable source of truth
+      // and will mark this paid independently even if this optimistic
+      // client-side update fails.
+    }
+    setStays(prev => [{ ...paymentStep.reservation, status: 'confirmed', payment_status: 'paid' }, ...prev]);
+    toast({ title: 'Booking confirmed', description: `${paymentStep.propertyName} — payment received.` });
+    setPaymentStep(null);
   };
 
   const openReview = (stay) => {
@@ -341,6 +421,26 @@ export default function GuestDashboard() {
         )}
       </section>
 
+      {/* Payment modal — mirrors PublicBooking.jsx's Stripe step */}
+      {paymentStep && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setPaymentStep(null)}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm space-y-4" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-brand-ink text-center">Secure card payment</h3>
+            <p className="text-xs text-brand-slate text-center">
+              {paymentStep.propertyName} · {paymentStep.reservation.check_in} → {paymentStep.reservation.check_out} · {paymentStep.currency} {paymentStep.reservation.total_amount}
+            </p>
+            <StripePaymentForm
+              clientSecret={paymentStep.clientSecret}
+              onSuccess={handlePaySuccess}
+              payLabel={`Pay ${paymentStep.currency} ${paymentStep.reservation.total_amount} & confirm`}
+            />
+            <button type="button" onClick={() => setPaymentStep(null)} className="w-full text-xs text-brand-slate hover:text-brand-ink">
+              Cancel and go back
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Review modal */}
       {reviewingStay && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setReviewingStay(null)}>
@@ -419,7 +519,7 @@ export default function GuestDashboard() {
                   disabled={!form.room_type_id || !me || saving}
                   className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-brand-navy text-white text-sm font-semibold rounded-full hover:bg-brand-blue disabled:opacity-50"
                 >
-                  <CheckCircle2 className="w-4 h-4" /> {saving ? "Booking…" : "Confirm booking"}
+                  <CheckCircle2 className={`w-4 h-4 ${saving ? 'hidden' : ''}`} /><Loader2 className={`w-4 h-4 animate-spin ${saving ? '' : 'hidden'}`} /> {saving ? "Booking…" : "Confirm booking"}
                 </button>
                 <button onClick={() => setBookingProperty(null)} className="flex-1 py-2.5 border border-brand-border text-sm font-medium rounded-full text-brand-slate">Cancel</button>
               </div>
