@@ -53,6 +53,7 @@ export default function GuestDashboard() {
   const [rooms, setRooms] = useState([]);
   const [stays, setStays] = useState([]);
   const [invoices, setInvoices] = useState([]);
+  const [bookingSettings, setBookingSettings] = useState([]);
   const [myReviews, setMyReviews] = useState([]);
   const [reviewingStay, setReviewingStay] = useState(null);
   const [reviewRatings, setReviewRatings] = useState({ cleanliness: 0, location: 0, service: 0, value: 0 });
@@ -74,8 +75,9 @@ export default function GuestDashboard() {
       db.entities.Reservation.list().catch(() => []),
       db.entities.CertifiedReview.list().catch(() => []),
       db.entities.Invoice.list().catch(() => []),
+      db.entities.BookingEngineSetting.list().catch(() => []),
     ])
-      .then(([user, props, types, allRooms, reservations, reviews, invoiceData]) => {
+      .then(([user, props, types, allRooms, reservations, reviews, invoiceData, settingsData]) => {
         setMe(user);
         setProperties(props || []);
         setRoomTypes(types || []);
@@ -89,6 +91,7 @@ export default function GuestDashboard() {
         setStays(reservations || []);
         setMyReviews(reviews || []);
         setInvoices(invoiceData || []);
+        setBookingSettings(settingsData || []);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -118,6 +121,15 @@ export default function GuestDashboard() {
 
   const confirmBooking = async () => {
     if (!selectedType || !me) return;
+    const settings = bookingSettings.find(s => s.property_id === bookingProperty.id);
+    if (settings?.direct_bookings_enabled === false) {
+      toast({ title: 'Online booking unavailable', description: 'This property has turned off direct booking — please contact them directly.', variant: 'destructive' });
+      return;
+    }
+    if (settings?.min_stay_default && nights() < settings.min_stay_default) {
+      toast({ title: 'Minimum stay not met', description: `This property requires a minimum stay of ${settings.min_stay_default} night(s).`, variant: 'destructive' });
+      return;
+    }
     setSaving(true);
     try {
       // Revalidate immediately before creating the reservation, against a
@@ -200,12 +212,22 @@ export default function GuestDashboard() {
         adults: Number(form.adults),
         children: Number(form.children),
         source: "direct",
-        status: "confirmed",
+        status: settings?.require_deposit ? "pending" : "confirmed",
         total_amount: total,
         paid_amount: 0,
         currency,
         special_requests: form.special_requests,
       });
+      // Staff had no way to know a booking through this flow ever
+      // happened — PublicBooking.jsx already notified them, this one
+      // silently didn't.
+      db.entities.Notification.create({
+        organization_id: bookingProperty.organization_id,
+        title: 'New online booking',
+        message: `${me.full_name || me.email} booked ${selectedType.name} for ${form.check_in} → ${form.check_out}.`,
+        type: 'reservation',
+        read: false,
+      }).catch(() => {});
       setStays(prev => [created, ...prev]);
       setBookingProperty(null);
       toast({ title: 'Booking confirmed', description: `${bookingProperty.name} — ${form.check_in} to ${form.check_out}.` });
@@ -232,6 +254,13 @@ export default function GuestDashboard() {
       // client-side update fails.
     }
     setStays(prev => [{ ...paymentStep.reservation, status: 'confirmed', payment_status: 'paid' }, ...prev]);
+    db.entities.Notification.create({
+      organization_id: paymentStep.reservation.organization_id,
+      title: 'New online booking',
+      message: `${me?.full_name || me?.email} booked and paid for ${paymentStep.propertyName}, ${paymentStep.reservation.check_in} → ${paymentStep.reservation.check_out}.`,
+      type: 'reservation',
+      read: false,
+    }).catch(() => {});
     toast({ title: 'Booking confirmed', description: `${paymentStep.propertyName} — payment received.` });
     setPaymentStep(null);
   };
