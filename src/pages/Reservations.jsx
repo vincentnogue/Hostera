@@ -3,8 +3,9 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect } from 'react';
 import { useProperty } from '@/lib/PropertyContext';
 import { calculateStayTax } from '@/lib/tax';
+import { useToast } from '@/components/ui/use-toast';
 
-import { Plus, Search, X, CalendarCheck } from 'lucide-react';
+import { Plus, Search, X, CalendarCheck, XCircle } from 'lucide-react';
 
 const resStatusColors = {
   inquiry: 'bg-gray-100 text-gray-600',
@@ -24,6 +25,7 @@ const sourceLabels = {
 
 export default function Reservations() {
   const { selectedProperty } = useProperty();
+  const { toast } = useToast();
   const [reservations, setReservations] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [roomTypes, setRoomTypes] = useState([]);
@@ -38,6 +40,8 @@ export default function Reservations() {
     guest_id: '', room_id: '', check_in: '', check_out: '',
     adults: 1, children: 0, source: 'direct',
   });
+  const [confirmingCancelId, setConfirmingCancelId] = useState(null);
+  const [cancelling, setCancelling] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -94,6 +98,34 @@ export default function Reservations() {
       console.error(e);
     } finally {
       setCreating(false);
+    }
+  };
+
+  const cancelReservation = async (res) => {
+    setCancelling(true);
+    try {
+      await db.entities.Reservation.update(res.id, { status: 'cancelled' });
+      const room = rooms.find(r => r.id === res.room_id);
+      if (room && res.status === 'checked_in') {
+        await db.entities.Room.update(room.id, { status: 'dirty' });
+      } else if (room && (room.status === 'reserved' || room.status === 'occupied')) {
+        await db.entities.Room.update(room.id, { status: 'available' });
+      }
+      db.entities.Notification.create({
+        organization_id: res.organization_id,
+        title: 'Reservation cancelled',
+        message: `${getGuestName(res.guest_id)}'s reservation for ${res.check_in} → ${res.check_out} was cancelled.`,
+        type: 'reservation',
+        read: false,
+      }).catch(() => {});
+      await fetchData();
+      setConfirmingCancelId(null);
+      toast({ title: 'Reservation cancelled' });
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not cancel reservation', description: e.message || 'Please try again.', variant: 'destructive' });
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -178,6 +210,7 @@ export default function Reservations() {
                   <th className="px-4 py-3 font-medium">Source</th>
                   <th className="px-4 py-3 font-medium">Amount</th>
                   <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -196,6 +229,35 @@ export default function Reservations() {
                         <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${resStatusColors[res.status] || 'bg-gray-100'}`}>
                           {res.status.replace(/_/g, ' ')}
                         </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        {res.status === 'checked_out' || res.status === 'cancelled' ? (
+                          <span className="text-xs text-brand-slate-light">—</span>
+                        ) : confirmingCancelId === res.id ? (
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => cancelReservation(res)}
+                              disabled={cancelling}
+                              className="text-xs px-2.5 py-1 rounded-full bg-red-600 text-white font-medium hover:bg-red-700 disabled:opacity-60"
+                            >
+                              Confirm?
+                            </button>
+                            <button
+                              onClick={() => setConfirmingCancelId(null)}
+                              disabled={cancelling}
+                              className="text-xs px-2.5 py-1 rounded-full border border-brand-border text-brand-slate hover:bg-brand-bg disabled:opacity-60"
+                            >
+                              No
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setConfirmingCancelId(res.id)}
+                            className="flex items-center gap-1 text-xs text-red-600 hover:text-red-700 font-medium"
+                          >
+                            <XCircle className="w-3.5 h-3.5" /> Cancel
+                          </button>
+                        )}
                       </td>
                     </tr>
                   );

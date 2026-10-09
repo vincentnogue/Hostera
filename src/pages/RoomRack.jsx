@@ -5,7 +5,7 @@ import { useProperty } from '@/lib/PropertyContext';
 import { useToast } from '@/components/ui/use-toast';
 import { generateInvoiceForReservation } from '@/lib/invoicing';
 
-import { ChevronLeft, ChevronRight, Grid3X3, X, LogIn, LogOut, User, Calendar, ArrowRightLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Grid3X3, X, LogIn, LogOut, User, Calendar, ArrowRightLeft, XCircle } from 'lucide-react';
 
 const statusBlockColors = {
   confirmed: 'bg-blue-500',
@@ -27,6 +27,8 @@ export default function RoomRack() {
   const [activeRes, setActiveRes] = useState(null);
   const [moving, setMoving] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
 
   const fetchData = async () => {
     try {
@@ -143,6 +145,32 @@ export default function RoomRack() {
     finally { setSaving(false); }
   };
 
+  const cancelReservation = async () => {
+    setSaving(true);
+    try {
+      await db.entities.Reservation.update(activeRes.id, { status: 'cancelled', cancellation_reason: cancelReason.trim() || undefined });
+      if (activeRes.status === 'checked_in') {
+        await db.entities.Room.update(activeRes.room_id, { status: 'dirty' });
+      }
+      db.entities.Notification.create({
+        organization_id: activeRes.organization_id,
+        title: 'Reservation cancelled',
+        message: `${getGuestName(activeRes.guest_id)}'s reservation for ${activeRes.check_in} → ${activeRes.check_out} was cancelled.`,
+        type: 'reservation',
+        read: false,
+      }).catch(() => {});
+      await fetchData();
+      setActiveRes(null);
+      setShowCancelConfirm(false);
+      setCancelReason('');
+      toast({ title: 'Reservation cancelled' });
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Could not cancel reservation', description: e.message || 'Please try again.', variant: 'destructive' });
+    }
+    finally { setSaving(false); }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
@@ -252,13 +280,13 @@ export default function RoomRack() {
 
       {/* Reservation detail + quick actions */}
       {activeRes && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => { setActiveRes(null); setMoving(false); }}>
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => { setActiveRes(null); setMoving(false); setShowCancelConfirm(false); setCancelReason(''); }}>
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-brand-ink flex items-center gap-2">
                 <User className="w-4 h-4 text-brand-navy" /> {getGuestName(activeRes.guest_id)}
               </h3>
-              <button onClick={() => { setActiveRes(null); setMoving(false); }}><X className="w-4 h-4 text-brand-slate" /></button>
+              <button onClick={() => { setActiveRes(null); setMoving(false); setShowCancelConfirm(false); setCancelReason(''); }}><X className="w-4 h-4 text-brand-slate" /></button>
             </div>
             <div className="space-y-2 mb-5">
               <p className="text-sm text-brand-slate flex items-center gap-2">
@@ -269,7 +297,7 @@ export default function RoomRack() {
               </span>
             </div>
 
-            {!moving ? (
+            {!moving && !showCancelConfirm ? (
               <div className="space-y-2">
                 {activeRes.status !== 'checked_in' && activeRes.status !== 'checked_out' && (
                   <button onClick={checkIn} disabled={saving} className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-full hover:bg-green-700 disabled:opacity-60">
@@ -286,6 +314,30 @@ export default function RoomRack() {
                     <ArrowRightLeft className="w-4 h-4" /> Move Room
                   </button>
                 )}
+                {activeRes.status !== 'checked_out' && activeRes.status !== 'cancelled' && (
+                  <button onClick={() => setShowCancelConfirm(true)} disabled={saving} className="w-full flex items-center justify-center gap-1.5 py-2.5 border border-red-200 text-red-600 text-sm font-semibold rounded-full hover:bg-red-50 disabled:opacity-60">
+                    <XCircle className="w-4 h-4" /> Cancel Reservation
+                  </button>
+                )}
+              </div>
+            ) : showCancelConfirm ? (
+              <div className="space-y-3">
+                <p className="text-sm text-brand-ink font-medium">Cancel this reservation?</p>
+                <textarea
+                  value={cancelReason}
+                  onChange={e => setCancelReason(e.target.value)}
+                  placeholder="Reason (optional)"
+                  rows={2}
+                  className="w-full text-sm border border-brand-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-200"
+                />
+                <div className="flex gap-2">
+                  <button onClick={() => { setShowCancelConfirm(false); setCancelReason(''); }} disabled={saving} className="flex-1 py-2.5 border border-brand-border text-brand-ink text-sm font-semibold rounded-full hover:border-brand-navy disabled:opacity-60">
+                    Keep It
+                  </button>
+                  <button onClick={cancelReservation} disabled={saving} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-full hover:bg-red-700 disabled:opacity-60">
+                    <XCircle className="w-4 h-4" /> Confirm Cancel
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="space-y-2 max-h-56 overflow-y-auto">
