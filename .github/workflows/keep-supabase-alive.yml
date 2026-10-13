@@ -1,0 +1,28 @@
+name: Keep Supabase project alive
+
+# Supabase free-tier projects auto-pause after 7 days with no API activity.
+# This pings a lightweight read-only endpoint every 2 days so the Hostera
+# project never goes idle long enough to pause. Uses the public anon key
+# (already committed in wrangler.toml, safe to expose) against a table that
+# has a public SELECT policy, so no secrets are needed here.
+
+on:
+  schedule:
+    - cron: '0 6 */2 * *' # every 2 days at 06:00 UTC
+  workflow_dispatch: {} # lets you trigger it manually from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          STATUS=$(curl -s -o /tmp/resp.json -w "%{http_code}" \
+            "https://wtzpuunmurbydsydghii.supabase.co/rest/v1/room_type?select=id&limit=1" \
+            -H "apikey: ${{ vars.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0enB1dW5tdXJieWRzeWRnaGlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3OTQzMTksImV4cCI6MjEwNDM3MDMxOX0.U2vE4VKedAbIBHqvFqD-qSP9rnCTnhDHIubMKe7KMb8' }}")
+          echo "HTTP status: $STATUS"
+          cat /tmp/resp.json
+          if [ "$STATUS" -ge 400 ]; then
+            echo "::error::Supabase ping failed with status $STATUS"
+            exit 1
+          fi
